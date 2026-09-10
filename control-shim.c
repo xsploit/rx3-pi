@@ -103,6 +103,13 @@ static void *control_thread(void *unused){
    }
    continue;
   }
+  /* BiteDJ SHIFT+BROWSE zoom is separate from normal browse rotation.
+   * Never let its native rotary event scroll a library or settings page. */
+  if(c.key==0x420c&&c.operation==4&&c.extra==0x425a){
+   if(!player_screen_active()||!main_panel_visible())continue;
+   sendkey(manager,c.key,c.operation,0,c.value,c.analog,0);
+   continue;
+  }
   /* FLX6 browse encoder: enter the browser before forwarding rotation.
    * The native main-screen rotary normally adjusts waveform zoom. */
   if(c.key==0x420c&&c.operation==4&&c.extra==0x4252){

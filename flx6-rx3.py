@@ -35,6 +35,7 @@ class Bridge:
    if key=='PioneerDDJFLX6.tempoSliderMSB':native=0x4109;mode='tempo-msb'
    if key=='PioneerDDJFLX6.tempoSliderLSB':native=0x4109;mode='tempo-lsb'
    if key=='PioneerDDJFLX6.browseRotate':native=0x420c;mode='relative'
+   if key=='PioneerDDJFLX6.waveformZoom':native=0x420c;mode='waveform-zoom';channel=0
    pad=re.fullmatch(r'hotcue_([1-8])_activate',key)
    if pad:native=0x4116+int(pad[1]);mode="pad-hotcue"
    if key=="PioneerDDJFLX6.beatjumpPadPressed":
@@ -85,6 +86,8 @@ class Bridge:
    if op==0:self.held.add((key,ch))
    else:self.held.discard((key,ch))
    self.emit(key,op,ch,0,0.,0)
+  elif mode=='waveform-zoom':
+   if value in (1,127):self.emit(key,4,0,1 if value==127 else -1,0.,0x425a)
   elif mode=='relative':
    delta=value if value<64 else value-128
    if delta:self.emit(key,4,ch,delta,0.,0x4252) # browser-only encoder intent

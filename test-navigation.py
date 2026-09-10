@@ -2,6 +2,12 @@ import importlib.util, pathlib, tempfile, unittest
 spec=importlib.util.spec_from_file_location('bridge',pathlib.Path(__file__).with_name('flx6-rx3.py'))
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 class Navigation(unittest.TestCase):
+ def test_shift_browse_zoom_is_separate(self):
+  xml='<root><controls><control><group>[Channel1]</group><key>PioneerDDJFLX6.waveformZoom</key><status>0xb6</status><midino>0x64</midino><options><script-binding/></options></control></controls></root>'
+  with tempfile.NamedTemporaryFile(mode='w',suffix='.xml') as f:
+   f.write(xml);f.flush();events=[];b=m.Bridge(f.name,lambda *a:events.append(a))
+   b.feed([0xb6,0x64,127,0x64,1,0x64,0,0x64,64]);b.release()
+  self.assertEqual(events,[(0x420c,4,0,1,0.,0x425a),(0x420c,4,0,-1,0.,0x425a)])
  def test_bitedj_navigation_bytes(self):
   controls=[('[Tab]','library',0x96,0x7a),('[Tab]','PioneerDDJFLX6.backPressed',0x96,0x65),('[Library]','PioneerDDJFLX6.browseRotate',0xb6,0x40),('[Library]','MoveFocusForward',0x96,0x41)]
   xml='<root><controls>'+''.join(f'<control><group>{g}</group><key>{k}</key><status>{s}</status><midino>{n}</midino></control>' for g,k,s,n in controls)+'</controls></root>'

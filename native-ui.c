@@ -18,9 +18,9 @@ static int disabled;
 volatile int rx3_ui_failure[4];
 static int (*original_draw)(void*);
 static int paint(int navigation,int show){
- struct surface *s=&surfaces[navigation];int width=navigation?600:1280,cell=navigation?100:142;
+ struct surface *s=&surfaces[navigation];int width=navigation?700:1280,cell=navigation?100:142;
  if(!s->window&&show){
-  uint32_t desc[13]={0};desc[2]=width|(44u<<16);desc[3]=9;desc[5]=navigation?3:1;desc[7]=navigation?680:0;
+  uint32_t desc[13]={0};desc[2]=width|(44u<<16);desc[3]=9;desc[5]=navigation?3:1;desc[7]=navigation?580:0;
   int rc=((int(*)(void**,const void*))0x1a2634)(&s->window,desc);
   if(rc||!s->window){rx3_ui_failure[0]=1;rx3_ui_failure[1]=rc;rx3_ui_failure[2]=navigation;return 0;}
  }

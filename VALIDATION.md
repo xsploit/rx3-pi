@@ -449,3 +449,11 @@ The widened toolbar check found Info->Player already working, but Source->Player
 The final adapter marks a pending return on release. The GUI draw hook observes Source closing, waits three rendered frames outside Source, then queues the final Browse press/release. It cancels if main is already visible, the player screen becomes inactive, or120frames elapse. It does not sleep on the GUI thread.
 
 Live final build passed four touch sequences: Source entered from main, Browse, Tag List and Info, each followed by one Player tap. Every case ended with the main panel visible and browser mode1. Both tracks remained loaded/cued at original BPM9307, tempo0, range10, keylockoff, Syncoff, displayoff. Backup runtime/lib/fbshim-pre-source-player.so. Research source-player-trial.py/results.json. Fast overlapping gestures and stalled-render timeout behavior remain unverified; audio was not remeasured for this navigation change.
+
+## Touchscreen library search
+
+Native Search key0205 opens a working touchscreen keyboard. Added SEARCH as the leftmost compact-navigation button: native origin580/width700 with seven100px cells. Physical Search center945,y30; all six existing button positions remain unchanged. Updated navigation hit indexes and Tag/Source Player special cases accordingly.
+
+Live PID34558 passed a touch-only workflow: Browse, Search, type ESTARA, tap the result to dismiss the keyboard, Load2 from the native information pane, Mixer headphone Cue2, Play2. Search returned Estara by AAMAR, SVMMER SVN vol.4. Native screenshots confirmed the query/result and visible Load buttons. Deck2 loaded original BPM9505; playback yielded40distinct DMA buffers with RMS65.94/70.28/262.48/279.75. Touch Cue2 restored cue, its added headphone selection was removed, and Mixer closed. Search text was cleared through the keyboard and Player returned to main (visibility confirmed).
+
+Final deck1Aaliyah9307/deck2Estara9505, both cued at original tempo, range10, keylockoff, Syncoff. Backup runtime/lib/fbshim-pre-touch-search.so. Research touch-search-trial.py and screenshots /tmp/touch-search-track.png, /tmp/search-estara.png. Long queries, number/symbol layouts, empty/no-match results, physical keyboard feel and other media remain unverified.

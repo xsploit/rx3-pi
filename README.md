@@ -1,0 +1,49 @@
+# RX3 on Raspberry Pi — development checkpoint
+
+Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry Pi 5 (4GB), Debian, Raspberry Pi Touch Display 2, and DDJ-FLX6. This is the embedded RX3 application, not desktop rekordbox.
+
+## Working evidence
+
+- Analysed USB library browsing, native loading and two stacked waveforms.
+- Playback confirmed audible by the owner through FLX6 cue/headphones. Master channels1/2 and headphones3/4 routed through ALSA.
+- Fullscreen landscape1920x1200 display from native1280x800; DRM page-flip presenter measures about60FPS.
+- Native browser touch and A–H hot-cue touch adapters. Native transport strip uses its own locked RGB565 window surface; repeated presses keep labels visible in screenshot tests.
+- 87 FLX6 MIDI bindings read from the user's installed BiteDJ XML. Jogs, tempo, mixer, play/cue/load, browse encoder and navigation adapters.
+- BiteDJ files remain unchanged. Stop this runtime before returning to BiteDJ.
+
+## Important unfinished work
+
+The owner still sees waveform flicker and motion less smooth than BiteDJ. Presenter FPS does not establish coherent native frames or waveform cadence. Investigate producer/consumer synchronization before claiming this fixed.
+
+Native transport is experimental. Browser/load/play/pause were exercised through touch replay; full physical touch comfort, all controls and full state feedback are not verified. Native touchscreen mixer controls, MIDI LEDs, pad modes, shifted jogs, deck3/4 policy, reconnect handling and reproducible reboot installation remain incomplete. Browser acceleration is not ported; the encoder currently moves one native step per MIDI delta. VIEW-long/SHIFT variants remain unmapped. Scripts retain the current Pi's paths, group IDs and audio card number and require adapting to another installation.
+
+## FLX6 navigation
+
+Source of truth: installed `~/.mixxx/controllers/Pioneer-DDJ-FLX6.midi.xml` and its BiteDJ script.
+
+| Physical control | MIDI | Behavior |
+|---|---|---|
+| Encoder turn | B6 40 | Open Browse from player; scroll selected browser list, never waveform zoom |
+| Encoder press | 96 41 | Native enter/open selection |
+| BACK | 96 65 | Open Browse from player; otherwise go back in browser |
+| VIEW | 96 7A | Open Browse; stay there if already open |
+
+The `[Tab]` View/Back entries were previously ignored; they are now translated with explicit intent markers. Native window136 visibility detects the player even before loading a track. Runtime physical verification remains limited.
+
+## Build
+
+On the Pi, with ARM32 cross compiler and native gcc, FreeType/libdrm development packages:
+
+```sh
+sh build.sh
+```
+
+Output stays in `build/`. Build does not install or start anything. `start-rx3.sh`/`stop-rx3.sh` describe the tested runtime, but assume prepared chroot, bind mounts, FIFO/device files and writable local library analysis. Do not treat this checkpoint as an unattended installer.
+
+Native patch addresses are specific to RX3 v1.19. Original player SHA256: `60bcbd8876116bf09f0d8f747f95d7c7d3081ebd39d6fe14d56005a22f7f3b09`.
+
+## Firmware inputs
+
+No proprietary firmware, music, library database, SSH credentials or machine image is committed. `recover-firmware.py` downloads hash-verified official source/update packages and extracts the firmware key from the published source package. It creates local outputs only and does not flash hardware. `patch-player.py` expects `pi-runtime/rbp` and generated `pi-clock.bin`; rootfs assembly remains a documented outstanding task.
+
+Screenshots are evidence of the development checkpoint. The Pi backlight can remain at0 while memory screenshots are taken. Do not re-enable it while the owner sleeps.

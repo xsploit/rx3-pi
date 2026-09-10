@@ -1,0 +1,202 @@
+0000 Unknown Key
+0201 Source
+0202 Browse
+0203 TagList
+0204 PlayList
+0205 Search
+0206 Menu
+0207 Media PC
+0208 Media RB
+0209 Media USB1
+020a Media USB2
+020b Info
+020c Unknown Key
+0210 Shortcut
+0211 Unknown Key
+0213 DeckInfoSelect
+0214 Unknown Key
+0216 Keyboard
+0217 TouchPanelOn
+0218 Unknown Key
+021a SC_LoadLock
+021b SC_DeckSelect
+021c SC_HotCueAutoLoad
+021d SC_QuantizeValue
+021e Unknown Key
+0222 SC_MySettingLoad
+0223 SC_WaveformColor
+0224 SC_EqIso
+0225 SC_Headphones
+0226 SC_MixerMode
+0227 SC_ChannelFaderCurve
+0228 TF_ModePropetry
+0229 TF_ModeMyTag
+022a TF_MyTagInfo
+022b TF_Reset
+022c TF_Valid_Bpm
+022d TF_Valid_Key
+022e TF_Valid_Rating
+022f TF_Valid_Color
+0230 TF_Edit_Bpm
+0231 TF_Edit_BpmRange
+0232 TF_Edit_Key
+0233 TF_Edit_Rating
+0234 TF_Color_Pink
+0235 TF_Color_Red
+0236 TF_Color_Orange
+0237 TF_Color_Yellow
+0238 TF_Color_Green
+0239 TF_Color_Aqua
+023a TF_Color_Blue
+023b TF_Color_Pureple
+023c TF_MasterPlayer
+023d TF_MytagCategory1
+023e TF_MytagCategory2
+023f TF_MytagCategory3
+0240 TF_MytagCategory4
+0241 TF_Criteria1
+0242 TF_Criteria2
+0243 TF_Criteria3
+0244 TF_Criteria4
+0245 TF_MyTagItem1_1
+0246 TF_MyTagItem1_2
+0247 TF_MyTagItem1_3
+0248 TF_MyTagItem1_4
+0249 TF_MyTagItem1_5
+024a TF_MyTagItem1_6
+024b Unknown Key
+0273 TIM_Preset1
+0274 TIM_Preset2
+0275 TIM_Preset3
+0276 TIM_Preset4
+0277 TIM_Preset5
+0278 TIM_Preset6
+0279 TIM_History1
+027a TIM_History2
+027b TIM_History3
+027c TIM_History4
+027d TIM_History5
+027e TIM_History6
+027f TIM_Tenkey
+0280 TIM_Plus5Min
+0281 TIM_Minus5Min
+0282 TIM_Plus1Min
+0283 TIM_Minus1Min
+0284 TIM_StartPause
+0285 TIM_Clr
+0286 Unknown Key
+0401 USB REC
+0402 TrackMark
+0403 Unknown Key
+0493 EffectQuantize
+0494 Unknown Key
+0814 MicSW
+0815 MicEqHiKnob
+0816 MicEqLowKnob
+0817 Unknown Key
+4101 Play/Pause
+4102 CUE
+4103 Shift
+4104 Vinyl
+4105 Unknown Key
+4107 TempoRange
+4108 MasterTempo
+4109 TempoSlider
+410a TimeMode/ACue
+410b DeckQuantize
+410c LoopIn
+410d LoopOut
+410e Reloop
+410f Reverse
+4110 Slip
+4111 Master
+4112 Sync
+4113 HotCue
+4114 AutoBeatLoop
+4115 SlipLoop
+4116 BeatJump
+4117 Pad1
+4118 Pad2
+4119 Pad3
+411a Pad4
+411b Pad5
+411c Pad6
+411d Pad7
+411e Pad8
+411f SearchFwd
+4120 SearchRev
+4121 VinylSpeedAdjust
+4122 Unknown Key
+4124 CueDelete
+4125 CueMemory
+4126 NeedleSearch
+4127 Unknown Key
+420c RotarySelector
+420d Back
+420e TagTrack
+420f TrackFilter
+4210 Unknown Key
+4212 DeckSelect
+4213 Unknown Key
+4214 TrackFwd
+4215 TrackRev
+4216 Unknown Key
+4305 JogWheel
+4306 JogTouch
+4307 Unknown Key
+4311 Load
+4312 Unknown Key
+4322 CallNext
+4323 CallPrev
+4324 Unknown Key
+4403 MasterLvKnob
+4404 BoothLvKnob
+4405 HeadphoneMixKnob
+4406 HeadphoneLvKnob
+4407 MasterCue
+4408 LinkCue
+4409 AuxGainSw
+440a AuxLvKnob
+440b Unknown Key
+448b BeatEffectSW
+448c BfxChSW
+448d EffectOnOff
+448e TimeKnob
+448f LvDepthKnob
+4490 BeatPrev
+4491 BeatNext
+4492 Tap
+4493 Unknown Key
+5019 TrimKnob
+501a IsolatorH
+501b IsolatorM
+501c IsolatorL
+501d Unknown Key
+501e ChFader
+501f InputSourceSW
+5020 HeadphoneCueCh
+5021 Unknown Key
+509d ColorKnob
+509e Unknown Key
+50a1 CfxSpace
+50a2 CfxDubEcho
+50a3 CfxSweep
+50a4 CfxNoise
+50a5 CfxCrush
+50a6 CfxFilter
+50a7 CfxPalameterKnob
+50a8 Unknown Key
+6017 CrossFader
+6018 FaderCurveSW
+6019 Unknown Key
+8001 Power
+8002 UsbStop
+8003 Unknown Key
+8100 TouchCalibPoint
+8101 TouchCalibFinish
+8102 Unknown Key
+8108 TouchTestTopLeft
+8109 TouchTestTopRight
+810a TouchTestBottomLeft
+810b TouchTestBottomRight
+810c Unknown Key

@@ -1,0 +1,15 @@
+build/
+__pycache__/
+*.pyc
+*.so
+*.o
+*.bin
+*.raw
+*.zip
+*.key
+*.iso
+*.UPD
+extracted/
+pi-runtime/
+rbp*
+rx3-rootfs/

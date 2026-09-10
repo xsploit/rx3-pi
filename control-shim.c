@@ -8,6 +8,10 @@ extern int pthread_create(unsigned long*,const void*,void *(*)(void*),void*);
 struct command {int key,operation,channel,value;float analog;int extra;};
 #include "native-screen.h"
 #include "mixer-state.h"
+#include "pad-bank.h"
+static int pad_mode(void *ctx,int deck){(void)ctx;return ((int (*)(int))0xfd3cc)(deck);}
+static void pad_select(void *ctx,int key,int channel){rx3_dispatch_key(ctx,key,0,channel,0,0.f,0);rx3_dispatch_key(ctx,key,2,channel,0,0.f,0);}
+static void pad_wait(void *ctx){(void)ctx;usleep(10000);}
 static void *control_thread(void *unused){
  sleep(3);
  int fd=open("/dev/rx3-control",O_RDWR);
@@ -54,6 +58,13 @@ static void *control_thread(void *unused){
  struct command c;unsigned have=0;
  for(;;){int n=read(fd,(char*)&c+have,sizeof(c)-have);if(n<=0){sleep(1);continue;}have+=n;if(have<sizeof(c))continue;have=0;
   if(c.key<0||c.key>65535||c.operation<0||c.operation>15||c.channel<0||c.channel>2)continue;
+  if((c.extra&~7)==0x5040&&c.key>=0x4117&&c.key<=0x411e&&(c.operation==0||c.operation==2)){
+   if(c.channel<1)continue;
+   if(c.operation==0&&!select_pad_bank(c.channel-1,c.extra&7,manager,pad_mode,pad_select,pad_wait)){
+    const char error[]="pad bank selection timed out; pad suppressed\n";write(2,error,sizeof(error)-1);continue;
+   }
+   c.extra=0;
+  }
   /* BiteDJ VIEW opens Browse; BACK opens Browse or steps up in it.
    * Consume release in the bridge and emit paired native key events here. */
   if(c.operation==0&&(c.extra==0x4256||c.extra==0x424b)){

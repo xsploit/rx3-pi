@@ -229,3 +229,13 @@ This verifies the real Linux evdev loss/reopen path, including ioctl range disco
 ## Native pad bank and beat-jump evidence
 
 `PAD-MAPPING.md` records the installed BiteDJ MIDI layout, all eight live native bank values, and the selector toggle behavior. Native bank3 pad pairs were tested on deck1: ±1/2/4/8 beats produced ±645/1290/2580/5160ms at93BPM, with backward jumps returning to each paired trial's starting position. No cue slots were written or deleted. Native Hot Cue bank0 was selected at the end, and Cue was issued. The absolute cue position was not asserted unchanged across separate trials (first baseline427ms, later577ms). FLX6 beat-jump integration remains to be implemented; these are native command tests, not a claim that controller pad modes work.
+
+## FLX6 hot-cue bank selection and default Beat Jump integration
+
+The MIDI bridge now loads103 bindings (previously87). Hot-cue press/release packets carry native bank0 intent; the sixteen deck1/deck2 default Beat Jump mappings carry bank3 intent. The control adapter checks actual `UiGetPadMode`, dispatches the needed selector, and waits for the expected state transition before sending a press. It handles primary/secondary banks without blindly toggling on every pad. Missing acknowledgment suppresses the press after a bounded wait and logs the failure. Release packets do not select banks.
+
+`test-pad-bank.c` passed all64 source/target bank transitions with delayed acknowledgment and a timeout case. `test-pad-mapping.py` passed eight hot cues and eight beat-jump notes on both decks, including MIDI NoteOff conversion. Existing navigation and MIDI recovery tests passed. Full Pi build passed; shim and reader deployed with backups `fbshim-pre-pad-bank.so` and `flx6-rx3-pre-pad-bank.py`.
+
+Live parser-to-native tests started each deck in bank7, then replayed default beat-jump pads. Both decks switched to bank3 and measured+645/+1290/+2580/+5160ms, with each backward pad returning exactly to427ms. Repeated presses retained the first bank. Hot-cue bank0 was restored with native selectors; no hot-cue slot write/recall was exercised in this test. Thus hot-cue routing is unit-tested but not yet live slot-tested. Shifted jump sizes, beat loops, other pad modes and LED feedback remain pending.
+
+After restart, both tracks loaded via touch from USB2. Touch Play1 produced40 distinct DMA buffers with master RMS58.20/53.38 and headphone231.95/212.71, then Cue1 stopped playback. Final screenshot shows both stacked waveforms and Hot Cue banks; player PID21099, backlight0. Physical controller pad interaction and simultaneous held pads across bank changes remain unverified. BiteDJ originals unchanged.

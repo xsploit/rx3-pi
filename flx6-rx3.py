@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Use BiteDJ's installed MIDI definitions to feed the RX3 native key queue.
-Input only; pad-mode switching and LED feedback remain pending.
+Input only; hot-cue and default beat-jump banks supported. LED feedback pending.
 """
 import argparse, ctypes, errno, json, os, re, signal, struct, subprocess, time
 import xml.etree.ElementTree as ET
@@ -31,7 +31,10 @@ class Bridge:
    if key=='PioneerDDJFLX6.tempoSliderLSB':native=0x4109;mode='tempo-lsb'
    if key=='PioneerDDJFLX6.browseRotate':native=0x420c;mode='relative'
    pad=re.fullmatch(r'hotcue_([1-8])_activate',key)
-   if pad:native=0x4116+int(pad[1])
+   if pad:native=0x4116+int(pad[1]);mode="pad-hotcue"
+   if key=="PioneerDDJFLX6.beatjumpPadPressed":
+    note=int(c.findtext("midino"),0)
+    if 0x20<=note<=0x27:native=0x4117+note-0x20;mode="pad-beatjump"
    if native is None:continue
    opts={o.tag for o in c.findall('./options/*')}
    if 'fourteen-bit-msb' in opts:mode='msb'
@@ -51,12 +54,12 @@ class Bridge:
   elif mode=='jog':
    j=self.jogs[ch];delta=value-64
    if delta:j['delta']+=delta;j['total']+=delta;j['moved']=self.clock()
-  elif mode=='button':
+  elif mode in ('button','pad-hotcue','pad-beatjump'):
    op=0 if value else 2
    if key==0x4306 and op==2:self.stop_jog(ch)
    if op==0:self.held.add((key,ch))
    else:self.held.discard((key,ch))
-   self.emit(key,op,ch,0,0.,0)
+   self.emit(key,op,ch,0,0.,0x5040 if mode=="pad-hotcue" else 0x5043 if mode=="pad-beatjump" else 0)
   elif mode=='relative':
    delta=value if value<64 else value-128
    if delta:self.emit(key,4,ch,delta,0.,0x4252) # browser-only encoder intent

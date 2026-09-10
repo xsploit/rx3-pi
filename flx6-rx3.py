@@ -17,6 +17,7 @@ class Bridge:
   self.clock=clock;self.jogs={ch:dict(total=0,delta=0,last=clock(),moved=0,speed=0) for ch in (1,2)}
   self.emit=emit;self.mapping={};self.msb={};self.held=set();self.pad_held={};self.status=None;self.data=[]
   self.shift={1:False,2:False}
+  self.grid_ticks={1:0,2:0}
   for c in ET.parse(xml).findall('.//controls/control'):
    g=c.findtext('group','');key=c.findtext('key','');match=re.search(r'\[Channel(\d)\]',g)
    if match:
@@ -33,6 +34,7 @@ class Bridge:
    if key=='PioneerDDJFLX6.backPressed':native=0x420d;mode='back'
    if key in ANALOG:native=ANALOG[key];mode='analog'
    if key=='PioneerDDJFLX6.jogTurn':native=0x4305;mode='jog'
+   if key=='PioneerDDJFLX6.jogSearch':native=0;mode='grid-jog'
    if key=='PioneerDDJFLX6.jogTouch' and int(c.findtext('midino'),0)==0x36:native=0x4306
    if key=='PioneerDDJFLX6.tempoSliderMSB':native=0x4109;mode='tempo-msb'
    if key=='PioneerDDJFLX6.tempoSliderLSB':native=0x4109;mode='tempo-lsb'
@@ -67,6 +69,7 @@ class Bridge:
    if value:self.emit(key,0,ch,0,0.,0x4256 if mode=='view' else 0x424b)
   elif mode=='shift':
    down=bool(value);self.shift[ch]=down
+   self.grid_ticks[ch]=0
    if down:
     self.stop_jog(ch)
     if (0x4306,ch) in self.held:
@@ -74,10 +77,9 @@ class Bridge:
    if down:self.held.add((key,ch))
    else:self.held.discard((key,ch))
    self.emit(key,0 if down else 2,ch,0,0.,0)
+  elif mode=='grid-jog':self.grid_jog(ch,value)
   elif mode=='jog':
-   # BiteDJ routes shifted rotation to grid translation, never scratching.
-   # Native grid translation is not yet mapped; do not forward it as a jog.
-   if self.shift[ch]:return
+   if self.shift[ch]:self.grid_jog(ch,value);return
    j=self.jogs[ch];delta=value-64
    if delta:j['delta']+=delta;j['total']+=delta;j['moved']=self.clock()
   elif mode in PAD_BANKS:
@@ -125,6 +127,12 @@ class Bridge:
     if len(self.data)==n:
      if n==2:self.message(self.status,*self.data)
      self.data=[]
+ def grid_jog(self,ch,value):
+  total=self.grid_ticks[ch]+value-64
+  steps=abs(total)//16*(1 if total>=0 else -1)
+  self.grid_ticks[ch]=total-steps*16
+  # BiteDJ: 5 ms per step. RX3 offset units are quarter milliseconds.
+  if steps:self.emit(0,4,ch,steps*20,0.,0x4744)
  def pulse(self,ch):
   # RX3 hardware uses 1620 pulses/revolution; BiteDJ FLX6 uses 7200.
   return round(self.jogs[ch]['total']*1620/7200)&65535
@@ -147,7 +155,7 @@ class Bridge:
    if j['speed'] or j['delta']:self.stop_jog(ch)
   for key,ch in list(self.held):self.emit(key,2,ch,0,0.,0)
   self.held.clear();self.pad_held.clear()
-  for ch in self.shift:self.shift[ch]=False
+  for ch in self.shift:self.shift[ch]=False;self.grid_ticks[ch]=0
 def listen_reconnecting(b,lib,running,discover,sleep=time.sleep):
  """Release controller gestures on loss; rediscover ALSA numbering on return."""
  buf=ctypes.create_string_buffer(1024)

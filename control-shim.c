@@ -7,6 +7,7 @@ extern char *program_invocation_short_name;
 extern int pthread_create(unsigned long*,const void*,void *(*)(void*),void*);
 struct command {int key,operation,channel,value;float analog;int extra;};
 #include "native-screen.h"
+#include "native-grid.h"
 #include "mixer-state.h"
 #include "pad-bank.h"
 #include "pad-intent.h"
@@ -62,6 +63,7 @@ static void *control_thread(void *unused){
  struct command c;unsigned have=0;struct pad_intents pads={0};
  for(;;){int n=read(fd,(char*)&c+have,sizeof(c)-have);if(n<=0){sleep(1);continue;}have+=n;if(have<sizeof(c))continue;have=0;
   if(c.key<0||c.key>65535||c.operation<0||c.operation>15||c.channel<0||c.channel>2)continue;
+  if(c.key==0&&c.operation==4&&c.extra==0x4744){rx3_grid_enqueue(c.channel,c.value);continue;}
   if((c.extra&~7)==0x5040&&c.key>=0x4117&&c.key<=0x411e&&(c.operation==0||c.operation==2)){
    if(forward_pad_intent(&pads,c.key,c.operation,c.channel,c.extra&7,manager,pad_accept,pad_mode,pad_emit)<0){
     const char error[]="pad bank selection timed out; pad suppressed\n";write(2,error,sizeof(error)-1);continue;

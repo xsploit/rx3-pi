@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "native-ui-glyphs.h"
 #include "native-screen.h"
+#include "native-grid.h"
 #include "native-mixer.h"
 #include "native-pad-modes.h"
 #include "native-zoom-layout.h"
@@ -85,7 +86,7 @@ static int paint(int navigation,int show){
  return 1;
 }
 static int draw(void *arg){
- int result=original_draw(arg);rx3_touch_navigation_tick();
+ int result=original_draw(arg);rx3_touch_navigation_tick();rx3_grid_tick();
  int main=main_panel_visible(),show=player_screen_active();
  rx3_mixer_draw(main);
  rx3_pad_modes_draw(main&&show&&!rx3_mixer_visible);

@@ -9,7 +9,7 @@ Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry 
 - Fullscreen landscape1920x1200 display from native1280x800; DRM page-flip presenter measures about60FPS. A sequence-checked pair of completed-frame buffers now separates composition from presentation.
 - Native browser touch and A–H hot-cue touch adapters. Transport/Source controls are available before loading the first track. Browse and Source views expose compact Search, Tag List, Tag +/−, Player, Back, Source and Info buttons on the right, preserving the source/title area. Native transport strip uses its own locked RGB565 window surface; repeated presses keep labels visible in screenshot tests.
 - Native Mixer panel with 17 vertical touch sliders and a horizontal crossfader and two headphone-cue buttons, sharing input state with FLX6. Touch replay verified level taps, drag, cue toggle and return to waveforms; headphone volume/cue and master mute verified in hardware output data. Startup now assigns each player to its corresponding mixer channel. Both deck faders mute their own master signal while headphone cue remains available, verified in FLX6 output data. Crossfader assignments initialize to deck1 left/deck2 right; both endpoints are verified in output data. Native FILTER is selected at startup on both channels; both decks’ low/high/center responses are verified in output data. Trim mute and all three EQ cuts passed output checks on both decks.
-- 124 FLX6 MIDI bindings read from the user's installed BiteDJ XML. Jogs, tempo, tempo-range buttons, mixer, play/cue/load, browse encoder and navigation adapters.
+- 126 FLX6 MIDI bindings read from the user's installed BiteDJ XML. Jogs, tempo, tempo-range buttons, mixer, play/cue/load, browse encoder and navigation adapters.
 - Touch tempo faders live in Mixer, one per deck, with native signed percentage readback, a zero detent and minus/plus buttons for native-step fine adjustment. Each deck header also exposes native tempo RANGE and KEY LOCK with engine-state feedback. Touch and FLX6 input update the same fader state. Endpoint, neutral, drag/release and playback checks passed; see VALIDATION.md.
 - Native audio recovery survived actual FLX6 driver disappearance/return in one player process; MIDI reconnected and both decks played afterward. This was a driver test, not a physical cable-unplug test.
 - BiteDJ files remain unchanged. Stop this runtime before returning to BiteDJ.
@@ -22,7 +22,7 @@ Native transport is experimental. Browser/load/play/pause were exercised through
 
 Touch-only ZOOM−/+ buttons sit above the native ZOOM/GRID selector. They change the shared waveform scale and hide in GRID mode and Mixer. These are added touch controls using native RX3 commands.
 
-Known mapping differences: BiteDJ SHIFT+jog translates the beatgrid; RX3 currently only cancels/suppresses scratching while Shift is held. Grid movement remains unmapped. BiteDJ’s final tempo range is25%; RX3 currently uses WIDE100%. Neither behavior is claimed as full parity.
+SHIFT+jog now translates the selected MIDI deck’s beatgrid in5ms steps per16ticks, preserving scratch cancellation. Native offset and rendered grid movement passed replay tests; physical feel and restart persistence remain unverified. Known mapping difference: BiteDJ’s final tempo range is25%; RX3 currently uses WIDE100%. Neither behavior is claimed as full parity.
 
 ## FLX6 navigation
 

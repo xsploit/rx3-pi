@@ -4,31 +4,44 @@
 #include <stdint.h>
 #include "native-screen.h"
 #include "mixer-state.h"
+#include "native-mixer.h"
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
 extern char *program_invocation_short_name;
 struct touch {uint8_t down,pad[3];int x,y;};
 static void (*original_touch)(void*,const struct touch*,void*);
-static int held_key,held_channel;
+static int held_key,held_channel,held_slider=-1;
 extern volatile int rx3_native_ui_ready,rx3_native_ui_pressed;
 static void pad_key(void *handler,int key,int operation,int channel){
  void *root=*(void**)handler;
  void *manager=root?*(void**)((char*)root+0x64):0;
  if(manager)rx3_dispatch_key(manager,key,operation,channel,0,0.f,0);
 }
+static void slider(void *handler,int index,int y){
+ void *root=*(void**)handler;void *manager=root?*(void**)((char*)root+0x64):0;
+ float value=(594-y)/390.f;if(value<0)value=0;if(value>1)value=1;
+ if(manager)rx3_dispatch_key(manager,rx3_mixer_bindings[index].key,4,rx3_mixer_bindings[index].channel,0,value,0);
+}
 static void native_touch(void *handler,const struct touch *t,void *mode){
+ if(held_slider>=0){if(!main_panel_visible()||!rx3_mixer_visible){held_slider=-1;held_key=t->down?-1:0;return;}if(t->down)slider(handler,held_slider,t->y);else held_slider=-1;return;}
  if(held_key){
-  if(!t->down){pad_key(handler,held_key,2,held_channel);held_key=0;rx3_native_ui_pressed=-1;}
+  if(!t->down){if(held_key>0)pad_key(handler,held_key,2,held_channel);held_key=0;rx3_native_ui_pressed=-1;}
   return;
  }
  int main_visible=main_panel_visible();
  if(t->down&&!*((uint8_t*)handler+4)&&main_visible){
   if(rx3_native_ui_ready&&t->y>=0&&t->y<44&&t->x>=0&&t->x<1280){
-   static const int keys[8]={0x202,0x4101,0x4102,0x4112,0x4101,0x4102,0x4112,0x201};
-   static const int channels[8]={0,1,1,1,2,2,2,0};
-   int i=t->x/160;held_key=keys[i];held_channel=channels[i];rx3_native_ui_pressed=i;
-   pad_key(handler,held_key,0,held_channel);return;
+   static const int keys[9]={0x202,0x4101,0x4102,0x4112,0x4101,0x4102,0x4112,-1,0x201};
+   static const int channels[9]={0,1,1,1,2,2,2,0,0};
+   int i=t->x/142;if(i>8)i=8;held_key=keys[i];held_channel=channels[i];rx3_native_ui_pressed=i;
+   if(i==7)rx3_mixer_visible=!rx3_mixer_visible;else pad_key(handler,held_key,0,held_channel);return;
+  }
+  if(rx3_mixer_visible){
+   if(t->x>=0&&t->x<1280&&t->y>=184&&t->y<=614){held_slider=t->x/80;slider(handler,held_slider,t->y);}
+   else if(t->y>=694&&t->y<764&&((t->x>=32&&t->x<432)||(t->x>=848&&t->x<1248))){held_key=0x5020;held_channel=t->x<640?1:2;pad_key(handler,held_key,0,held_channel);}
+   else held_key=-1; /* Consume blank-panel gestures through release. */
+   return;
   }
   int row=t->y>=518&&t->y<=540?0:(t->y>=548&&t->y<=570?1:-1);
   int deck=t->x/640,local=t->x%640-10,col=local/158;
@@ -39,6 +52,7 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
    return;
   }
  }
+ if(rx3_mixer_visible&&main_visible&&t->y>=44)return;
  original_touch(handler,t,mode);
 }
 __attribute__((constructor))static void install_native_touch(void){

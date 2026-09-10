@@ -8,6 +8,7 @@ Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry 
 - Playback confirmed audible by the owner through FLX6 cue/headphones. Master channels1/2 and headphones3/4 routed through ALSA, using stable card ID `DDJFLX6` rather than a numeric card index.
 - Fullscreen landscape1920x1200 display from native1280x800; DRM page-flip presenter measures about60FPS. A sequence-checked pair of completed-frame buffers now separates composition from presentation.
 - Native browser touch and A–H hot-cue touch adapters. Transport/Source controls are available before loading the first track. Native transport strip uses its own locked RGB565 window surface; repeated presses keep labels visible in screenshot tests.
+- Native Mixer panel with 16 touch sliders and two headphone-cue buttons, sharing input state with FLX6. Touch replay verified level taps, drag, cue toggle and return to waveforms; audio effects remain to be checked individually.
 - 87 FLX6 MIDI bindings read from the user's installed BiteDJ XML. Jogs, tempo, mixer, play/cue/load, browse encoder and navigation adapters.
 - BiteDJ files remain unchanged. Stop this runtime before returning to BiteDJ.
 
@@ -15,7 +16,7 @@ Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry 
 
 The owner still sees waveform flicker and motion less smooth than BiteDJ. Presenter FPS does not establish coherent native frames or waveform cadence. Completed-frame exchange now addresses unsynchronised producer/consumer reads; perceived flicker and native waveform cadence still require verification.
 
-Native transport is experimental. Browser/load/play/pause were exercised through touch replay; full physical touch comfort, all controls and full state feedback are not verified. Native touchscreen mixer controls, MIDI LEDs, pad modes, shifted jogs, deck3/4 policy, reconnect handling and reproducible reboot installation remain incomplete. Browser acceleration is not ported; the encoder currently moves one native step per MIDI delta. VIEW-long/SHIFT variants remain unmapped. Scripts retain the current Pi's paths, group IDs and FLX6 card identity and require adapting to another installation.
+Native transport is experimental. Browser/load/play/pause were exercised through touch replay; full physical touch comfort, all controls and full state feedback are not verified. Full mixer audio-effect verification, source-less Browse escape by touch, MIDI LEDs, pad modes, shifted jogs, deck3/4 policy, reconnect handling and reproducible reboot installation remain incomplete. Browser acceleration is not ported; the encoder currently moves one native step per MIDI delta. VIEW-long/SHIFT variants remain unmapped. Scripts retain the current Pi's paths, group IDs and FLX6 card identity and require adapting to another installation.
 
 ## FLX6 navigation
 

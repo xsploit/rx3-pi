@@ -39,3 +39,11 @@ Touch replay loaded and played Aaliyah/Try Again. Completed-frame screenshot sho
 Added a state observer to the common native-key dispatcher used by initialization, FIFO/FLX6 commands and touchscreen pad/button commands. It records all16mixing controls plus debounced headphone-cue presses. Values mean last dispatched input, not DSP acknowledgement. The future native mixer view must retain this distinction and verify actual engine effects separately.
 
 Host and Pi tests passed for all16bindings, channel isolation, invalid/nonfinite value rejection in metadata, and cue press/release handling. Live process inspection verified startup validmask65535, all expected level defaults and headphonecue1. Replayed actual FLX6 channel1 fader messages B0 13/B0 33 and headphone-cue90 54: state changed to4096/16383 and cueoff, then restored to fader1/cue1. Native dispatch continues unchanged. No mixer view/button has been added by this commit.
+
+## Native touchscreen mixer checkpoint
+
+Added a native RGB565 Mixer window below the transport strip: 16 sliders for both decks and output/headphone controls, plus headphone cue per deck. The ninth strip button opens/closes Mixer. State reflects last dispatched input, not DSP acknowledgement. Blank panel gestures are consumed through release; active slider gestures cancel when leaving the main panel. Failed surface validation disables and hides the panel on the next draw.
+
+Pi build and controlled deployment succeeded. Completed-frame captures verified initial layout, deck1 level tap to50%, headphone cue1 toggle off, continuous level drag from100% to50%, and close returning to loaded Aaliyah/Try Again waveform at its cue position. Restored deck1 level100%; headphone cue1 enabled. Browse hides Mixer correctly, but entering Browse with no source selected leaves no visible touch route back. A direct native Source command recovered that test, followed by touch-only USB2 selection and track loading. This gap remains open.
+
+No physical finger, multitouch, MIDI-to-panel repaint or individual DSP-effect verification is claimed by this checkpoint. Backlight stayed0.

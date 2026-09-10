@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "native-ui-glyphs.h"
 #include "native-screen.h"
+#include "native-mixer.h"
 extern char *program_invocation_short_name;
 volatile int rx3_native_ui_ready=0,rx3_native_ui_pressed=-1;
 static void *window;
@@ -12,6 +13,7 @@ static int disabled,shown=-1;
 static int (*original_draw)(void*);
 static int draw(void *arg){
  int result=original_draw(arg),show=main_panel_visible();
+ rx3_mixer_draw(show);
  if(disabled)return result;
  if(!window&&show){
   uint32_t desc[13]={0};desc[2]=1280|(44u<<16);desc[3]=9;desc[5]=1; /* Smaller z draws last in DS_HW_UpdateScreen. */
@@ -29,7 +31,7 @@ static int draw(void *arg){
   int rc=((int(*)(void*,void**,int*))0x1a1c48)(window,&pixels,&pitch);
   if(rc||!pixels||pitch<1280*2){rx3_native_ui_ready=0;disabled=1;return result;}
   for(int y=0;y<44;y++)for(int x=0;x<1280;x++){
-   unsigned c=x%160>=158?0x080808:(x/160==pressed?0x707070:0x242424);
+   unsigned c=x%142>=140?0x080808:(x/142==pressed?0x707070:0x242424);
    if(pitch>=5120)((uint32_t*)((char*)pixels+y*pitch))[x]=0xff000000|c;
    else ((uint16_t*)((char*)pixels+y*pitch))[x]=((c>>8)&0xf800)|((c>>5)&0x7e0)|((c>>3)&31);
   }

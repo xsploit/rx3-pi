@@ -54,7 +54,7 @@ Next integrate a driver that saves/restores real ALSA parameters, resolves stabl
 These tests used the host ALSA libraries, not the ARM32 firmware runtime or the FLX6/dmix hardware chain. Null PCM accepting writes is not evidence of audible output or USB reconnect. Neither recovery source is linked into the live shim yet. Outstanding integration: stable caller-handle lookup, complete call interception and serialization, write-error classification, bounded underrun/suspend handling, offline pacing/status, live wrapper validation, then real routed-output recovery tests. The isolated ARM32 shared-library check below now passes.
 
 ```sh
-gcc -std=gnu11 -O2 -Wall -Wextra -Werror -o /tmp/test-audio-alsa audio-recovery.c audio-alsa.c test-audio-alsa.c $(pkg-config --cflags --libs alsa) -ldl
+gcc -std=gnu11 -O2 -Wall -Wextra -Werror -o /tmp/test-audio-alsa audio-recovery.c audio-handles.c audio-alsa.c test-audio-alsa.c $(pkg-config --cflags --libs alsa) -ldl
 /tmp/test-audio-alsa
 ```
 
@@ -79,3 +79,13 @@ The constructor harness is enabled only by RX3_TEST_PRELOAD and exits after the 
 `test-audio-write.c` passed local ASan/UBSan and a static ARM32 build on the Pi. Fake transport covers partial writes, repeated underruns, repeated interruption, EAGAIN, pending/successful/unsupported resume, failed prepare, loss originating from either output, persistent absence/backoff, use of replacement handles and clean stop. The test checks that closed handles are never written and all handles are released at the end.
 
 This helper remains outside the live shim. Its caller must serialize PCM operations and pace retry/unavailable results. Real ALSA callbacks, stable native handle routing, offline pacing/status and live interception remain integration work; these fake-transport tests do not prove physical reconnect.
+
+## Stable public handle routing (not deployed)
+
+`audio-handles.c/.h` separates caller-visible tokens from ALSA allocation addresses. During initial discovery/setup each token resolves to its original PCM; once the configured pair is bound, it resolves to the pair's current replacement. Offline tokens remain recognized but unavailable. An old freed PCM address is never treated as a managed public token, so reuse for an unrelated capture PCM cannot redirect that stream accidentally.
+
+Closing either bound public token stops both real outputs. The other token remains recognized/unavailable until its normal close; duplicate close is rejected, and a new output cannot open into a half-retired pair. Before pair binding, closing a discovery token returns its initial PCM to the caller for cleanup. Callers must serialize all operations and keep registry storage alive.
+
+`test-audio-handles.c` passed local ASan/UBSan for discovery, repeated replacements, offline lookup, unrelated old PCM addresses, pair retirement and cleanup. The real ALSA test now routes all prepare/write operations through the original public tokens across four reopens. Exact configuration/write checks and partial-failure rollback passed locally and inside the embedded ARM32 ALSA1.0.24.1 runtime.
+
+An import audit also confirmed native handle-bearing calls beyond write/prepare/close: hardware setup/test functions, software setup/current functions, readi, and two-handle `snd_pcm_link`. All applicable entry points must unwrap managed tokens before passing them to ALSA; parameter-object-only getters/sizing functions do not take PCM tokens. Setup wrappers must preserve the native requested ALSA symbol versions. The current player still receives ordinary real PCM pointers; the token registry is not wired into live open or any interposed call yet. Offline pacing/status, serialized wrappers, integration and physical FLX6 recovery remain open.

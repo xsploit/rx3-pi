@@ -1,4 +1,5 @@
 #include "audio-alsa.h"
+#include "audio-handles.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -65,15 +66,20 @@ int main(void){
  snd_pcm_t *unconfigured;assert(snd_pcm_open(&unconfigured,"null",SND_PCM_STREAM_PLAYBACK,0)==0);
  assert(rx3_alsa_save(&d,0,unconfigured,"null",0)<0);snd_pcm_close(unconfigured);
  struct rx3_audio_pair pair={0};
+ struct rx3_audio_handles handles={0};void *tokens[2];
+ for(int i=0;i<2;i++)assert(rx3_audio_handle_open(&handles,i,pcm[i],&tokens[i])==0);
  assert(rx3_audio_pair_init(&pair,rx3_alsa_pair_driver(&d),pcm[0],pcm[1])==0);
+ assert(rx3_audio_handles_bind(&handles,&pair)==0);
  short samples[256]={0};
  for(int cycle=0;cycle<3;cycle++){
   rx3_audio_pair_lost(&pair,cycle*1000,-ENODEV);
   assert(rx3_audio_pair_retry(&pair,cycle*1000));
   for(int i=0;i<2;i++){
-   compare(expected[i],inspect(pair.pcm[i]));
-   assert(snd_pcm_prepare(pair.pcm[i])==0);
-   assert(snd_pcm_writei(pair.pcm[i],samples,128)==128);
+   void *current;int output;
+   assert(rx3_audio_handle_resolve(&handles,tokens[i],&current,&output)==RX3_HANDLE_READY&&output==i);
+   compare(expected[i],inspect(current));
+   assert(snd_pcm_prepare(current)==0);
+   assert(snd_pcm_writei(current,samples,128)==128);
   }
  }
  /* Fail cue software setup after both real PCMs have opened and master is
@@ -87,12 +93,16 @@ int main(void){
  assert(!rx3_audio_pair_retry(&pair,3999));
  assert(rx3_audio_pair_retry(&pair,4000));
  for(int i=0;i<2;i++){
-  compare(expected[i],inspect(pair.pcm[i]));
-  assert(snd_pcm_prepare(pair.pcm[i])==0);
-  assert(snd_pcm_writei(pair.pcm[i],samples,128)==128);
+  void *current;
+  assert(rx3_audio_handle_resolve(&handles,tokens[i],&current,0)==RX3_HANDLE_READY);
+  compare(expected[i],inspect(current));
+  assert(snd_pcm_prepare(current)==0);
+  assert(snd_pcm_writei(current,samples,128)==128);
  }
- rx3_audio_pair_stop(&pair);rx3_alsa_driver_destroy(&d);
- puts("PASS real ALSA null: 4 pair reopens preserve settings/audio writes; partial software failure rolls back and recovers");
+ void *unpaired;
+ for(int i=0;i<2;i++)assert(rx3_audio_handle_close(&handles,tokens[i],&unpaired)==1&&!unpaired);
+ rx3_alsa_driver_destroy(&d);
+ puts("PASS real ALSA null: stable tokens route 4 pair reopens; settings/writes preserved; partial failure rolls back");
 }
 #ifdef RX3_TEST_PRELOAD
 /* Isolated ARM32 runtime test: preload this test-only DSO into busybox true.

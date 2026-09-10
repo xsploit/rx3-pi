@@ -17,7 +17,7 @@ trap 'exit 143' TERM
 # references can bind its legacy ALSA_0.9 getter ABI instead of the rc4 ABI.
 "$compiler" -march=armv7-a -std=gnu11 -O2 -Wall -Wextra -Werror \
  -shared -fPIC -nostdlib -idirafter /usr/include -DRX3_TEST_PRELOAD \
- -o "$test_dso" audio-recovery.c audio-alsa.c test-audio-alsa.c \
+ -o "$test_dso" audio-recovery.c audio-handles.c audio-alsa.c test-audio-alsa.c \
  -L"$rootfs/usr/lib" -Wl,-rpath-link,"$rootfs/lib" -l:libasound.so.2 \
  -L"$rootfs/lib" -l:libdl.so.2 -l:libc.so.6
 sudo -n chroot --userspec="$(id -u):$(id -g)" "$rootfs" /bin/busybox env \

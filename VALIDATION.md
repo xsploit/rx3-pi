@@ -175,3 +175,11 @@ Live PID19723 after mount recovery. Inspected the selected first-row Load2 butto
 These establish expected band effects on deck2, not calibrated EQ curves. Separately, deck1 RMS58.423 baseline remained57.292 with deck2 trim/EQ minima and its filter high; thus the deck2 mute did not mute deck1. Unaligned music snapshots cannot prove absolutely zero EQ crosstalk or identical sample output. Physical knobs and gain boosts were not exercised.
 
 Both decks cued with trim/EQ/filter centered, levels100%, crosscenter, cue1on/cue2off, mixerclosed and backlight0. No runtime code change was needed.
+
+## FLX6 MIDI reconnection
+
+The input reader now waits for an absent FLX6 and rediscovers its ALSA address after a read failure. Disconnect cleanup releases held buttons and jog motion, clears running status/partial messages/14-bit MSBs, and preserves absolute jog counters. Retry delays avoid spinning on a still-listed failed device; SIGTERM can interrupt the wait.
+
+`python3 test-midi-reconnect.py` passed locally and on the Pi. It runs the real bridge/parser with a simulated ALSA transport: absent device, held jog plus pending motion, ENODEV, release events, partial-message reset, stale MSB rejection, changed hw:2 to hw:3 address, and shutdown while absent. `python3 test-navigation.py` also passed. The deployed reader loaded all 87 BiteDJ bindings and opened the real FLX6 hw:2,0,0. Only the MIDI reader restarted; native player PID19723 continued, backlight remained 0.
+
+Physical unplug/replug and USB audio recovery remain unverified. This change does not restart or recover the native player's ALSA audio handles after USB removal. LED feedback, pad-mode switching, physical jog feel and waveform flicker remain open.

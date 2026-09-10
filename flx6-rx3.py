@@ -101,6 +101,45 @@ class Bridge:
    if j['speed'] or j['delta']:self.stop_jog(ch)
   for key,ch in list(self.held):self.emit(key,2,ch,0,0.,0)
   self.held.clear()
+def listen_reconnecting(b,lib,running,discover,sleep=time.sleep):
+ """Release controller gestures on loss; rediscover ALSA numbering on return."""
+ buf=ctypes.create_string_buffer(1024)
+ waiting=False
+ while running():
+  handle=ctypes.c_void_p()
+  try:
+   devices=discover()
+   if len(devices)!=1:raise OSError(errno.ENODEV,'Expected one FLX6 MIDI input')
+   rc=lib.snd_rawmidi_open(ctypes.byref(handle),None,devices[0].encode(),2)
+   if rc<0:raise OSError(-rc,'Cannot open FLX6 MIDI input')
+  except (OSError,subprocess.SubprocessError) as e:
+   if not waiting:print(f'Waiting for FLX6 MIDI: {e}',flush=True)
+   waiting=True
+   for _ in range(20):
+    if not running():break
+    sleep(.05)
+   continue
+  waiting=False
+  print(f'Listening to {devices[0]} (input only)',flush=True)
+  try:
+   while running():
+    n=lib.snd_rawmidi_read(handle,buf,len(buf))
+    if n>0:b.feed(buf.raw[:n])
+    elif n in (0,-errno.EAGAIN):sleep(.005)
+    elif n!=-errno.EINTR:
+     print(f'FLX6 MIDI read failed ({n}); reconnecting',flush=True)
+     break
+    b.tick()
+  finally:
+   try:b.release()
+   finally:
+    lib.snd_rawmidi_close(handle)
+    # Never carry a partial message or old 14-bit MSB into a new connection.
+    b.status=None;b.data=[];b.msb.clear()
+  # Avoid a busy reconnect loop if ALSA still lists a failed device.
+  for _ in range(20):
+   if not running():break
+   sleep(.05)
 def main():
  p=argparse.ArgumentParser();p.add_argument('--mapping',default='/home/pompu_5/.mixxx/controllers/Pioneer-DDJ-FLX6.midi.xml');p.add_argument('--fifo',default='/home/pompu_5/rx3-rootfs/dev/rx3-control');p.add_argument('--replay');p.add_argument('--dry-run',action='store_true');a=p.parse_args()
  fd=None if a.dry_run else os.open(a.fifo,os.O_WRONLY|os.O_NONBLOCK)
@@ -122,26 +161,18 @@ def main():
  lib.snd_rawmidi_open.argtypes=[ctypes.POINTER(ctypes.c_void_p),ctypes.c_void_p,ctypes.c_char_p,ctypes.c_int]
  lib.snd_rawmidi_read.argtypes=[ctypes.c_void_p,ctypes.c_void_p,ctypes.c_size_t];lib.snd_rawmidi_read.restype=ctypes.c_ssize_t
  lib.snd_rawmidi_close.argtypes=[ctypes.c_void_p]
- listing=subprocess.check_output(['amidi','-l'],text=True)
- devices=re.findall(r'^I[O ]\s+(hw:\S+)\s+.*DDJ-FLX6',listing,re.M)
- if len(devices)!=1:raise RuntimeError(f'Expected one FLX6 input; found {devices}')
- rc=lib.snd_rawmidi_open(ctypes.byref(handle),None,devices[0].encode(),2) # SND_RAWMIDI_NONBLOCK; 1 means output APPEND
- if rc<0:raise OSError(-rc,'Cannot open FLX6 MIDI input')
+ def discover():
+  listing=subprocess.check_output(['amidi','-l'],text=True)
+  return re.findall(r'^I[O ]\s+(hw:\S+)\s+.*DDJ-FLX6',listing,re.M)
  running=True
  def stop(*_):
   nonlocal running
   running=False
  signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
- print(f'Listening to {devices[0]} (input only)',flush=True);buf=ctypes.create_string_buffer(1024)
  try:
-  while running:
-   n=lib.snd_rawmidi_read(handle,buf,len(buf))
-   if n>0:b.feed(buf.raw[:n])
-   elif n in (0,-errno.EAGAIN):time.sleep(.005)
-   elif n!=-errno.EINTR:raise OSError(-n,'FLX6 disconnected/read failed')
-   b.tick()
+  listen_reconnecting(b,lib,lambda:running,discover)
  finally:
-  b.release();lib.snd_rawmidi_close(handle)
+  b.release()
   with open(statefile+'.tmp','w') as f:json.dump({'player':player,'totals':{ch:j['total'] for ch,j in b.jogs.items()}},f)
   os.replace(statefile+'.tmp',statefile)
   if fd is not None:os.close(fd)

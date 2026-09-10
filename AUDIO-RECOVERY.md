@@ -111,3 +111,11 @@ All recovery components remain outside build.sh. Next connect the interposed han
 `test-audio-proxy-runtime.sh` builds two temporary test DSOs linked to the embedded ALSA1.0.24.1/glibc2.13 runtime, runs them only inside a separate busybox process and removes them on exit. Never preload the constructor harness into the player. Loss and absence injection exist only with RX3_AUDIO_PROXY_TEST.
 
 The candidate is still outside build.sh and the running fbshim. Tests do not yet prove successful hardware-link replay, real FLX6/dmix device removal/reopening, concurrent close/write behavior under the player, or audible continuity. Next validate those integration boundaries and replace the old shim wrappers before controlled deployment. Waveform flicker and physical jog behavior remain separate unfinished work.
+
+## Actual FLX6 route reopen check (candidate, not deployed)
+
+The first isolated run against the real `rx3out`/`rx3cue` plug/route/dmix devices failed: reopening master returned EINVAL when applying the opaque `hw_params_current` snapshot. Null PCMs had accepted that operation. `audio-alsa.c` now rebuilds a fresh constraint space with the saved access, format, subformat, channels, rate, period size and buffer size before applying hardware parameters; software parameters remain separately preserved. Test-only error logging identifies the failing configuration stage.
+
+After this correction, the complete interposer harness passed inside the embedded runtime against the actual connected FLX6 routes: eight immediate pair reopens, two simulated absence/backoff/recovery cycles, both output orders, exact parameter checks and128-frame silent writes. Offline paired pacing measured92.947/92.945ms for92.880ms of blocks. Separate embedded null tests, including partial setup rollback, still pass.
+
+To reproduce the hardware check, stop the player and any other audio owner first, then run `sh test-audio-proxy-runtime.sh /home/pompu_5/rx3-rootfs --flx6`; restart the player afterward. This mode uses the runtime's real ALSA configuration and writes silence. The test did not unplug/reset USB, simulate a disappearing kernel device, verify audible output or validate successful PCM link replay. The live shim remains unchanged. RX3 was restarted afterward and both tracks reloaded through touch; backlight remained0.

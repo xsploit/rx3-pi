@@ -1,9 +1,13 @@
 #!/bin/sh
-# Isolated null-PCM integration test. Never preload either test DSO into rbp-pi.
+# Isolated integration test; null PCMs by default.
+# Optional second argument --flx6 uses real outputs: stop RX3/BiteDJ first.
+# Never preload either test DSO into rbp-pi.
 set -eu
 cd "$(dirname "$0")"
 rootfs=${1:-/home/pompu_5/rx3-rootfs}
 compiler=${CC_ARM:-arm-linux-gnueabi-gcc}
+mode=${2:-null}
+case "$mode" in null|--flx6) ;; *) echo "Unknown mode: $mode" >&2; exit 2;; esac
 test_dir=$(mktemp -d "$rootfs/tmp/rx3-proxy-test.XXXXXX")
 trap 'rm -rf "$test_dir"' EXIT
 trap 'exit 129' HUP
@@ -26,5 +30,10 @@ pcm.rx3cue { type null }
 pcm.null { type null }
 CONFIG
 inside=/tmp/$(basename "$test_dir")
-sudo -n chroot --userspec="$(id -u):$(id -g)" "$rootfs" /bin/busybox env \
- "LD_PRELOAD=$inside/proxy.so:$inside/test.so" "ALSA_CONFIG_PATH=$inside/alsa.conf" /bin/busybox true
+if [ "$mode" = --flx6 ]; then
+ sudo -n chroot --userspec="$(id -u):$(id -g)" "$rootfs" /bin/busybox env \
+  "LD_PRELOAD=$inside/proxy.so:$inside/test.so" /bin/busybox true
+else
+ sudo -n chroot --userspec="$(id -u):$(id -g)" "$rootfs" /bin/busybox env \
+  "LD_PRELOAD=$inside/proxy.so:$inside/test.so" "ALSA_CONFIG_PATH=$inside/alsa.conf" /bin/busybox true
+fi

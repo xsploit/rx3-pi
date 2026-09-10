@@ -73,3 +73,9 @@ The native player refuses a bank change while a touchscreen Slip Loop or Release
 `pad-intent.h` now records which tagged MIDI presses the adapter forwarded, by deck, pad and bank. A release requires matching ownership; rejected presses produce no native release. Duplicate presses are suppressed, and a later native bank change prevents an old release from reaching another bank. All ownership changes happen on the FIFO reader thread.
 
 Live before/after tests covered held one-beat Slip Loop and Mute on both decks, with a conflicting Beat Jump MIDI press/release on the same native key. Before the fix, all four MIDI releases ended the touch action early. After the fix, the touch action stayed held until actual touch release, then playback/audio recovered. This does not implement general source ownership when touch and MIDI press the same pad in the same bank; that overlap and physical input testing remain pending.
+
+### Remaining Release FX activation and recovery
+
+Touch replay subsequently exercised short/long brake, short/long backspin, Echo Out, Build Up and Ducking on both decks. Every pad activated its corresponding native simulator status (pad number minus one), cleared it on release, and recovered changing master audio. Short brake and short backspin reached stationary playback positions during the hold; backspin traces moved backward. The long-brake test released before establishing its complete stopping time.
+
+Long backspin can reach the native -2000ms preroll boundary. After release, playback advances through this silent region before music resumes; an immediate audio-presence assertion there is invalid. Read snapshot+620 as signed milliseconds when probing this case. Listening comparison, longer holds, physical fingers, effect combinations and two-deck isolation remain unverified.

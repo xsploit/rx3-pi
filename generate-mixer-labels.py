@@ -16,7 +16,7 @@ def spans(text,w,h,size,ox=0,oy=0):
 labels=['TRIM','HIGH','MID','LOW','FILTER','LEVEL','MASTER','CROSS','HP VOL','HP MIX','TRIM','HIGH','MID','LOW','FILTER','LEVEL','FADER %','FADER %']
 a=[]
 for i,label in enumerate(labels):
- if i==7:continue
+ if i==7 or i>=16:continue
  if i in (6,8,9):x,w={6:(480,106),8:(586,107),9:(693,107)}[i]
  else:
   col=6 if i>=16 else (i if i<6 else i-10)
@@ -41,5 +41,9 @@ s+='};\n'
 s+='static const unsigned short tempo_range_text[][4]={\n'
 for value,label in ((6,'6%'),(10,'10%'),(16,'16%'),(100,'WIDE')):
  for x,y,w in spans(label,80,48,18):s+='{%d,%d,%d,%d},\n'%(value,x,y,w)
+s+='};\n'
+s+='static const unsigned short tempo_pickup_text[][4]={\n'
+for value,label in ((0,'FADER %'),(1,'MATCH\nFASTER'),(2,'MATCH\nSLOWER'),(3,'MATCH\nFADER')):
+ for x,y,w in spans(label,68,32,12):s+='{%d,%d,%d,%d},\n'%(value,x,y,w)
 s+='};\n'
 Path(__file__).with_name('native-mixer-glyphs.h').write_text(s)

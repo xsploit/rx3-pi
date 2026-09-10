@@ -8,5 +8,7 @@ extern const struct rx3_mixer_binding rx3_mixer_bindings[RX3_MIXER_COUNT];
 struct rx3_mixer_snapshot {float levels[RX3_MIXER_COUNT];uint32_t valid,cue,revision;};
 void rx3_mixer_observe(int key,int operation,int channel,float value);
 int rx3_mixer_snapshot(struct rx3_mixer_snapshot *out);
+/* 0 matched, 1 faster, 2 slower, 3 hardware position not yet known. */
+int rx3_tempo_pickup_hint(int deck);
 void rx3_dispatch_key(void *manager,int key,int operation,int channel,long value,float analog,long extra);
 #endif

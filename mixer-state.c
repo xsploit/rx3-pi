@@ -3,6 +3,10 @@
 #include "tempo-input.h"
 static uint32_t tempo_guard;
 static struct rx3_tempo_input tempo_inputs[2];
+static int tempo_hints[2];
+int rx3_tempo_pickup_hint(int deck){
+ return deck>=0&&deck<2?__atomic_load_n(&tempo_hints[deck],__ATOMIC_ACQUIRE):0;
+}
 const struct rx3_mixer_binding rx3_mixer_bindings[RX3_MIXER_COUNT]={
  {0x5019,1},{0x501a,1},{0x501b,1},{0x501c,1},{0x509d,1},{0x501e,1},
  {0x4403,0},{0x6017,0},{0x4406,0},{0x4405,0},
@@ -41,7 +45,9 @@ void rx3_dispatch_key(void *manager,int key,int operation,int channel,long value
   /* Serialize source ownership and enqueue order across GUI/MIDI inputs. */
   while(__atomic_exchange_n(&tempo_guard,1,__ATOMIC_ACQUIRE)){}
   int midi=extra==RX3_MIDI_TEMPO_TAG;
-  if(!rx3_tempo_input_accept(&tempo_inputs[channel-1],analog,midi)){
+  int accept=rx3_tempo_input_accept(&tempo_inputs[channel-1],analog,midi);
+  __atomic_store_n(&tempo_hints[channel-1],rx3_tempo_input_hint(&tempo_inputs[channel-1]),__ATOMIC_RELEASE);
+  if(!accept){
    __atomic_store_n(&tempo_guard,0,__ATOMIC_RELEASE);return;
   }
   if(midi)extra=0;

@@ -8,7 +8,7 @@ volatile int rx3_mixer_visible;
 static void *window;
 static int shown,disabled,painted;
 static uint32_t revision;
-static int last_tempo[2],last_range[2],last_lock[2];
+static int last_tempo[2],last_range[2],last_lock[2],last_pickup[2];
 static unsigned last_bpm[2];
 static uint16_t canvas[1280*756];
 static void box(int x,int y,int w,int h,uint16_t color){
@@ -66,15 +66,19 @@ void rx3_mixer_draw(int main_visible){
  }
  if(!show)return;
  struct rx3_mixer_snapshot state;rx3_mixer_snapshot(&state);
+ int pickup[2]={rx3_tempo_pickup_hint(0),rx3_tempo_pickup_hint(1)};
  int tempo[2]={((int(*)(int))0xfd2dc)(0),((int(*)(int))0xfd2dc)(1)};
  unsigned bpm[2]={((unsigned(*)(int))0xfd1fc)(0),((unsigned(*)(int))0xfd1fc)(1)};
  int range[2]={((int(*)(int))0xfd2b4)(0),((int(*)(int))0xfd2b4)(1)};
  int keylock[2]={((int(*)(int))0xfd30c)(0),((int(*)(int))0xfd30c)(1)};
- if(painted&&bpm[0]==last_bpm[0]&&bpm[1]==last_bpm[1]&&revision==state.revision&&tempo[0]==last_tempo[0]&&tempo[1]==last_tempo[1]&&range[0]==last_range[0]&&range[1]==last_range[1]&&keylock[0]==last_lock[0]&&keylock[1]==last_lock[1])return;
+ if(painted&&pickup[0]==last_pickup[0]&&pickup[1]==last_pickup[1]&&bpm[0]==last_bpm[0]&&bpm[1]==last_bpm[1]&&revision==state.revision&&tempo[0]==last_tempo[0]&&tempo[1]==last_tempo[1]&&range[0]==last_range[0]&&range[1]==last_range[1]&&keylock[0]==last_lock[0]&&keylock[1]==last_lock[1])return;
  for(unsigned i=0;i<1280*756;i++)canvas[i]=0x1082;
  box(0,0,480,54,0x018e);box(480,0,320,54,0x2945);box(800,0,480,54,0x018e);
  for(int deck=0;deck<2;deck++){
   int base=deck*800;
+  int label_x=mixer_column_center(16+deck)-34;
+  for(unsigned i=0;i<sizeof(tempo_pickup_text)/sizeof(tempo_pickup_text[0]);i++)if(tempo_pickup_text[i][0]==pickup[deck])
+   box(label_x+tempo_pickup_text[i][1],65+tempo_pickup_text[i][2],tempo_pickup_text[i][3],1,pickup[deck]?0xfd20:0xffff);
   box(base+148,8,160,38,0x2945);box(base+312,8,164,38,keylock[deck]?0x04bf:0x2945);
   int found=0;
   for(unsigned i=0;i<sizeof(tempo_range_text)/sizeof(tempo_range_text[0]);i++)if(tempo_range_text[i][0]==range[deck]){
@@ -118,6 +122,6 @@ void rx3_mixer_draw(int main_visible){
  ((int(*)(void*))0x1a1cb0)(window);
  ((int(*)(void*,int,int,int,int,int))0x1a0948)(window,0,0,1280,756,0x4000);
  revision=state.revision;last_tempo[0]=tempo[0];last_tempo[1]=tempo[1];
- for(int i=0;i<2;i++){last_bpm[i]=bpm[i];last_range[i]=range[i];last_lock[i]=keylock[i];}
+ for(int i=0;i<2;i++){last_pickup[i]=pickup[i];last_bpm[i]=bpm[i];last_range[i]=range[i];last_lock[i]=keylock[i];}
  painted=1;
 }

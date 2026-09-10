@@ -34,11 +34,20 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
  }
  int main_visible=main_panel_visible();
  if(t->down&&!*((uint8_t*)handler+4)&&player_screen_active()){
-  if(rx3_native_ui_ready&&t->y>=0&&t->y<44&&t->x>=0&&t->x<1280&&(main_visible||t->x>=880)){
+  if(rx3_native_ui_ready&&t->y>=0&&t->y<44&&t->x>=0&&t->x<1280&&(main_visible||t->x>=680)){
    static const int keys[9]={0x202,0x4101,0x4102,0x4112,0x4101,0x4102,0x4112,-1,0x201};
    static const int channels[9]={0,1,1,1,2,2,2,0,0};
    int i=t->x/142;if(i>8)i=8;held_key=keys[i];held_channel=channels[i];rx3_native_ui_pressed=i;
-   if(!main_visible){static const int navkeys[4]={0x202,0x420d,0x201,0x20b};i=(t->x-880)/100;held_key=navkeys[i];held_channel=0;rx3_native_ui_pressed=10+i;pad_key(handler,held_key,0,0);return;}
+   if(!main_visible){
+    static const int navkeys[6]={0x203,0x420e,0x202,0x420d,0x201,0x20b};
+    i=(t->x-680)/100;held_key=navkeys[i];held_channel=0;rx3_native_ui_pressed=10+i;
+    int tag_list=((int(*)(void))0x1126d0)()==4;
+    if(i==2&&tag_list)held_key=0x203; /* Close Tag List directly to player. */
+    if(i==0&&tag_list){held_key=-1;return;}
+    pad_key(handler,held_key,0,0);
+    if(i==1&&tag_list)pad_key(handler,held_key,1,0);
+    return;
+   }
    if(i==7)rx3_mixer_visible=!rx3_mixer_visible;else pad_key(handler,held_key,0,held_channel);return;
   }
   if(!main_visible){original_touch(handler,t,mode);return;}

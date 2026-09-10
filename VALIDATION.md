@@ -433,3 +433,11 @@ Final both Aaliyah tracks cued, original/actual BPM9307, rate0, range10, keylock
 Without changing runtime code, exercised a different library route in PID32643: touch Artist category, encoder push into AAMAR, encoder push into SVMMER SVN vol.4, then touch Load2 for Estara. Screenshots confirmed each parent/child page. Touch Mixer, headphone Cue2 and Play2 produced40distinct DMA buffers, RMS62.53/66.36/247.14/261.46, proving both master and cue output for this loaded track. Touch Cue2 returned deck2 to cue; the added headphone selection was toggled off and Mixer closed.
 
 Two FLX6 BACK presses from the track page returned to the album page and then the artist list; screenshots independently verified the titles/selection. Player restored afterward. Final deck1 Aaliyah original/actual BPM9307, deck2 Estara9505, both mode4/cued, faders0, range10, keylockoff, Syncoff. Display remained off. This verifies one nested analysed-library path, not every folder or media type. No code change was needed.
+
+## Touch Tag List and membership controls
+
+Live PID33450 extends the compact navigation surface leftward: six100px cells, native origin680/width600. New physical centers at y30 are Tag List1095 and Tag+/−1245; existing Player1395, Back1545, Source1695, Info1845 remain unchanged. Tag+/− glyphs track native browser mode; painting invalidates when mode changes. Tag List is idempotent while open. Tag− emits native press/long/release for removal. Player uses the Tag List close key when there, returning directly to main instead of stopping at Browse.
+
+Native screenshots and touch replay verified selected-track addition, one-item Tag List, repeat Tag List remaining open, removal to zero items, and Player returning to main. The first candidate Player action returned to Browse; corrected to native0203 in Tag List and final visibility assertion passed. Other main transport/Mixer geometry was unchanged. Final both Aaliyah tracks cued at9307BPM, rate0, range10, keylockoff, Syncoff; brightness0. Backup runtime/lib/fbshim-pre-touch-tags.so. Evidence research/touch-tag-trial.py/results and /tmp/touch-tag-{added,removed,player}.png. Audio was not remeasured for this navigation-only addition.
+
+Physical comfort and behavior of Tag actions in non-track lists/other media contexts remain unverified.

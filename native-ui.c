@@ -11,15 +11,15 @@ extern char *program_invocation_short_name;
 volatile int rx3_native_ui_ready=0,rx3_native_ui_pressed=-1;
 /* Native window keys also determine stacking and must be unique:
  * player strip1, mixer2, compact navigation3, pad selectors4. */
-struct surface {void *window;int shown,painted,last_pressed;};
+struct surface {void *window;int shown,painted,last_pressed,last_tag_list;};
 static struct surface surfaces[2]={{0,-1},{0,-1}};
 static int disabled;
 volatile int rx3_ui_failure[4];
 static int (*original_draw)(void*);
 static int paint(int navigation,int show){
- struct surface *s=&surfaces[navigation];int width=navigation?400:1280,cell=navigation?100:142;
+ struct surface *s=&surfaces[navigation];int width=navigation?600:1280,cell=navigation?100:142;
  if(!s->window&&show){
-  uint32_t desc[13]={0};desc[2]=width|(44u<<16);desc[3]=9;desc[5]=navigation?3:1;desc[7]=navigation?880:0;
+  uint32_t desc[13]={0};desc[2]=width|(44u<<16);desc[3]=9;desc[5]=navigation?3:1;desc[7]=navigation?680:0;
   int rc=((int(*)(void**,const void*))0x1a2634)(&s->window,desc);
   if(rc||!s->window){rx3_ui_failure[0]=1;rx3_ui_failure[1]=rc;rx3_ui_failure[2]=navigation;return 0;}
  }
@@ -29,8 +29,9 @@ static int paint(int navigation,int show){
   ((int(*)(void*,unsigned))0x1a0a28)(s->window,show?255:0);s->shown=show;s->painted=0;
  }
  if(!show)return 1;
+ int tag_list=navigation&&((int(*)(void))0x1126d0)()==4;
  int pressed=rx3_native_ui_pressed-(navigation?10:0);
- if(s->painted&&s->last_pressed==pressed)return 1;
+ if(s->painted&&s->last_pressed==pressed&&s->last_tag_list==tag_list)return 1;
  void *pixels=0;int pitch=0;
  int rc=((int(*)(void*,void**,int*))0x1a1c48)(s->window,&pixels,&pitch);
  if(rc){rx3_ui_failure[0]=2;rx3_ui_failure[1]=rc;rx3_ui_failure[2]=navigation;return 0;}
@@ -44,9 +45,15 @@ static int paint(int navigation,int show){
  unsigned count=navigation?sizeof(navigation_spans)/sizeof(navigation_spans[0]):sizeof(text_spans)/sizeof(text_spans[0]);
  for(unsigned i=0;i<count;i++)for(unsigned x=spans[i][0];x<spans[i][0]+spans[i][2];x++)
   ((uint16_t*)((char*)pixels+spans[i][1]*pitch))[x]=0xffff;
+ if(navigation){
+  const unsigned short (*tag)[3]=tag_list?navigation_tag_remove_spans:navigation_tag_add_spans;
+  unsigned n=tag_list?sizeof(navigation_tag_remove_spans)/sizeof(tag[0]):sizeof(navigation_tag_add_spans)/sizeof(tag[0]);
+  for(unsigned i=0;i<n;i++)for(unsigned x=tag[i][0];x<tag[i][0]+tag[i][2];x++)
+   ((uint16_t*)((char*)pixels+tag[i][1]*pitch))[x]=0xffff;
+ }
  ((int(*)(void*))0x1a1cb0)(s->window);
  ((int(*)(void*,int,int,int,int,int))0x1a0948)(s->window,0,0,width,44,0x4000);
- s->painted=1;s->last_pressed=pressed;
+ s->painted=1;s->last_pressed=pressed;s->last_tag_list=tag_list;
  return 1;
 }
 static int draw(void *arg){

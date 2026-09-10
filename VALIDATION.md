@@ -19,3 +19,11 @@ Added a hook after `DS_HW_UpdateScreen` layer0 returns. It copies into one of tw
 Live fullscreen presentation measured60FPS and about10.5ms draw time, with180accepted snapshots per180displaycycles in sampled intervals. Native screenshot captured from sequence6408 shows two loaded waveforms and the transport strip. The user still needs to assess flicker visually with the backlight on later; this is not a claim of fully smooth waveform motion.
 
 Fixed stop-rx3.sh to match fullscreen/coherent helper arguments. Prior fullscreen helpers were not stopped by the old exact-argument matcher. Subsequent controlled restart replaced both helpers successfully; screen remainsdark.
+
+## Touchscreen startup flow
+
+Shared `native-screen.h` detects the main deck panel before waveform allocation. The native strip now appears on an empty player and offers Source in its last slot. Regenerate its checked-in glyphs with `python3 generate-native-labels.py` (ImageMagick and Liberation Sans required).
+
+From freshly restarted player with no tracks loaded, replayed only touchscreen coordinates through the physical input bridge: Source(1800,30), USB2row(600,350), rowarrow(1040,350), Tracktab(75,345), Load1(1620,187), Play1(360,30), Cue1(600,30). USB2 displayed13646songs; Aaliyah/Try Again loaded, playback advanced to04:33.773remaining, and Cue returned to04:43.942. No direct load/play/control FIFO commands were used for this flow. These are software replay checks, not physical finger testing.
+
+The small native transport surface is fully repainted under one lock on each GUI pass. After Cue,118completed-frame samples all retained2435white text pixels; complete-frame sequence10244 screenshot confirms labels and paused cue position. Some raw framebuffer screenshots caught missing labels during redraw; they are not evidence of displayed label loss. Use completed-frame capture for future visual checks. Backlight stayed0; presentation remained60FPS.

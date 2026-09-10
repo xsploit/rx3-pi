@@ -2,6 +2,7 @@
  * Runs inside rbp-pi; all other native touch processing is preserved.
  */
 #include <stdint.h>
+#include "native-screen.h"
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -20,13 +21,10 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
   if(!t->down){pad_key(handler,held_key,2,held_channel);held_key=0;rx3_native_ui_pressed=-1;}
   return;
  }
- /* The native waveform window is destroyed when switching to the browser.
-  * Also require the main active screen, so overlays cannot trigger pads. */
- void *active=*(void *volatile *)(0x024942bc+0x20);
- int main_visible=*(volatile uint32_t*)(0x02498c88+0xbc)!=0&&active&&*(volatile int16_t*)((char*)active+6)==0;
+ int main_visible=main_panel_visible();
  if(t->down&&!*((uint8_t*)handler+4)&&main_visible){
   if(rx3_native_ui_ready&&t->y>=0&&t->y<44&&t->x>=0&&t->x<1280){
-   static const int keys[8]={0x202,0x4101,0x4102,0x4112,0x4101,0x4102,0x4112,0x20b};
+   static const int keys[8]={0x202,0x4101,0x4102,0x4112,0x4101,0x4102,0x4112,0x201};
    static const int channels[8]={0,1,1,1,2,2,2,0};
    int i=t->x/160;held_key=keys[i];held_channel=channels[i];rx3_native_ui_pressed=i;
    pad_key(handler,held_key,0,held_channel);return;

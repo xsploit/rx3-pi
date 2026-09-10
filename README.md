@@ -7,7 +7,7 @@ Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry 
 - Analysed USB library browsing, native loading and two stacked waveforms.
 - Playback confirmed audible by the owner through FLX6 cue/headphones. Master channels1/2 and headphones3/4 routed through ALSA.
 - Fullscreen landscape1920x1200 display from native1280x800; DRM page-flip presenter measures about60FPS. A sequence-checked pair of completed-frame buffers now separates composition from presentation.
-- Native browser touch and A–H hot-cue touch adapters. Native transport strip uses its own locked RGB565 window surface; repeated presses keep labels visible in screenshot tests.
+- Native browser touch and A–H hot-cue touch adapters. Transport/Source controls are available before loading the first track. Native transport strip uses its own locked RGB565 window surface; repeated presses keep labels visible in screenshot tests.
 - 87 FLX6 MIDI bindings read from the user's installed BiteDJ XML. Jogs, tempo, mixer, play/cue/load, browse encoder and navigation adapters.
 - BiteDJ files remain unchanged. Stop this runtime before returning to BiteDJ.
 

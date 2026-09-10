@@ -103,3 +103,18 @@ Native SoundColorFxManager type was0 (off) for both inputs, making the Filter sl
 Fresh runtime PID17598 reported type1 on both channels. Touch-loaded deck1 Aaliyah/Try Again, then returned to cue before each playback sample: center, lower end, upper end, center. Each measurement reads40hardware DMA snapshots of512four-channel frames, spaced25ms, and reports mean square first sample differences divided by sample energy (a high-frequency-content indicator, not a calibrated frequency response). Master L/R ratios: center0.03743/0.03492; low0.00465/0.00641; high0.83327/0.79357; center again0.03402/0.03560. Headphone cue showed corresponding changes. All samples contained40distinct buffers.
 
 This demonstrates spectral change in the expected directions and return near baseline, rather than merely slider feedback or changing RMS. Samples are not phase-aligned or calibrated sweeps. Independent deck2 spectral response and physical FLX6 filter gestures remain to verify. Regression navigation/mixer-state tests passed. Deck1 paused at cue, filtercenter, mixerclosed, backlight0; deck2 unloaded after restart.
+
+## Deck1 trim and EQ output measurements
+
+Existing runtime PID17598; no runtime code change required. Touch trim0 produced exact zero RMS and peaks on all four FLX6 channels, compared with initial master59.46/54.04 and headphones237.12/215.52 RMS. Trim restored to center.
+
+For each EQ measurement, returned deck1 Aaliyah/Try Again to cue, changed only the indicated EQ control, and played again. An independent diagnostic used40mapped-DMA snapshots,512frames each,25ms apart, a Hann window and radix2 FFT. Frequency bins grouped below300Hz,300–4000Hz,and above4000Hz. The FFT/grouping self-check passed with pure tones in each band. Powers below are arbitrary consistent units, not calibrated dB or speaker measurements.
+
+| Setting | Low power | Mid power | High power |
+|---|---:|---:|---:|
+| All centered |43001446.8|121806246.4|1911468.0|
+| High minimum |44654278.2|87752479.6|532545.9|
+| Mid minimum |27171183.0|4183373.1|450866.7|
+| Low minimum |5058780.5|114337369.8|1675513.9|
+
+All three touch controls affect actual output in their expected frequency regions. Samples begin near the same cue but are not phase-aligned; these measurements do not establish exact crossover frequencies or manufacturer EQ curves. Each contained40distinct buffers. Restored trim and all EQ controls to center, player cued, mixerclosed, backlight0. Independent deck2 EQ isolation, boosts, and physical knob operation remain unverified.

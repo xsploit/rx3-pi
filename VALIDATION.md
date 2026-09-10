@@ -85,3 +85,13 @@ Control initialization now invokes the native DjEngineIF::setRoute API0x50598 fo
 After a fresh build/restart, touch-loaded deck1 and played it. Master RMS91.94/91.30, headphone cue258.44/256.62. Fader1 at0 produced exactly zero master RMS/peaks while headphone cue remained179.34/186.48. Restoring fader1 produced master94.53/85.72. Loaded a different track (Able to Maximize) on deck2 and cued deck1. Deck2 master312.45/309.16; fader1 at0 left deck2 master372.42/375.62; fader2 at0 gave exactly zero on all outputs with cue2 off; restoring fader2 restored319.69/320.72. These are separate song positions, not gain-ratio measurements.
 
 The deck2 load required a later Play tap after loading finished; rapid scripted input immediately following Load was not accepted. Touch readiness around load transitions remains to improve. Native source/mixer reassignment modes beyond this startup mapping are not yet verified. Navigation and mixer-state regression tests passed. Both deck levels restored100%, both players cued, cue1 enabled/cue2 disabled, backlight0.
+
+## Crossfader assignment and endpoint verification
+
+Crossfader initially had no audible effect: read-only native mixer inspection showed assignment0 (bypass) on both input channels. Startup now invokes DjEngineIF::setCrossFaderAssign0x4cc0c with input0/assignment1 (left/A) and input1/assignment2 (right/B). No fader-value scaling changed.
+
+Fresh runtime PID17134: deck1 playing, cross value1 gave master RMS/peaks exactly0 while cue remained234.71/230.90 RMS; value0 restored master107.40/97.04. Deck1 then cued and Abacus loaded on deck2. With cue2 enabled, value1 gave master50.67/34.64 and headphones142.35/97.36; value0 gave exactly zero master and headphones144.57/127.08; returning to1 restored master47.68/40.66. Each playing sample contained40distinct hardware buffers. Thus both opposite-deck endpoint mutes and prefader headphone monitoring are verified in hardware output data.
+
+Important replay correction: Load buttons follow the currently selected track row. One attempted deck2 load used stale first-row coordinates and never loaded a track; screenshots showed the selected Abacus row's Load2 at physical1812,562. Clicking that observed position loaded successfully. Zero output before confirmed load/play was excluded from the endpoint evidence. Earlier claims attributing all such misses to load timing were too strong; use current screen evidence before replaying dependent steps.
+
+Crossfader returned to center; both decks cued; deck levels100%, cue1on/cue2off; backlight0. The panel still represents crossfader as a vertical slider: a horizontal A/B layout is an open usability improvement.

@@ -22,6 +22,9 @@ static void *control_thread(void *unused){
  while(!engine){engine=*(void *volatile *)0x0268617c;if(!engine)sleep(1);}
  ((void (*)(void*,int,int))0x50598)(engine,0,0);
  ((void (*)(void*,int,int))0x50598)(engine,1,1);
+ /* Native assignment0 bypasses the crossfader; assign the two decks A/B. */
+ ((void (*)(void*,int,int))0x4cc0c)(engine,0,1);
+ ((void (*)(void*,int,int))0x4cc0c)(engine,1,2);
  void (*sendkey)(void*,int,int,int,long,float,long)=rx3_dispatch_key;
  for(int ch=1;ch<=2;ch++){
   const int keys[]={0x5019,0x501a,0x501b,0x501c,0x509d,0x501e};

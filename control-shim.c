@@ -68,10 +68,30 @@ static void *control_thread(void *unused){
    }
    continue;
   }
+  /* BiteDJ Prepare maps to the native temporary Tag List. */
+  if(c.operation==0&&(c.extra==0x4254||c.extra==0x4251)){
+   if(!player_screen_active())continue;
+   if(c.extra==0x4254){
+    if(!(!main_panel_visible()&&((int(*)(void))0x1126d0)()==4)){
+     sendkey(manager,0x203,0,0,0,0.f,0);sendkey(manager,0x203,2,0,0,0.f,0);
+    }
+   }else{
+    if(main_panel_visible()){
+     sendkey(manager,0x202,0,0,0,0.f,0);sendkey(manager,0x202,2,0,0,0.f,0);
+     for(int tries=0;tries<100&&main_panel_visible();tries++)usleep(10000);
+     if(main_panel_visible())continue;
+     usleep(50000);
+    }
+    sendkey(manager,0x420e,0,0,0,0.f,0);
+    if(((int(*)(void))0x1126d0)()==4)sendkey(manager,0x420e,1,0,0,0.f,0);
+    sendkey(manager,0x420e,2,0,0,0.f,0);
+   }
+   continue;
+  }
   /* BiteDJ VIEW opens Browse; BACK opens Browse or steps up in it.
    * Consume release in the bridge and emit paired native key events here. */
   if(c.operation==0&&(c.extra==0x4256||c.extra==0x424b)){
-   if(main_panel_visible()){
+   if(main_panel_visible()||(c.extra==0x4256&&(!main_panel_visible()&&((int(*)(void))0x1126d0)()==4))){
     sendkey(manager,0x202,0,0,0,0.f,0);
     sendkey(manager,0x202,2,0,0,0.f,0);
    }else if(c.extra==0x424b){

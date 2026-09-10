@@ -25,6 +25,8 @@ class Bridge:
    else:continue
    mode='button';native=BUTTONS.get(key)
    if g=='[Tab]' and key in ('library','PioneerDDJFLX6.viewPressed'):native=0x202;mode='view'
+   if key=='PrepareView':native=0x203;mode='prepare-view'
+   if key=='PrepareToggle':native=0x420e;mode='prepare-toggle'
    if key=='PioneerDDJFLX6.backPressed':native=0x420d;mode='back'
    if key in ANALOG:native=ANALOG[key];mode='analog'
    if key=='PioneerDDJFLX6.jogTurn':native=0x4305;mode='jog'
@@ -53,7 +55,9 @@ class Bridge:
   item=self.mapping.get((status,note))
   if not item:return
   key,ch,mode=item
-  if mode in ('view','back'):
+  if mode in ('prepare-view','prepare-toggle'):
+   if value:self.emit(key,0,ch,0,0.,0x4254 if mode=='prepare-view' else 0x4251)
+  elif mode in ('view','back'):
    if value:self.emit(key,0,ch,0,0.,0x4256 if mode=='view' else 0x424b)
   elif mode=='jog':
    j=self.jogs[ch];delta=value-64

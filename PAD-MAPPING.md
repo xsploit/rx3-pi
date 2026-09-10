@@ -54,4 +54,10 @@ Each deck now has Hot Cue, Beat Loop, Slip Loop and Beat Jump buttons directly a
 
 All four selectors and both banks were verified by touch replay on both decks. Touch-only Beat Jump forward/back and four-beat loop on/off also passed. Physical finger testing and the full set of secondary-bank pad actions remain pending.
 
-Touch Slip Loop bank1 (native mode2), pad5 is a one-beat temporary loop. Hold/release and interrupted-reader cleanup were verified on both decks: the loop exited and playback returned to the advancing background position. Exit can complete after the pad-held flag clears; do not treat that flag alone as proof that slipping has ended. Other Slip Loop sizes and the second bank remain unverified.
+Touch Slip Loop bank1 (native mode2), pad5 is a one-beat temporary loop. Hold/release and interrupted-reader cleanup were verified on both decks: the loop exited and playback returned to the advancing background position. Exit can complete after the pad-held flag clears; do not treat that flag alone as proof that slipping has ended. All eight first-bank sizes subsequently passed hold/release checks on both decks (see below). Release FX actions in the second bank remain unverified.
+
+## Slip Loop sizes and Release FX bank
+
+Native mode2 has these pad sizes, in row order: 1/16, 1/8, 1/4, 1/2, 1, 2, 1/3 and 3/4 beat. Touch replay verified each size on both playing decks. Measured loop lengths were41,81,162,323,645,1290,215 and484ms at93BPM, within1ms of the expected durations. All16 releases exited slipping and returned playback to within10ms of the advancing background position. This does not replace physical finger testing.
+
+Native mode6 (tap the selected Slip Loop selector again) is **Release FX**, not another set of Slip Loop sizes. Its displayed pads are V.Brake Short, B.Spin Short, Echo Out, Mute, V.Brake Long, B.Spin Long, Build Up and Ducking. These labels were inspected on the running player's framebuffer; the effect actions and release behavior have not yet been verified. The mode selector currently displays Slip Loop with a `2` badge for this bank.

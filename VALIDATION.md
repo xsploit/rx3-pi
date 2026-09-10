@@ -276,3 +276,9 @@ Native touch bank2 pad5 (one beat) was tested on both playing decks through the 
 These wait values are not total finger-release latency. An initial test failed by checking continuation100ms after the reader finished: deck2's pad-held flag had cleared, but slipping was still active. Follow-up traces showed the native background time continuing; waiting for the actual slipping flag to clear resolved the discrepancy. This is consistent with native quantized exit, not evidence that a cleanup patch was needed. No runtime code change was made.
 
 Final readback over300ms confirmed both banks0, slip-loop/slipping flags0 and stationary positions577/427ms. Native PID21886 stayed running, backlight0. This verifies one-beat Slip Loop and reader cleanup on both decks; other Slip Loop sizes/banks and physical finger release still need verification.
+
+## All first-bank Slip Loop sizes
+
+`touch-slip-sizes-trial.py` in local research and Pi home extended the prior live test to all eight native mode2 pads on both decks. Each trial selected the bank by touch, started playback, held the pad through the deployed evdev bridge, checked loop bounds against the pad's beat fraction, released, and waited for native slipping to end. All16 trials passed. Sizes1/16,1/8,1/4,1/2,1,2,1/3,3/4 produced41,81,162,323,645,1290,215,484ms bounds at93BPM. Final playback/background difference was at most10ms. Raw results are retained in local research `touch-slip-sizes-results.json`.
+
+Framebuffer inspection also established that native mode6 displays Release FX (brake/backspin short/long, echo out, mute, build up, ducking), rather than more loop sizes. No effect actions were triggered in that bank. No runtime patch was needed. Both decks ended in Hot Cue mode0 with slip flags clear and positions stationary over300ms at577/427ms; player PID21886, backlight0. Actual physical finger input, Release FX behavior and other outstanding compatibility work remain unverified.

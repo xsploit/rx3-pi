@@ -6,7 +6,7 @@ import argparse, ctypes, errno, json, os, re, signal, struct, subprocess, time
 import xml.etree.ElementTree as ET
 BUTTONS={'play':0x4101,'cue_default':0x4102,'loop_in':0x410c,'loop_out':0x410d,
  'reloop_toggle':0x410e,'slip_enabled':0x4110,'sync_enabled':0x4112,'sync_leader':0x4111,
- 'keylock':0x4108,'quantize':0x410b,'pfl':0x5020,'LoadSelectedTrack':0x4311,
+ 'keylock':0x4108,'PioneerDDJFLX6.cycleTempoRange':0x4107,'quantize':0x410b,'pfl':0x5020,'LoadSelectedTrack':0x4311,
  'MoveFocusForward':0x420c,'MoveFocusBackward':0x420d,'PioneerDDJFLX6.shiftPressed':0x4103}
 ANALOG={'pregain':0x5019,'parameter3':0x501a,'parameter2':0x501b,'parameter1':0x501c,
  'volume':0x501e,'super1':0x509d,'crossfader':0x6017,'headMix':0x4405}

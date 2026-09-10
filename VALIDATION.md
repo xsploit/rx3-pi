@@ -457,3 +457,11 @@ Native Search key0205 opens a working touchscreen keyboard. Added SEARCH as the 
 Live PID34558 passed a touch-only workflow: Browse, Search, type ESTARA, tap the result to dismiss the keyboard, Load2 from the native information pane, Mixer headphone Cue2, Play2. Search returned Estara by AAMAR, SVMMER SVN vol.4. Native screenshots confirmed the query/result and visible Load buttons. Deck2 loaded original BPM9505; playback yielded40distinct DMA buffers with RMS65.94/70.28/262.48/279.75. Touch Cue2 restored cue, its added headphone selection was removed, and Mixer closed. Search text was cleared through the keyboard and Player returned to main (visibility confirmed).
 
 Final deck1Aaliyah9307/deck2Estara9505, both cued at original tempo, range10, keylockoff, Syncoff. Backup runtime/lib/fbshim-pre-touch-search.so. Research touch-search-trial.py and screenshots /tmp/touch-search-track.png, /tmp/search-estara.png. Long queries, number/symbol layouts, empty/no-match results, physical keyboard feel and other media remain unverified.
+
+## FLX6 tempo-range buttons (2026-09-10)
+
+The installed BiteDJ XML binds 90/91 60 to PioneerDDJFLX6.cycleTempoRange; the RX3 bridge previously ignored these controls. Both now send native TempoRange4107 press/release. Native ranges cycle 6, 10, 16, WIDE100 percent. The mapping now contains123 bindings.
+
+Live player PID34558: replayed the installed XML mappings through the bridge and native queue. Each deck cycled10→16→100→6→10; releases did not advance again, the other deck remained unchanged, and both decks stayed cued at zero tempo. Final state exactly matched the initial probe. Research midi-tempo-range-trial.py includes bounded restoration. This verifies MIDI translation and native behavior, not a physical button press.
+
+Also corrected the stale navigation regression expectation: encoder push now emits one4250 intent, whose native adapter generates paired events, rather than emitting the old raw pair. Navigation and MIDI reconnect tests pass locally; navigation also passed on Pi. Replaced and restarted only the MIDI reader, which opened FLX6 hw:2,0,0 with123 bindings; the native player remainedPID34558 and backlight0. Previous bridge is home/flx6-rx3-pre-midi-range.py. Shifted jogs and remaining unmapped controls are still pending.

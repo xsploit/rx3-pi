@@ -24,6 +24,13 @@ static int rx3_tempo_pickup_position(unsigned bpm,unsigned original,int range,in
  *position=!catchup?0.f:(catchup==limit?1.f:(catchup==-limit?-1.f:(catchup+(catchup>0?step*.25f:-step*.25f))/limit));
  return 1;
 }
+/* UiGetPlayBpm/UiGetPlayOriginalBpm contain a +5 bias for tenths display
+ * rounding (PlayerInnards::getStat at 0x30164c/0x301664). Undo that bias
+ * before calculating a speed ratio; leave display callers unchanged. */
+static int rx3_tempo_pickup_from_snapshot(unsigned bpm,unsigned original,int range,int current,int *rate,float *position){
+ if(bpm<=5||original<=5||bpm>=100000||original>=100000)return 0;
+ return rx3_tempo_pickup_position(bpm-5,original-5,range,current,rate,position);
+}
 static int rx3_tempo_fine_position(int current,int range,int direction,float *position){
  int step=rx3_tempo_step(range);if(!step||!position||(direction!=1&&direction!=-1))return 0;
  int limit=range*100;

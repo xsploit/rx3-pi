@@ -543,3 +543,11 @@ Only one queued grid command is applied per render interval because the native s
 Built/deployed combined ARM32 shim, backup/lib/fbshim-pre-grid-save.so. PID37857, Aaliyah/Estara, GRIDoff and active deck2: an immediate burst of8alternating commands produced offsets+80/−80 without changing GRID or active selection. Clean player stop/restart, touch reloaded both tracks intoPID38066, offsets+80/−80 survived. This verifies both-deck save persistence for that burst, addressing the prior session-only failure. Research grid-save-restart-trial.py and grid-persistence-load.py retain the actions/probes. Grid quantum and Shift/scratch parser regressions passed locally.
 
 Restoration verification: PID38066 restored both offsets to0 through the new outside-GRID path. After another clean restart/touch reload, PID38263 read offsets0/0,GRID0,active deck2. Both modified analysis DATs (P035/00002653 and P055/00014A79) were byte-identical to the recovery-snapshot copies. Post-restart playback check completed separately below. BiteDJ and read-only original USB1 unchanged.
+
+## BPM rounding in post-Sync touch pickup
+
+RX3 v1.19 PlayerInnards::getStat adds 5 hundredths BPM to both snapshot BPM fields for tenths display rounding (0x30164c and 0x301664). Touch pickup now removes this bias before calculating a speed ratio; Mixer display keeps the native biased value for correct tenths rounding.
+
+The regression test reproduces the old wrong-side catch: biased 99 BPM / 100 BPM from below maps to -0.98% rather than exactly -1%. The corrected snapshot wrapper catches -1%; positive direction and invalid snapshots are covered as well. Existing exhaustive native-bin tests pass. This does not enable the experimental 25% range.
+
+Deployed combined ARM32 shim on player38769. Live native-touch replay passed 12 same-track post-Sync cases: deck2 at10% (both held signs and both fine directions), deck1 atWIDE and6% (same combinations). Assertions verify released native tempo hold, expected one-bin rate, corresponding BPM change and unchanged other deck. Final separate probe confirms both cued, Sync off, rate0, range10; backlight0. Both decks currently contain Aaliyah Try Again. Physical touch feel, different-track cases after this correction and playback-time pickup remain outside this check. Rollback library: /lib/fbshim-pre-bpm-bias.so in chroot.

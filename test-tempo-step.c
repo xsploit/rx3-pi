@@ -39,5 +39,16 @@ int main(void){
  assert(rx3_tempo_pickup_position(9307,12605,100,-5000,&held,&p)&&held==-2600&&quantize(p,100)==-2600);
  assert(rx3_tempo_pickup_position(12605,9307,100,0,&held,&p)&&held==3550&&quantize(p,100)==3550);
  assert(rx3_tempo_pickup_position(12605,9307,100,5000,&held,&p)&&held==3550&&quantize(p,100)==3500);
+ /* Snapshot values include +5 display bias. A held 99 BPM on a 100
+  * BPM track is exactly -1%; from below, catch at -1%, not -0.98%. */
+ assert(rx3_tempo_pickup_from_snapshot(9905,10005,6,-200,&held,&p));
+ assert(held==-100&&quantize(p,6)==-100);
+ assert(rx3_tempo_pickup_position(9905,10005,6,-200,&held,&p));
+ assert(quantize(p,6)==-98); /* Demonstrates the old wrong-side catch. */
+ assert(rx3_tempo_pickup_from_snapshot(10105,10005,6,200,&held,&p));
+ assert(held==100&&quantize(p,6)==100);
+ assert(!rx3_tempo_pickup_from_snapshot(5,10005,6,0,&held,&p));
+ assert(!rx3_tempo_pickup_from_snapshot(9905,5,6,0,&held,&p));
+ assert(!rx3_tempo_pickup_from_snapshot(0xffffffffu,10005,6,0,&held,&p));
  puts("PASS all native tempo bins, endpoints, signed zero crossings and invalid ranges");
 }

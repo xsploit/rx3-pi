@@ -36,7 +36,7 @@ WRAP2(snd_pcm_hw_params_any)
 int snd_pcm_hw_params_set_access(void*a,void*b,int c){static int(*real)(void*,void*,int);if(!real)real=dlsym((void*)-1,"snd_pcm_hw_params_set_access");return logresult("interleaved access",real(a,b,c==4?3:c));}
 WRAP3(snd_pcm_hw_params_set_format)
 WRAP3(snd_pcm_hw_params_set_channels)
-int snd_ctl_open(void **ctl,const char *name,int mode){static int(*real)(void**,const char*,int);if(!real)real=dlsym((void*)-1,"snd_ctl_open");return logresult("CTL open",real(ctl,"hw:2",mode));}
+int snd_ctl_open(void **ctl,const char *name,int mode){static int(*real)(void**,const char*,int);if(!real)real=dlsym((void*)-1,"snd_ctl_open");return logresult("CTL open",real(ctl,"hw:CARD=DDJFLX6",mode));}
 int snd_pcm_hw_params_get_channels_max(const void *p,unsigned *v){static int(*real)(const void*,unsigned*);if(!real)real=dlvsym((void*)-1,"snd_pcm_hw_params_get_channels_max","ALSA_0.9.0rc4");int r=real(p,v);if(r>=0&&*v>2)*v=2;logresult("channels max",*v);return logresult("channels max result",r);}
 int snd_ctl_pcm_info(void *ctl,void *info){
  static int(*real)(void*,void*);static int(*stream)(const void*);

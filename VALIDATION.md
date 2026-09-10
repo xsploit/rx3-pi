@@ -27,3 +27,9 @@ Shared `native-screen.h` detects the main deck panel before waveform allocation.
 From freshly restarted player with no tracks loaded, replayed only touchscreen coordinates through the physical input bridge: Source(1800,30), USB2row(600,350), rowarrow(1040,350), Tracktab(75,345), Load1(1620,187), Play1(360,30), Cue1(600,30). USB2 displayed13646songs; Aaliyah/Try Again loaded, playback advanced to04:33.773remaining, and Cue returned to04:43.942. No direct load/play/control FIFO commands were used for this flow. These are software replay checks, not physical finger testing.
 
 The small native transport surface is fully repainted under one lock on each GUI pass. After Cue,118completed-frame samples all retained2435white text pixels; complete-frame sequence10244 screenshot confirms labels and paused cue position. Some raw framebuffer screenshots caught missing labels during redraw; they are not evidence of displayed label loss. Use completed-frame capture for future visual checks. Backlight stayed0; presentation remained60FPS.
+
+## Stable FLX6 audio identity
+
+Replaced numeric `hw:2,0` in the dmix slave with `hw:CARD=DDJFLX6,DEV=0`, and the control-device redirect with `hw:CARD=DDJFLX6`. The ALSA card-name lookup resolved to the connected FLX6 and its control device opened successfully. After rebuilding/restarting, hardware negotiation remained four-channel S16_LE at44100Hz, period128frames, buffer512frames.
+
+Touch replay loaded and played Aaliyah/Try Again. Completed-frame screenshot showed the native playback position advancing. The hardware stream was RUNNING with advancing hardware pointer; direct inspection of its mapped DMA buffer found changing, nonzero samples on all four channels across three captures (RMS approximately104–346 in signed16-bit units). This establishes active output data, not a new human listening test. Physical USB enumeration changes and unplug/replug recovery were not exercised. Backlight remained0.

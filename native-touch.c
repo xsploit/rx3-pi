@@ -48,9 +48,21 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
    int direction=0,fine=mixer_tempo_step_at(t->x,t->y,&direction);
    if(fine>=0){
     int deck=fine-16;float position;held_key=-1;
-    if(rx3_tempo_fine_position(((int(*)(int))0xfd2dc)(deck),((int(*)(int))0xfd2b4)(deck),direction,&position)){
+    int current=((int(*)(int))0xfd2dc)(deck),range=((int(*)(int))0xfd2b4)(deck);
+    float catchup=0;int pickup=0;
+    /* Native tempo target is valid while Sync or post-Sync pickup holds tempo.
+     * Keep active Sync under native control. After it is off, catch the held
+     * playback tempo before applying the requested fine step. */
+    if(((unsigned(*)(int))0xfd28c)(deck)!=0xffffffffu&&!((int(*)(int))0xfde60)(deck)){
+     pickup=rx3_tempo_pickup_position(((unsigned(*)(int))0xfd1fc)(deck),((unsigned(*)(int))0xfd244)(deck),range,&current,&catchup);
+     if(!pickup)return; /* A held tempo outside this range cannot be caught. */
+    }
+    if(rx3_tempo_fine_position(current,range,direction,&position)){
      void *root=*(void**)handler;void *manager=root?*(void**)((char*)root+0x64):0;
-     if(manager)rx3_dispatch_key(manager,0x4109,5,deck+1,0,position,0);
+     if(manager){
+      if(pickup)rx3_dispatch_key(manager,0x4109,5,deck+1,0,catchup,0);
+      rx3_dispatch_key(manager,0x4109,5,deck+1,0,position,0);
+     }
     }
     return;
    }

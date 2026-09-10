@@ -371,3 +371,13 @@ Mixer now labels the percentage FADER % and shows a separate effective BPM from 
 The live trial verified deck1 Sync following deck2: both effective BPM8842, deck1 fader+500, deck2-500, master flagdeck2 and Sync flagdeck1. After Sync off and deck1 fadercenter, its effective BPM stayed8842 while fader became0. Forty distinct DMA buffers, RMS79.48/81.19/223.90/227.11. The initial attempted reproduction synchronized the already-master deck2 and did not create pickup; its assertion failed and cleanup restored both decks. The corrected trial used deck1 as follower.
 
 Final: both cued, actual/original BPM9307, faders0, Syncoff, range10, keylockoff, Mixerclosed, backlight0. Backup runtime/lib/fbshim-pre-bpm-feedback.so. Fine-button takeover remains unresolved; this change makes the separate values visible and does not override native pickup.
+
+## Touch fine tempo after Sync pickup
+
+Live PID29497 adds a native-input catch-up before the fine step when the native tempo target is valid and Sync slave is off. It estimates the held rate from effective/original BPM, rounds to the nearest supported slider bin, dispatches that fader position, then dispatches the requested adjacent bin. It does not clear engine flags or write engine state directly. Invalid BPM and held speeds outside the selected range are refused.
+
+Host ASan/UBSan tests cover every native fine bin, exact 100-BPM pickup bins across all four ranges, the observed 93.07-BPM ±5% cases, invalid inputs and range refusal. Live touch replay passed 16 deck1 pickup cases: plus/minus from each sign at half-range in 6%, 10%, 16%, WIDE. Exact fader targets and released pickup state were checked, with other-deck isolation. The initial WIDE case failed a test's absolute BPM ratio assumption despite reaching the correct -50.50% target; the corrected check measures the one-step BPM delta, within 0.02 BPM of the expected delta. Eight 10/16 cases were captured in command output; the repeated WIDE/6 cases are saved in research/pickup-touch-results.json.
+
+Four deck2 ±5% plus/minus pickup cases also passed. During playback, deck2 fine-plus caught +5% and reached +5.05%, effective BPM9777 versus master9772; 40 distinct DMA buffers, RMS80.33/76.17/202.57/186.86. Final both decks cued, actual/original BPM9307, faders0, range10, keylockoff, Syncoff, Mixerclosed, brightness0. Backup runtime/lib/fbshim-pre-fine-pickup.so.
+
+Remaining limits: held rate estimation uses BPM values rounded to hundredths, not the engine's full-precision tempo. Different-track/off-grid targets, very low BPM, out-of-range live behavior, rapid Sync transitions and physical controller pickup after touch takeover need further verification. These tests do not establish every Sync/pickup case.

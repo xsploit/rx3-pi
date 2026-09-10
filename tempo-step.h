@@ -2,6 +2,21 @@
 #define RX3_TEMPO_STEP_H
 /* RX3 v1.19 Tempo::STEP_TBL_: percentage hundredths per native step. */
 static int rx3_tempo_step(int range){return range==6?2:(range==10||range==16?5:(range==100?50:0));}
+/* Quantize held playback tempo to the nearest available slider step.
+ * BPM units are hundredths. Refuse invalid or out-of-range held tempos. */
+static int rx3_tempo_pickup_position(unsigned bpm,unsigned original,int range,int *rate,float *position){
+ int step=rx3_tempo_step(range);
+ if(!step||!rate||!position||!bpm||bpm>=100000||!original||original>=100000)return 0;
+ double effective=((double)bpm/original-1.)*10000.;
+ if(effective>range*100.+1.||effective<-range*100.-1.)return 0;
+ int steps=(int)(effective/step+(effective<0?-.5:.5));
+ int target=steps*step,limit=range*100;
+ if(target>limit)target=limit;
+ if(target<-limit)target=-limit;
+ *rate=target;
+ *position=!target?0.f:(target==limit?1.f:(target==-limit?-1.f:(target+(target>0?step*.25f:-step*.25f))/limit));
+ return 1;
+}
 static int rx3_tempo_fine_position(int current,int range,int direction,float *position){
  int step=rx3_tempo_step(range);if(!step||!position||(direction!=1&&direction!=-1))return 0;
  int limit=range*100;

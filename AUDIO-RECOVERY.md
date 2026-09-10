@@ -71,3 +71,11 @@ sh test-audio-alsa-runtime.sh /home/pompu_5/rx3-rootfs
 ```
 
 The constructor harness is enabled only by RX3_TEST_PRELOAD and exits after the tests; it must never be loaded into the running player. Real FLX6/dmix reopening, stable handle forwarding, synchronization, write-error recovery, offline pacing/status and live integration remain unverified.
+
+## Bounded write recovery (not deployed)
+
+`audio-write.c/.h` now routes writes through the pair's current handle and returns separate progress, retry, unavailable and closed states. Partial writes report only accepted frames. An underrun gets one prepare/retry; suspend gets one resume attempt, with prepare fallback if unsupported. Resume EAGAIN returns for a paced later call. EINTR gets at most one immediate retry. Device loss or failed recovery invalidates both handles and uses the existing pair reopen/backoff controller. No call performs more than two writes, and failures never claim frames were played.
+
+`test-audio-write.c` passed local ASan/UBSan and a static ARM32 build on the Pi. Fake transport covers partial writes, repeated underruns, repeated interruption, EAGAIN, pending/successful/unsupported resume, failed prepare, loss originating from either output, persistent absence/backoff, use of replacement handles and clean stop. The test checks that closed handles are never written and all handles are released at the end.
+
+This helper remains outside the live shim. Its caller must serialize PCM operations and pace retry/unavailable results. Real ALSA callbacks, stable native handle routing, offline pacing/status and live interception remain integration work; these fake-transport tests do not prove physical reconnect.

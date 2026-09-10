@@ -61,3 +61,5 @@ No proprietary firmware, music, library database, SSH credentials or machine ima
 Screenshots are evidence of the development checkpoint. The Pi backlight can remain at0 while memory screenshots are taken. Do not re-enable it while the owner sleeps.
 
 The Mixer shows FADER % and effective playback BPM separately, so retained Sync/pickup tempo is visible even when the fader is centered. After Sync is switched off, fine tempo buttons first catch a held tempo within the selected range, then apply one native step. Active Sync remains under native control. Held tempos outside the current range require widening the range; different-track pickup was checked in WIDE on both decks; extreme-BPM cases and the audible transition still need validation.
+
+FLX6 tempo inputs now use soft pickup after a touchscreen tempo change: move the hardware fader to or across the touch setting before it takes control. This applies to the updated bridge and shim together. No on-screen pickup-direction indicator is present yet; physical feel remains unverified.

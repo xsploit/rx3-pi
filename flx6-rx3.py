@@ -84,7 +84,7 @@ class Bridge:
   elif mode in ('msb','tempo-msb'):self.msb[(status,note)]=value
   elif mode=='tempo-lsb':
    hi=self.msb.get((status,note-32))
-   if hi is not None:self.emit(key,5,ch,0,((hi<<7)|value)/8192.-1.,0)
+   if hi is not None:self.emit(key,5,ch,0,((hi<<7)|value)/8192.-1.,0x544d)
   elif mode=='lsb':
    hi=self.msb.get((status,note-32))
    if hi is not None:self.emit(key,4,ch,0,((hi<<7)|value)/16383.,0)

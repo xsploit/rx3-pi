@@ -1,5 +1,8 @@
 #include "mixer-state.h"
 #include <string.h>
+#include "tempo-input.h"
+static uint32_t tempo_guard;
+static struct rx3_tempo_input tempo_inputs[2];
 const struct rx3_mixer_binding rx3_mixer_bindings[RX3_MIXER_COUNT]={
  {0x5019,1},{0x501a,1},{0x501b,1},{0x501c,1},{0x509d,1},{0x501e,1},
  {0x4403,0},{0x6017,0},{0x4406,0},{0x4405,0},
@@ -33,6 +36,17 @@ int rx3_mixer_snapshot(struct rx3_mixer_snapshot *out){
  lock();memcpy(out->levels,levels,sizeof(levels));out->valid=valid;out->cue=cue;out->revision=sequence;unlock();return 1;
 }
 void rx3_dispatch_key(void *manager,int key,int operation,int channel,long value,float analog,long extra){
+ int tempo=key==0x4109&&operation==5&&(channel==1||channel==2);
+ if(tempo){
+  /* Serialize source ownership and enqueue order across GUI/MIDI inputs. */
+  while(__atomic_exchange_n(&tempo_guard,1,__ATOMIC_ACQUIRE)){}
+  int midi=extra==RX3_MIDI_TEMPO_TAG;
+  if(!rx3_tempo_input_accept(&tempo_inputs[channel-1],analog,midi)){
+   __atomic_store_n(&tempo_guard,0,__ATOMIC_RELEASE);return;
+  }
+  if(midi)extra=0;
+ }
  ((void(*)(void*,int,int,int,long,float,long))0x37ad64)(manager,key,operation,channel,value,analog,extra);
  rx3_mixer_observe(key,operation,channel,analog);
+ if(tempo)__atomic_store_n(&tempo_guard,0,__ATOMIC_RELEASE);
 }

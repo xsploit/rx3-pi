@@ -34,6 +34,7 @@ static void *control_thread(void *unused){
  ((void (*)(void*,int,int))0x4cc0c)(engine,1,2);
  void (*sendkey)(void*,int,int,int,long,float,long)=rx3_dispatch_key;
  for(int ch=1;ch<=2;ch++){
+  sendkey(manager,0x4109,5,ch,0,0.f,0);
   const int keys[]={0x5019,0x501a,0x501b,0x501c,0x509d,0x501e};
   for(int i=0;i<6;i++)sendkey(manager,keys[i],4,ch,0,i==5?1.f:.5f,0);
  }

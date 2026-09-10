@@ -3,7 +3,8 @@
 const struct rx3_mixer_binding rx3_mixer_bindings[RX3_MIXER_COUNT]={
  {0x5019,1},{0x501a,1},{0x501b,1},{0x501c,1},{0x509d,1},{0x501e,1},
  {0x4403,0},{0x6017,0},{0x4406,0},{0x4405,0},
- {0x5019,2},{0x501a,2},{0x501b,2},{0x501c,2},{0x509d,2},{0x501e,2}
+ {0x5019,2},{0x501a,2},{0x501b,2},{0x501c,2},{0x509d,2},{0x501e,2},
+ {0x4109,1},{0x4109,2}
 };
 /* Multiple input threads are serialized only for this small metadata update. */
 static uint32_t guard,sequence,levels[RX3_MIXER_COUNT],valid,cue,held;
@@ -11,7 +12,11 @@ static void lock(void){while(__atomic_exchange_n(&guard,1,__ATOMIC_ACQUIRE)){} }
 static void unlock(void){__atomic_store_n(&guard,0,__ATOMIC_RELEASE);}
 void rx3_mixer_observe(int key,int operation,int channel,float value){
  int index=-1;
- if(operation==4){
+ if(operation==4||(key==0x4109&&operation==5)){
+  if(key==0x4109){
+   if(operation!=5||value<-1.f||value>1.f)return;
+   value=(value+1.f)*.5f;
+  }
   for(int i=0;i<RX3_MIXER_COUNT;i++)if(rx3_mixer_bindings[i].key==key&&rx3_mixer_bindings[i].channel==channel){index=i;break;}
   if(index<0)return;
   uint32_t bits;memcpy(&bits,&value,4);

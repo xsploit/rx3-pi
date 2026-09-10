@@ -23,7 +23,7 @@ static void pad_key(void *handler,int key,int operation,int channel){
 static void slider(void *handler,int index,int x,int y){
  void *root=*(void**)handler;void *manager=root?*(void**)((char*)root+0x64):0;
  float value=mixer_slider_value(index,x,y);
- if(manager)rx3_dispatch_key(manager,rx3_mixer_bindings[index].key,4,rx3_mixer_bindings[index].channel,0,value,0);
+ if(manager)rx3_dispatch_key(manager,rx3_mixer_bindings[index].key,index>=16?5:4,rx3_mixer_bindings[index].channel,0,index>=16?2.f*value-1.f:value,0);
 }
 static void native_touch(void *handler,const struct touch *t,void *mode){
  if(held_slider>=0){if(!main_panel_visible()||!rx3_mixer_visible){held_slider=-1;held_key=t->down?-1:0;return;}if(t->down)slider(handler,held_slider,t->x,t->y);else held_slider=-1;return;}

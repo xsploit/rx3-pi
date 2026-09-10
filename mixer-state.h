@@ -1,7 +1,7 @@
 #ifndef RX3_MIXER_STATE_H
 #define RX3_MIXER_STATE_H
 #include <stdint.h>
-#define RX3_MIXER_COUNT 16
+#define RX3_MIXER_COUNT 18
 struct rx3_mixer_binding {int key,channel;};
 extern const struct rx3_mixer_binding rx3_mixer_bindings[RX3_MIXER_COUNT];
 /* Last dispatched input values, not an acknowledgement from the audio engine. */

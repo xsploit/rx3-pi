@@ -99,3 +99,15 @@ Pure clock tests passed local ASan/UBSan and ARM32 on Pi: exact accumulated dura
 The corrected static ARM32 `test-audio-pacer-clock.c`, using real absolute clock_nanosleep calls, measured1285.319ms for1280ms of blocks. This demonstrates the isolated clock's timing under that load; it does not establish live audio callback scheduling, audible continuity or USB recovery. Local research `pacer-clock-trace.c` retains the diagnostic trace program. The live player and its scheduler were not changed.
 
 All recovery components remain outside build.sh. Next connect the interposed handle-bearing ALSA calls, serialization, write handling, paced unavailable results and status reporting; then run complete-wrapper tests before deployment.
+
+## Interposed integration candidate (not deployed)
+
+`audio-proxy.c` now connects the recovery driver, stable handles, bounded writes and offline clock behind ALSA entry points. A recursive mutex serializes setup/write/close while allowing ALSA's internal calls with real handles. Vendor output names map to master/cue; unrelated streams pass through. Successful managed PCM links are recorded for replay on replacement. Unavailable writes return a paced EPIPE, which RX3 treats as a skipped block, without reporting fictitious accepted frames or entering the vendor DMA recovery branch.
+
+`audio-proxy.map` preserves ALSA symbol versions. The embedded runtime exposed two compatibility failures during testing: the modern cross-compiler defaults to time64 symbols absent from glibc2.13, and plain dlsym selected the legacy value-taking rate-near implementation. The isolated ARM32 build explicitly uses the runtime's 32-bit time ABI; the three near-setting wrappers explicitly resolve ALSA_0.9.0rc4 with dlvsym. The test exercises rate/period/period-count near setup to prevent regression.
+
+`test-audio-proxy.sh` runs a separate process against null PCM aliases, using ordinary interposed ALSA calls throughout. It covers eight immediate pair replacements plus two recoveries after simulated persistent absence, unchanged public pointers, exact hardware/software settings, actual null-PCM writes, unrelated capture, safely rejected links, both close orders and duplicate close. Offline master/cue writes share a deadline: 32 paired blocks should take92.880ms; the embedded ARM32 run measured92.977ms and92.940ms. Local ASan/UBSan also passed.
+
+`test-audio-proxy-runtime.sh` builds two temporary test DSOs linked to the embedded ALSA1.0.24.1/glibc2.13 runtime, runs them only inside a separate busybox process and removes them on exit. Never preload the constructor harness into the player. Loss and absence injection exist only with RX3_AUDIO_PROXY_TEST.
+
+The candidate is still outside build.sh and the running fbshim. Tests do not yet prove successful hardware-link replay, real FLX6/dmix device removal/reopening, concurrent close/write behavior under the player, or audible continuity. Next validate those integration boundaries and replace the old shim wrappers before controlled deployment. Waveform flicker and physical jog behavior remain separate unfinished work.

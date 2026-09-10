@@ -1,0 +1,23 @@
+ALSA_0.9 {
+ global:
+ snd_pcm_open; snd_pcm_close; snd_pcm_link; snd_pcm_writei;
+ snd_pcm_readi; snd_pcm_prepare; snd_pcm_nonblock;
+ snd_pcm_hw_params; snd_pcm_hw_params_any; snd_pcm_hw_params_current;
+ snd_pcm_hw_params_set_access; snd_pcm_hw_params_set_format;
+ snd_pcm_hw_params_set_channels; snd_pcm_hw_params_set_rate;
+ snd_pcm_hw_params_test_rate; snd_pcm_hw_params_set_period_size;
+ snd_pcm_hw_params_set_buffer_size;
+ snd_pcm_sw_params; snd_pcm_sw_params_current;
+ snd_pcm_sw_params_set_start_threshold; snd_pcm_sw_params_set_stop_threshold;
+ snd_pcm_sw_params_set_silence_threshold; snd_pcm_sw_params_set_silence_size;
+};
+ALSA_0.9.0rc4 {
+ global:
+ snd_pcm_hw_params_set_rate_near;
+ snd_pcm_hw_params_set_period_size_near;
+ snd_pcm_hw_params_set_periods_near;
+} ALSA_0.9;
+RX3_TEST {
+ global: rx3_audio_proxy_test_loss; rx3_audio_proxy_test_absent;
+ local: *;
+};

@@ -39,3 +39,9 @@ BiteDJ's shifted size controls multiply/divide the entire jump bank by16, spanni
 ## Beat Loop first bank
 
 FLX6 notes0x60–67 map to native keys0x4117–0x411e in bank1: 1/4, 1/2, 1, 2, 4, 8, 16, 32 beats. Pressing the same pad again exits the loop. Deployed MIDI replay verified all eight sizes and on/off behavior on both decks, including automatic correction from bank5. A playing four-beat loop also wrapped at approximately2.58-second intervals at93BPM with active audio. Physical pad use remains unverified.
+
+## Held MIDI pads
+
+The reader tracks each held pad's native bank. A new bank press releases old-bank pads on that deck before requesting bank selection. A delayed old-bank NoteOff cannot release a new action occupying the same native pad key. Duplicate press packets for an already-held pad are ignored; disconnect cleanup clears pad ownership. This covers MIDI-originated overlap only: simultaneous native-touch/controller bank changes still need testing.
+
+BiteDJ's `lights.*.*Mode` entries describe LED output addresses. The XML does not establish corresponding mode-button input mappings; do not infer an input handler from those LED constants alone. Actual mode-button input capture remains pending.

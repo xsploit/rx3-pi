@@ -15,7 +15,7 @@ LOOP_SIZES=("0.25","0.5","1","2","4","8","16","32")
 class Bridge:
  def __init__(self,xml,emit,clock=time.monotonic):
   self.clock=clock;self.jogs={ch:dict(total=0,delta=0,last=clock(),moved=0,speed=0) for ch in (1,2)}
-  self.emit=emit;self.mapping={};self.msb={};self.held=set();self.status=None;self.data=[]
+  self.emit=emit;self.mapping={};self.msb={};self.held=set();self.pad_held={};self.status=None;self.data=[]
   for c in ET.parse(xml).findall('.//controls/control'):
    g=c.findtext('group','');key=c.findtext('key','');match=re.search(r'\[Channel(\d)\]',g)
    if match:
@@ -58,12 +58,26 @@ class Bridge:
   elif mode=='jog':
    j=self.jogs[ch];delta=value-64
    if delta:j['delta']+=delta;j['total']+=delta;j['moved']=self.clock()
-  elif mode=='button' or mode in PAD_BANKS:
+  elif mode in PAD_BANKS:
+   bank=PAD_BANKS[mode];identity=(key,ch)
+   if value:
+    if self.pad_held.get(identity)==bank:return
+    # Release the old bank before selecting another. Each deck is independent.
+    for (old_key,old_ch),old_bank in list(self.pad_held.items()):
+     if old_ch==ch and old_bank!=bank:
+      self.emit(old_key,2,ch,0,0.,0x5040|old_bank)
+      del self.pad_held[(old_key,ch)];self.held.discard((old_key,ch))
+    self.pad_held[identity]=bank;self.held.add(identity)
+    self.emit(key,0,ch,0,0.,0x5040|bank)
+   elif self.pad_held.get(identity)==bank:
+    del self.pad_held[identity];self.held.discard(identity)
+    self.emit(key,2,ch,0,0.,0x5040|bank)
+  elif mode=='button':
    op=0 if value else 2
    if key==0x4306 and op==2:self.stop_jog(ch)
    if op==0:self.held.add((key,ch))
    else:self.held.discard((key,ch))
-   self.emit(key,op,ch,0,0.,0x5040|PAD_BANKS[mode] if mode in PAD_BANKS else 0)
+   self.emit(key,op,ch,0,0.,0)
   elif mode=='relative':
    delta=value if value<64 else value-128
    if delta:self.emit(key,4,ch,delta,0.,0x4252) # browser-only encoder intent
@@ -107,7 +121,7 @@ class Bridge:
   for ch,j in self.jogs.items():
    if j['speed'] or j['delta']:self.stop_jog(ch)
   for key,ch in list(self.held):self.emit(key,2,ch,0,0.,0)
-  self.held.clear()
+  self.held.clear();self.pad_held.clear()
 def listen_reconnecting(b,lib,running,discover,sleep=time.sleep):
  """Release controller gestures on loss; rediscover ALSA numbering on return."""
  buf=ctypes.create_string_buffer(1024)

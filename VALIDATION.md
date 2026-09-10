@@ -247,3 +247,9 @@ Added the installed `beatloop_0.25_toggle` through `beatloop_32_toggle` mappings
 Live replay began each deck in second Beat Loop bank5. All eight pads selected bank1, set the expected native numerator/denominator (1/4,1/2,1/1,2/1,4/1,8/1,16/1,32/1), enabled the loop, and disabled it on a second press. Separately, deck1 four-beat loop playback wrapped twice over six seconds; wrap observations were2.583seconds apart, with position drops2567/2565ms (sampling omits a few milliseconds around the actual2580ms boundary). Forty distinct DMA buffers showed master RMS62.22/59.48 and headphone248.06/237.12.
 
 Final readback: both banks0, loops off, positions unchanged over300ms (deck1 4447ms, deck2 577ms). This verifies stopped playback; tests did not preserve the original temporary cue position. Native PID21099 continued throughout, screen brightness0. Physical pads, shifted jump banks, other pad modes, LED feedback and simultaneous held pads remain open.
+
+## Held pads across bank changes
+
+`test-held-pads.py` passes locally and on Pi. It holds two hot cues on deck1 and one on deck2, switches deck1 to Beat Loop, verifies old-pad releases precede the new press, then sends late old-bank NoteOff messages and a duplicate loop press. Neither disturbs the new held loop; deck2 stays held independently. Correct current-bank release and disconnect cleanup are also verified. Existing pad mapping, navigation and MIDI recovery tests passed.
+
+Reader deployed with backup `flx6-rx3-pre-held-pads.py`; native PID21099 continued. Live Beat Jump parser-to-player regression again passed all±1/2/4/8 distances on both decks, returning to4447ms/577ms respectively. Hot Cue banks restored. These live checks verify normal pad routing remains functional; the overlapping physical-pad scenario is still unverified, as are concurrent native-touch/controller changes. No mode-button input mappings were invented from BiteDJ LED-output constants.

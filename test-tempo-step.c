@@ -20,18 +20,24 @@ int main(void){
  }
  assert(!rx3_tempo_fine_position(0,7,1,&p));assert(!rx3_tempo_fine_position(0,10,0,&p));
  int held;
- assert(rx3_tempo_pickup_position(9772,9307,10,&held,&p)&&held==500&&quantize(p,10)==500);
- assert(rx3_tempo_pickup_position(8842,9307,10,&held,&p)&&held==-500&&quantize(p,10)==-500);
+ assert(rx3_tempo_pickup_position(9772,9307,10,0,&held,&p)&&held==500&&quantize(p,10)==500);
+ assert(rx3_tempo_pickup_position(8842,9307,10,0,&held,&p)&&held==-500&&quantize(p,10)==-500);
  for(unsigned r=0;r<4;r++){
   int range=ranges[r],step=rx3_tempo_step(range);
   for(int rate=-range*100+step;rate<=range*100;rate+=step){
    /* 100 BPM gives exact BPM hundredths for every native tempo bin. */
-   assert(rx3_tempo_pickup_position(10000+rate,10000,range,&held,&p));
+   assert(rx3_tempo_pickup_position(10000+rate,10000,range,0,&held,&p));
    assert(held==rate&&quantize(p,range)==rate);
   }
  }
- assert(!rx3_tempo_pickup_position(20000,10000,6,&held,&p));
- assert(!rx3_tempo_pickup_position(0xffffffffu,10000,10,&held,&p));
- assert(!rx3_tempo_pickup_position(10000,0,10,&held,&p));
+ assert(!rx3_tempo_pickup_position(20000,10000,6,0,&held,&p));
+ assert(!rx3_tempo_pickup_position(0xffffffffu,10000,10,0,&held,&p));
+ assert(!rx3_tempo_pickup_position(10000,0,10,0,&held,&p));
+ /* Off-grid 126.05 BPM track held at 93.07: nearest -26%, but catch
+  * must cross -26.16% before stepping back up toward -25.5%. */
+ assert(rx3_tempo_pickup_position(9307,12605,100,0,&held,&p)&&held==-2600&&quantize(p,100)==-2650);
+ assert(rx3_tempo_pickup_position(9307,12605,100,-5000,&held,&p)&&held==-2600&&quantize(p,100)==-2600);
+ assert(rx3_tempo_pickup_position(12605,9307,100,0,&held,&p)&&held==3550&&quantize(p,100)==3550);
+ assert(rx3_tempo_pickup_position(12605,9307,100,5000,&held,&p)&&held==3550&&quantize(p,100)==3500);
  puts("PASS all native tempo bins, endpoints, signed zero crossings and invalid ranges");
 }

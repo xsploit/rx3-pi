@@ -381,3 +381,13 @@ Host ASan/UBSan tests cover every native fine bin, exact 100-BPM pickup bins acr
 Four deck2 ±5% plus/minus pickup cases also passed. During playback, deck2 fine-plus caught +5% and reached +5.05%, effective BPM9777 versus master9772; 40 distinct DMA buffers, RMS80.33/76.17/202.57/186.86. Final both decks cued, actual/original BPM9307, faders0, range10, keylockoff, Syncoff, Mixerclosed, brightness0. Backup runtime/lib/fbshim-pre-fine-pickup.so.
 
 Remaining limits: held rate estimation uses BPM values rounded to hundredths, not the engine's full-precision tempo. Different-track/off-grid targets, very low BPM, out-of-range live behavior, rapid Sync transitions and physical controller pickup after touch takeover need further verification. These tests do not establish every Sync/pickup case.
+
+## Different-track pickup crossing
+
+Loading Aarena (Knock2 Remix) into deck2 produced original BPM12605 versus Aaliyah9307 on deck1. This exposed a real bug: in WIDE, holding deck2 at9307 then tapping plus from a centered fader changed the raw rate to-2550 but left pickup active and actual BPM9307. The nearest -26% bin had not crossed the actual approximately-26.16% held speed.
+
+The catch-up helper now chooses a bin across the held speed in the direction from the current fader; the requested final fine value still uses the nearest held bin plus/minus one native step. Host ASan/UBSan tests retain all-bin coverage and add both sides of positive/negative different-track targets. Live PID30356 passed12 cases: each deck as follower, starting fader0/+50/-50%, plus and minus. Negative held target reaches-25.5% (93.92 BPM) or-26.5% (92.66 BPM); positive reaches+36% (126.56 BPM) or+35% (125.63 BPM). Pickup is cleared, BPM moves in the requested direction, and the other deck is unchanged.
+
+The final positive-minus case was executed while both decks played and read actual BPM12563/rate3500 on deck1. After resetting its fader, still-running audio yielded40 distinct DMA buffers, RMS84.18/71.12/331.39/276.89; this verifies continued output after the interaction, not audible transition quality. Final both cued, original/actual BPM9307 and12605, faders0, range10, keylockoff, Syncoff, Mixerclosed, brightness0. Backup runtime/lib/fbshim-pre-cross-track.so.
+
+Research results: cross-track-fixed-results.json and cross-track-positive-results.json. The bin crossing can briefly traverse an adjacent native tempo bin before settling; its audible effect and physical MIDI takeover remain unverified. Extreme/very-low BPM, rapid state changes and out-of-range live cases remain open.

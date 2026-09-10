@@ -54,7 +54,7 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
      * Keep active Sync under native control. After it is off, catch the held
      * playback tempo before applying the requested fine step. */
     if(((unsigned(*)(int))0xfd28c)(deck)!=0xffffffffu&&!((int(*)(int))0xfde60)(deck)){
-     pickup=rx3_tempo_pickup_position(((unsigned(*)(int))0xfd1fc)(deck),((unsigned(*)(int))0xfd244)(deck),range,&current,&catchup);
+     pickup=rx3_tempo_pickup_position(((unsigned(*)(int))0xfd1fc)(deck),((unsigned(*)(int))0xfd244)(deck),range,current,&current,&catchup);
      if(!pickup)return; /* A held tempo outside this range cannot be caught. */
     }
     if(rx3_tempo_fine_position(current,range,direction,&position)){

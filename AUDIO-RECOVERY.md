@@ -1,6 +1,6 @@
 # Audio recovery investigation
 
-Status: reconnect is not implemented or verified. This is distinct from the working MIDI rediscovery loop. The live player was left running and paused; no USB device was detached and no native audio error was injected.
+Status: the pair-reopen controller is implemented and tested in isolation; live reconnect is not integrated or verified. This is distinct from the working MIDI rediscovery loop. The live player was left running and paused; no USB device was detached and no native audio error was injected.
 
 ## Verified native error path
 
@@ -24,6 +24,23 @@ Master and headphone PCMs are separate `rx3out` and `rx3cue` plug/route handles 
 
 Intercept playback errors before the vendor DMA branch, distinguish recoverable underrun/suspend from device loss, and coordinate replacing both output handles and their configuration. All subsequent prepare/close calls must resolve to the replacement handle. Bound retries and pace output while hardware is absent; avoid a busy loop. Preserve native track/deck state and report audio unavailability rather than silently claiming playback success.
 
-Before live detach testing, use isolated fake ALSA transport to exercise failure during either output, persistent absence, reopen failure, card-number changes, parameter failure, cleanup and successful recovery. Then verify actual master/cue audio after reconnect while retaining loaded tracks and touch responsiveness. This document records the design constraints; none of those recovery gates has passed yet.
+Before live detach testing, use isolated fake ALSA transport to exercise failure during either output, persistent absence, reopen failure, card-number changes, parameter failure, cleanup and successful recovery. Then verify actual master/cue audio after reconnect while retaining loaded tracks and touch responsiveness. The isolated pair-lifecycle checks below now pass. Real ALSA configuration, write-error handling, pacing and live reconnect gates remain open.
 
 Local research contains `alsa-thread-disasm.txt` and `alsa-parameters-disasm.txt` from the live executable. No runtime code was changed in this investigation.
+
+## Pair-reopen controller (not deployed)
+
+`audio-recovery.c/.h` owns the master/cue pair and coordinates device-loss cleanup and reopening. Either output losing the hardware invalidates both handles. Repeated loss reports do not restart the retry clock. Failed attempts are separated by at least1000ms measured from their start. Replacements become available only after both `open_configured` callbacks succeed; a failed callback's partial handle and any completed sibling are closed. Stop prevents further reopening and closes remaining handles exactly once.
+
+The caller must serialize writes, close and controller operations. Driver callbacks must be bounded and must restore the saved hardware/software configuration. The controller does not call ALSA, sleep, generate audio, or claim discarded frames were played. It is intentionally absent from `build.sh` until the ALSA adapter and pacing logic are implemented.
+
+`test-audio-recovery.c` passed with local AddressSanitizer/UndefinedBehaviorSanitizer and as a statically linked ARM32 executable on the Pi. It exercises persistent absence, one-second retry gating under repeated callbacks, duplicate loss reports, failure configuring either output, success with a null handle, simulated card-number change, successful pair replacement, offline stop and live stop. The fake driver checks that neither replacement is published while configuration is incomplete and that cleanup leaks no handles. This is lifecycle evidence, not proof that real ALSA parameters or USB devices recover.
+
+Local test:
+
+```sh
+gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -o /tmp/test-audio-recovery audio-recovery.c test-audio-recovery.c
+/tmp/test-audio-recovery
+```
+
+Next integrate a driver that saves/restores real ALSA parameters, resolves stable caller handles to replacements, distinguishes recoverable errors from device loss, and provides paced unavailable output. Keep the vendor DMA error path unreachable for managed output errors. Then test the adapter before any live USB detach.

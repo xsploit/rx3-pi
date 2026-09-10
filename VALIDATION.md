@@ -95,3 +95,11 @@ Fresh runtime PID17134: deck1 playing, cross value1 gave master RMS/peaks exactl
 Important replay correction: Load buttons follow the currently selected track row. One attempted deck2 load used stale first-row coordinates and never loaded a track; screenshots showed the selected Abacus row's Load2 at physical1812,562. Clicking that observed position loaded successfully. Zero output before confirmed load/play was excluded from the endpoint evidence. Earlier claims attributing all such misses to load timing were too strong; use current screen evidence before replaying dependent steps.
 
 Crossfader returned to center; both decks cued; deck levels100%, cue1on/cue2off; backlight0. The panel still represents crossfader as a vertical slider: a horizontal A/B layout is an open usability improvement.
+
+## Native filter enabled and deck1 response verified
+
+Native SoundColorFxManager type was0 (off) for both inputs, making the Filter sliders ineffective. Replaying native CfxFilter key0x50a6 changed both types to1, confirming the native Filter selection. Startup now sets type1 explicitly through DjEngineIF::setSoundColorFxType0x4e2c4 for input0and1. An explicit selection avoids accidentally toggling an already-enabled effect off. The existing normalized ColorKnob path is unchanged.
+
+Fresh runtime PID17598 reported type1 on both channels. Touch-loaded deck1 Aaliyah/Try Again, then returned to cue before each playback sample: center, lower end, upper end, center. Each measurement reads40hardware DMA snapshots of512four-channel frames, spaced25ms, and reports mean square first sample differences divided by sample energy (a high-frequency-content indicator, not a calibrated frequency response). Master L/R ratios: center0.03743/0.03492; low0.00465/0.00641; high0.83327/0.79357; center again0.03402/0.03560. Headphone cue showed corresponding changes. All samples contained40distinct buffers.
+
+This demonstrates spectral change in the expected directions and return near baseline, rather than merely slider feedback or changing RMS. Samples are not phase-aligned or calibrated sweeps. Independent deck2 spectral response and physical FLX6 filter gestures remain to verify. Regression navigation/mixer-state tests passed. Deck1 paused at cue, filtercenter, mixerclosed, backlight0; deck2 unloaded after restart.

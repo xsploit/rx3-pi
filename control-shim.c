@@ -30,6 +30,10 @@ static void *control_thread(void *unused){
   const int keys[]={0x5019,0x501a,0x501b,0x501c,0x509d,0x501e};
   for(int i=0;i<6;i++)sendkey(manager,keys[i],4,ch,0,i==5?1.f:.5f,0);
  }
+ /* The touchscreen and BiteDJ filter knobs require the native FILTER FX,
+  * which otherwise starts disabled. Select it explicitly, without toggling. */
+ ((void (*)(void*,int,int))0x4e2c4)(engine,0,1);
+ ((void (*)(void*,int,int))0x4e2c4)(engine,1,1);
  sendkey(manager,0x6017,4,0,0,.5f,0);
  sendkey(manager,0x4403,4,0,0,.6f,0);
  sendkey(manager,0x4406,4,0,0,.5f,0);

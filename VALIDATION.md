@@ -503,3 +503,13 @@ Built/deployed ARM32 shim. Live PID36012: touch replay plus2→3,minus3→2,1.2s
 Backup runtime/lib/fbshim-pre-touch-zoom.so. User reiterated that their installed BiteDJ FLX6 mapping contains their preferred behavior: use it as the authority, preserve it, and disclose native limitations instead of silently substituting RX3 defaults. The new controls here are touchscreen additions; FLX6 mappings unchanged this turn.
 
 Post-build touch playback produced40distinct audio buffers, RMS55.73/52.11/222.16/207.72 on master/headphones. Returned both decks to cue, rate0/range10/Syncoff and backlight0.
+
+## Match BiteDJ Shift/scratch cancellation (2026-09-10)
+
+Refreshed the actual installed FLX6 XML/script read-only. Script SHA256b544f6d1746e89e57d090fc897b7fcaed141d582d66de46d1a406a7b1bdb33d0; XML1df86863293b8c9eb48d1748b6a3e4bd56b2a4f21c5f08c3b5b83bc101fb0301. BiteDJ shiftPressed explicitly cancels scratching; shifted jogSearch translates the beatgrid and does not fast-seek. Its tempoRanges are6/10/16/25percent, whereas native RX3 currently cycles6/10/16/WIDE100. Those are explicit remaining parity gaps.
+
+Bridge now tracks Shift separately per deck. Shift press stops pending jog motion and releases native JogTouch before forwarding Shift. While Shift is held, ordinary jog rotation/touch is suppressed; grid translation is still unmapped. Normal touch works again after Shift release. Reader cleanup clears Shift state. This is scratch behavior parity only, not completion of SHIFT+jog.
+
+Host/Pi test-shift-jog.py passes both decks, overlap ordering, suppressed rotation/touch, other-deck independence, resumed scratch, and cleanup/reset. Host navigation and MIDI reconnect regressions also passed. Live PID36012: actual installed mapping through Bridge/native FIFO while each deck played; native snapshot byte46bits4/5 (confirmed StatWatcher getters) showed touch/scratch1/1 beforeShift,0/0 afterShift and during shifted replay,1/1 after release/re-touch. Finaltouch/scratch0/0 and play4 on both decks. Research shift-jog-live-trial.py retains the sequence. Physical gesture timing and beatgrid translation remain unverified.
+
+Deployed by restarting MIDI reader only; native player unchanged. Backuphome/flx6-rx3-pre-shift-scratch.py. Both decks cued,rate0,range10,Syncoff,backlight0. BiteDJ files unchanged.

@@ -22,6 +22,8 @@ Native transport is experimental. Browser/load/play/pause were exercised through
 
 Touch-only ZOOM−/+ buttons sit above the native ZOOM/GRID selector. They change the shared waveform scale and hide in GRID mode and Mixer. These are added touch controls using native RX3 commands.
 
+Known mapping differences: BiteDJ SHIFT+jog translates the beatgrid; RX3 currently only cancels/suppresses scratching while Shift is held. Grid movement remains unmapped. BiteDJ’s final tempo range is25%; RX3 currently uses WIDE100%. Neither behavior is claimed as full parity.
+
 ## FLX6 navigation
 
 User preference: match the installed BiteDJ FLX6 behavior; disclose RX3 limitations rather than silently replacing preferred mappings. Preserve BiteDJ files.

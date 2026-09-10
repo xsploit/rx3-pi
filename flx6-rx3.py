@@ -16,6 +16,7 @@ class Bridge:
  def __init__(self,xml,emit,clock=time.monotonic):
   self.clock=clock;self.jogs={ch:dict(total=0,delta=0,last=clock(),moved=0,speed=0) for ch in (1,2)}
   self.emit=emit;self.mapping={};self.msb={};self.held=set();self.pad_held={};self.status=None;self.data=[]
+  self.shift={1:False,2:False}
   for c in ET.parse(xml).findall('.//controls/control'):
    g=c.findtext('group','');key=c.findtext('key','');match=re.search(r'\[Channel(\d)\]',g)
    if match:
@@ -24,6 +25,7 @@ class Bridge:
    elif g in ('[Master]','[Library]','[Tab]'):channel=0
    else:continue
    mode='button';native=BUTTONS.get(key)
+   if key=='PioneerDDJFLX6.shiftPressed':mode='shift'
    if g=='[Tab]' and key in ('library','PioneerDDJFLX6.viewPressed'):native=0x202;mode='view'
    if g=='[Library]' and key=='MoveFocusForward':native=0x420c;mode='browse-push'
    if key=='PrepareView':native=0x203;mode='prepare-view'
@@ -63,7 +65,19 @@ class Bridge:
    if value:self.emit(key,0,ch,0,0.,0x4250)
   elif mode in ('view','back'):
    if value:self.emit(key,0,ch,0,0.,0x4256 if mode=='view' else 0x424b)
+  elif mode=='shift':
+   down=bool(value);self.shift[ch]=down
+   if down:
+    self.stop_jog(ch)
+    if (0x4306,ch) in self.held:
+     self.emit(0x4306,2,ch,0,0.,0);self.held.discard((0x4306,ch))
+   if down:self.held.add((key,ch))
+   else:self.held.discard((key,ch))
+   self.emit(key,0 if down else 2,ch,0,0.,0)
   elif mode=='jog':
+   # BiteDJ routes shifted rotation to grid translation, never scratching.
+   # Native grid translation is not yet mapped; do not forward it as a jog.
+   if self.shift[ch]:return
    j=self.jogs[ch];delta=value-64
    if delta:j['delta']+=delta;j['total']+=delta;j['moved']=self.clock()
   elif mode in PAD_BANKS:
@@ -82,6 +96,7 @@ class Bridge:
     self.emit(key,2,ch,0,0.,0x5040|bank)
   elif mode=='button':
    op=0 if value else 2
+   if key==0x4306 and self.shift[ch]:return
    if key==0x4306 and op==2:self.stop_jog(ch)
    if op==0:self.held.add((key,ch))
    else:self.held.discard((key,ch))
@@ -132,6 +147,7 @@ class Bridge:
    if j['speed'] or j['delta']:self.stop_jog(ch)
   for key,ch in list(self.held):self.emit(key,2,ch,0,0.,0)
   self.held.clear();self.pad_held.clear()
+  for ch in self.shift:self.shift[ch]=False
 def listen_reconnecting(b,lib,running,discover,sleep=time.sleep):
  """Release controller gestures on loss; rediscover ALSA numbering on return."""
  buf=ctypes.create_string_buffer(1024)

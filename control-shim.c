@@ -7,6 +7,7 @@ extern char *program_invocation_short_name;
 extern int pthread_create(unsigned long*,const void*,void *(*)(void*),void*);
 struct command {int key,operation,channel,value;float analog;int extra;};
 #include "native-screen.h"
+#include "mixer-state.h"
 static void *control_thread(void *unused){
  sleep(3);
  int fd=open("/dev/rx3-control",O_RDWR);
@@ -15,7 +16,7 @@ static void *control_thread(void *unused){
  while(!manager){void *root=*(void *volatile *)0x026867c0;if(root)manager=*(void **)((char*)root+0x64);if(!manager)sleep(1);}
  /* The two physical panel CPUs normally release this startup input gate. */
  ((void (*)(void*,int))0x37c8d8)(manager,3);
- void (*sendkey)(void*,int,int,int,long,float,long)=(void*)0x37ad64;
+ void (*sendkey)(void*,int,int,int,long,float,long)=rx3_dispatch_key;
  for(int ch=1;ch<=2;ch++){
   const int keys[]={0x5019,0x501a,0x501b,0x501c,0x509d,0x501e};
   for(int i=0;i<6;i++)sendkey(manager,keys[i],4,ch,0,i==5?1.f:.5f,0);

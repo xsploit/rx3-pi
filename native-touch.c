@@ -3,6 +3,7 @@
  */
 #include <stdint.h>
 #include "native-screen.h"
+#include "mixer-state.h"
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -14,7 +15,7 @@ extern volatile int rx3_native_ui_ready,rx3_native_ui_pressed;
 static void pad_key(void *handler,int key,int operation,int channel){
  void *root=*(void**)handler;
  void *manager=root?*(void**)((char*)root+0x64):0;
- if(manager)((void(*)(void*,int,int,int,long,float,long))0x37ad64)(manager,key,operation,channel,0,0.f,0);
+ if(manager)rx3_dispatch_key(manager,key,operation,channel,0,0.f,0);
 }
 static void native_touch(void *handler,const struct touch *t,void *mode){
  if(held_key){

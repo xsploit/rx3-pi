@@ -33,3 +33,9 @@ The small native transport surface is fully repainted under one lock on each GUI
 Replaced numeric `hw:2,0` in the dmix slave with `hw:CARD=DDJFLX6,DEV=0`, and the control-device redirect with `hw:CARD=DDJFLX6`. The ALSA card-name lookup resolved to the connected FLX6 and its control device opened successfully. After rebuilding/restarting, hardware negotiation remained four-channel S16_LE at44100Hz, period128frames, buffer512frames.
 
 Touch replay loaded and played Aaliyah/Try Again. Completed-frame screenshot showed the native playback position advancing. The hardware stream was RUNNING with advancing hardware pointer; direct inspection of its mapped DMA buffer found changing, nonzero samples on all four channels across three captures (RMS approximately104–346 in signed16-bit units). This establishes active output data, not a new human listening test. Physical USB enumeration changes and unplug/replug recovery were not exercised. Backlight remained0.
+
+## Shared mixer input state (view not yet implemented)
+
+Added a state observer to the common native-key dispatcher used by initialization, FIFO/FLX6 commands and touchscreen pad/button commands. It records all16mixing controls plus debounced headphone-cue presses. Values mean last dispatched input, not DSP acknowledgement. The future native mixer view must retain this distinction and verify actual engine effects separately.
+
+Host and Pi tests passed for all16bindings, channel isolation, invalid/nonfinite value rejection in metadata, and cue press/release handling. Live process inspection verified startup validmask65535, all expected level defaults and headphonecue1. Replayed actual FLX6 channel1 fader messages B0 13/B0 33 and headphone-cue90 54: state changed to4096/16383 and cueoff, then restored to fader1/cue1. Native dispatch continues unchanged. No mixer view/button has been added by this commit.

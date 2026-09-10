@@ -37,6 +37,8 @@ On the Pi, with ARM32 cross compiler and native gcc, FreeType/libdrm development
 ```sh
 sh build.sh
 python3 test-navigation.py
+gcc -O2 -o build/test-mixer-state test-mixer-state.c mixer-state.c
+./build/test-mixer-state
 gcc -O2 -o build/test-frame-exchange test-frame-exchange.c $(pkg-config --cflags --libs freetype2 libdrm)
 ./build/test-frame-exchange
 ```

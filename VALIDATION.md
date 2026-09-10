@@ -156,3 +156,22 @@ When the desktop already mounts this FAT filesystem read/write, a second direct 
 With RX3 stopped, removed all ten runtime bind/library mounts. --check failed as expected. Preparation restored all ten and a subsequent --check passed. SHA256 of local export.pdb and a sampled USBANLZ EXT file stayed unchanged across preparation. New startup ran the preparation step and launched the player. Touch-browsed USB2, inspected the current selected row, loaded Aaliyah/Try Again, and played: hardware DMA showed nonzero master/headphone output with40distinct buffers. Player then cued. Backlight stayed0.
 
 This tests loss/recreation of runtime mounts on the existing Pi, not a complete reboot. Firmware/rootfs assembly, persistent device-file provisioning, desktop/display startup ordering, and unattended boot service still require work. BiteDJ files were not modified.
+
+## Deck2 mixer output checks
+
+Live PID19723 after mount recovery. Inspected the selected first-row Load2 button and loaded Aaliyah/Try Again on deck2. Used the same40-snapshot Hann/FFT diagnostic as deck1, returning to cue between settings. All playback rows had40distinct buffers except trim mute, which was exactly silent.
+
+| Deck2 setting | Master left RMS | Low power | Mid power | High power |
+|---|---:|---:|---:|---:|
+| Centered baseline |57.325|50990832.0|100088482.5|1686284.3|
+| Trim minimum |0|0|0|0|
+| High minimum |47.246|47420747.6|63429651.6|581139.7|
+| Mid minimum |21.576|16178384.1|4307457.8|450209.8|
+| Low minimum |47.660|5822503.8|125432013.8|1973820.1|
+| Filter low |55.007|123438764.3|5777751.5|414845.6|
+| Filter high |5.900|4082.7|339768.0|1335624.9|
+| Restored center |57.992|55204308.2|142187776.1|1778326.5|
+
+These establish expected band effects on deck2, not calibrated EQ curves. Separately, deck1 RMS58.423 baseline remained57.292 with deck2 trim/EQ minima and its filter high; thus the deck2 mute did not mute deck1. Unaligned music snapshots cannot prove absolutely zero EQ crosstalk or identical sample output. Physical knobs and gain boosts were not exercised.
+
+Both decks cued with trim/EQ/filter centered, levels100%, crosscenter, cue1on/cue2off, mixerclosed and backlight0. No runtime code change was needed.

@@ -1,6 +1,6 @@
 # FLX6 pad compatibility
 
-The installed BiteDJ XML exposes deck1 hot cues on MIDI status0x97/notes0x00–07, beat jump on0x20–27, and beat loops on0x60–67. The bridge now tags hot-cue notes for native bank0 and default beat-jump notes for bank3. The native adapter selects and waits for the actual bank before forwarding a press. Beat-loop notes are not yet connected. Generic native pad keys still follow the current bank; only the tagged FLX6 path adds this bank selection.
+The installed BiteDJ XML exposes deck1 hot cues on MIDI status0x97/notes0x00–07, beat jump on0x20–27, and beat loops on0x60–67. The bridge now tags hot-cue notes for native bank0 and default beat-jump notes for bank3. The native adapter selects and waits for the actual bank before forwarding a press. Beat-loop notes now select native bank1 before forwarding their pad presses. Generic native pad keys still follow the current bank; only the tagged FLX6 path adds this bank selection.
 
 ## Native bank selection
 
@@ -35,3 +35,7 @@ BiteDJ defaults and native bank3 agree:
 With Aaliyah/Try Again at93 BPM, native forward/back tests measured ±645, ±1290, ±2580 and ±5160 milliseconds. Each backward pad returned to its paired forward trial's starting position. The same distances subsequently passed through the deployed FLX6 MIDI parser and bank-selection adapter on both decks, starting from wrong bank7 and repeating pads without toggling banks. Physical pad presses and timing while playing remain unverified. The second bank displays1/2 and16 beat pairs among its pads; it is not interchangeable with bank3.
 
 BiteDJ's shifted size controls multiply/divide the entire jump bank by16, spanning fractional and large distances. They require additional native mapping; do not silently map them to an unrelated RX3 bank. Sampler and Pad FX also need separate compatibility work. LED feedback is not implemented.
+
+## Beat Loop first bank
+
+FLX6 notes0x60–67 map to native keys0x4117–0x411e in bank1: 1/4, 1/2, 1, 2, 4, 8, 16, 32 beats. Pressing the same pad again exits the loop. Deployed MIDI replay verified all eight sizes and on/off behavior on both decks, including automatic correction from bank5. A playing four-beat loop also wrapped at approximately2.58-second intervals at93BPM with active audio. Physical pad use remains unverified.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Use BiteDJ's installed MIDI definitions to feed the RX3 native key queue.
-Input only; hot-cue and default beat-jump banks supported. LED feedback pending.
+Input only; hot-cue, beat-loop and default beat-jump banks supported. LED feedback pending.
 """
 import argparse, ctypes, errno, json, os, re, signal, struct, subprocess, time
 import xml.etree.ElementTree as ET
@@ -10,6 +10,8 @@ BUTTONS={'play':0x4101,'cue_default':0x4102,'loop_in':0x410c,'loop_out':0x410d,
  'MoveFocusForward':0x420c,'MoveFocusBackward':0x420d,'PioneerDDJFLX6.shiftPressed':0x4103}
 ANALOG={'pregain':0x5019,'parameter3':0x501a,'parameter2':0x501b,'parameter1':0x501c,
  'volume':0x501e,'super1':0x509d,'crossfader':0x6017,'headMix':0x4405}
+PAD_BANKS={"pad-hotcue":0,"pad-beatloop":1,"pad-beatjump":3}
+LOOP_SIZES=("0.25","0.5","1","2","4","8","16","32")
 class Bridge:
  def __init__(self,xml,emit,clock=time.monotonic):
   self.clock=clock;self.jogs={ch:dict(total=0,delta=0,last=clock(),moved=0,speed=0) for ch in (1,2)}
@@ -35,6 +37,8 @@ class Bridge:
    if key=="PioneerDDJFLX6.beatjumpPadPressed":
     note=int(c.findtext("midino"),0)
     if 0x20<=note<=0x27:native=0x4117+note-0x20;mode="pad-beatjump"
+   loop=re.fullmatch(r'beatloop_(0\.25|0\.5|1|2|4|8|16|32)_toggle',key)
+   if loop:native=0x4117+LOOP_SIZES.index(loop[1]);mode="pad-beatloop"
    if native is None:continue
    opts={o.tag for o in c.findall('./options/*')}
    if 'fourteen-bit-msb' in opts:mode='msb'
@@ -54,12 +58,12 @@ class Bridge:
   elif mode=='jog':
    j=self.jogs[ch];delta=value-64
    if delta:j['delta']+=delta;j['total']+=delta;j['moved']=self.clock()
-  elif mode in ('button','pad-hotcue','pad-beatjump'):
+  elif mode=='button' or mode in PAD_BANKS:
    op=0 if value else 2
    if key==0x4306 and op==2:self.stop_jog(ch)
    if op==0:self.held.add((key,ch))
    else:self.held.discard((key,ch))
-   self.emit(key,op,ch,0,0.,0x5040 if mode=="pad-hotcue" else 0x5043 if mode=="pad-beatjump" else 0)
+   self.emit(key,op,ch,0,0.,0x5040|PAD_BANKS[mode] if mode in PAD_BANKS else 0)
   elif mode=='relative':
    delta=value if value<64 else value-128
    if delta:self.emit(key,4,ch,delta,0.,0x4252) # browser-only encoder intent

@@ -239,3 +239,11 @@ The MIDI bridge now loads103 bindings (previously87). Hot-cue press/release pack
 Live parser-to-native tests started each deck in bank7, then replayed default beat-jump pads. Both decks switched to bank3 and measured+645/+1290/+2580/+5160ms, with each backward pad returning exactly to427ms. Repeated presses retained the first bank. Hot-cue bank0 was restored with native selectors; no hot-cue slot write/recall was exercised in this test. Thus hot-cue routing is unit-tested but not yet live slot-tested. Shifted jump sizes, beat loops, other pad modes and LED feedback remain pending.
 
 After restart, both tracks loaded via touch from USB2. Touch Play1 produced40 distinct DMA buffers with master RMS58.20/53.38 and headphone231.95/212.71, then Cue1 stopped playback. Final screenshot shows both stacked waveforms and Hot Cue banks; player PID21099, backlight0. Physical controller pad interaction and simultaneous held pads across bank changes remain unverified. BiteDJ originals unchanged.
+
+## FLX6 Beat Loop integration
+
+Added the installed `beatloop_0.25_toggle` through `beatloop_32_toggle` mappings for both decks, using native bank1 intent0x5041. The reader now loads119 bindings. No shim rebuild was needed: the existing native bank selector handles bank1. Pad mapping tests now cover48 mapped pads with press/NoteOff behavior. Mapping, navigation and MIDI reconnect tests passed; reader deployed/restarted with backup `flx6-rx3-pre-beat-loop.py`.
+
+Live replay began each deck in second Beat Loop bank5. All eight pads selected bank1, set the expected native numerator/denominator (1/4,1/2,1/1,2/1,4/1,8/1,16/1,32/1), enabled the loop, and disabled it on a second press. Separately, deck1 four-beat loop playback wrapped twice over six seconds; wrap observations were2.583seconds apart, with position drops2567/2565ms (sampling omits a few milliseconds around the actual2580ms boundary). Forty distinct DMA buffers showed master RMS62.22/59.48 and headphone248.06/237.12.
+
+Final readback: both banks0, loops off, positions unchanged over300ms (deck1 4447ms, deck2 577ms). This verifies stopped playback; tests did not preserve the original temporary cue position. Native PID21099 continued throughout, screen brightness0. Physical pads, shifted jump banks, other pad modes, LED feedback and simultaneous held pads remain open.

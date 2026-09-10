@@ -261,3 +261,18 @@ Added `native-pad-modes.c/.h` and generated `native-pad-mode-glyphs.h`, included
 Full Pi build and deployment passed; backup `fbshim-pre-touch-pad-modes.so`. Touch replay selected primary/secondary modes0/4,1/5,2/6,3/7 on both decks, with the other deck unchanged. Screenshot `native-pad-modes.png` verifies labels, highlights and both second-bank indicators. Native hardware-window options confirmed key4 invisible when Mixer opened. Touch-only deck1 bank3 pad2/pad1 moved427→1072→427ms. Touch bank1 pad5 enabled a4/1 loop and a repeated press disabled it. Selector taps did not fall through to pad actions.
 
 Both tracks reloaded through touch after restart. Touch Play1 produced40 distinct DMA buffers, master RMS60.53/54.77 and headphone241.23/218.35, then Cue1 stopped playback. Both banks0 and loops off at the end (a remembered loop region remains visible on deck1). Native PID21886, backlight0. Presenter samples after testing varied57.5–59.4FPS; this is not a waveform-smoothness fix or a calibrated performance comparison. Physical finger tests, secondary-bank actions and concurrent touch/MIDI holds remain open.
+
+## Touchscreen Slip Loop hold and release
+
+Native touch bank2 pad5 (one beat) was tested on both playing decks through the deployed Linux-input bridge. Each reported loop boundaries1867–2512ms (645ms at93BPM). During the hold, audible-position values wrapped within the loop while the native background/slip time continued advancing. Normal touch release and SIGTERM of the replay reader both cleared the pad-held state, exited slipping, and returned the displayed position to within7ms of the background position in the final samples.
+
+| Deck | Release method | Additional wait for slip exit after reader finished | Final position/background (ms) |
+|---|---|---:|---:|
+|1|Normal release|105ms|4566/4566|
+|1|Reader SIGTERM|0ms|4577/4584|
+|2|Normal release|118ms|4557/4563|
+|2|Reader SIGTERM|164ms|4562/4562|
+
+These wait values are not total finger-release latency. An initial test failed by checking continuation100ms after the reader finished: deck2's pad-held flag had cleared, but slipping was still active. Follow-up traces showed the native background time continuing; waiting for the actual slipping flag to clear resolved the discrepancy. This is consistent with native quantized exit, not evidence that a cleanup patch was needed. No runtime code change was made.
+
+Final readback over300ms confirmed both banks0, slip-loop/slipping flags0 and stationary positions577/427ms. Native PID21886 stayed running, backlight0. This verifies one-beat Slip Loop and reader cleanup on both decks; other Slip Loop sizes/banks and physical finger release still need verification.

@@ -53,3 +53,5 @@ Each deck now has Hot Cue, Beat Loop, Slip Loop and Beat Jump buttons directly a
 ![Native touch mode selectors with second banks selected](native-pad-modes.png)
 
 All four selectors and both banks were verified by touch replay on both decks. Touch-only Beat Jump forward/back and four-beat loop on/off also passed. Physical finger testing and the full set of secondary-bank pad actions remain pending.
+
+Touch Slip Loop bank1 (native mode2), pad5 is a one-beat temporary loop. Hold/release and interrupted-reader cleanup were verified on both decks: the loop exited and playback returned to the advancing background position. Exit can complete after the pad-held flag clears; do not treat that flag alone as proof that slipping has ended. Other Slip Loop sizes and the second bank remain unverified.

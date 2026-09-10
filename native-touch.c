@@ -7,6 +7,7 @@
 #include "native-mixer.h"
 #include "native-pad-modes.h"
 #include "native-mixer-layout.h"
+#include "tempo-step.h"
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -42,6 +43,15 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
   }
   if(!main_visible){original_touch(handler,t,mode);return;}
   if(rx3_mixer_visible){
+   int direction=0,fine=mixer_tempo_step_at(t->x,t->y,&direction);
+   if(fine>=0){
+    int deck=fine-16;float position;held_key=-1;
+    if(rx3_tempo_fine_position(((int(*)(int))0xfd2dc)(deck),((int(*)(int))0xfd2b4)(deck),direction,&position)){
+     void *root=*(void**)handler;void *manager=root?*(void**)((char*)root+0x64):0;
+     if(manager)rx3_dispatch_key(manager,0x4109,5,deck+1,0,position,0);
+    }
+    return;
+   }
    int index=mixer_slider_at(t->x,t->y);
    if(index>=0){held_slider=index;slider(handler,held_slider,t->x,t->y);}
    else if(t->y>=694&&t->y<764&&((t->x>=32&&t->x<432)||(t->x>=848&&t->x<1248))){held_key=0x5020;held_channel=t->x<640?1:2;pad_key(handler,held_key,0,held_channel);}

@@ -64,6 +64,11 @@ void rx3_mixer_draw(int main_visible){
    else number(x+22,110,(unsigned)(v*100+.5f));
   }
  }
+ for(int i=16;i<18;i++){
+  int x=mixer_column_center(i)-34;
+  box(x,554,32,34,0x2945);box(x+36,554,32,34,0x2945);
+  box(x+8,570,16,2,0xffff);box(x+44,570,16,2,0xffff);box(x+51,563,2,16,0xffff);
+ }
  box(80,606,1120,4,0x528a);box(638,592,4,32,0x528a);
  if(state.valid&(1u<<7)){
   float v=state.levels[7];if(v<0)v=0;if(v>1)v=1;

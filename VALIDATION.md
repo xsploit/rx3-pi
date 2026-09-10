@@ -335,3 +335,13 @@ Local ASan/UBSan tests cover all18controls, layout hit testing, untouched crossf
 Replaying the installed FLX6 mapping at raw12288/4096 gave+5.00/-5.00% and corresponding on-screen fader positions; raw8192 restored both to0.00. After touch tempo changes on loaded tracks, the native player displayed97.7 and88.5BPM from93BPM tracks, with+5.05/-4.90% rates. Actual FLX6 DMA sampled40different buffers and nonzero master/headphone audio. A regression check of the repositioned deck1 LEVEL fader muted master while preserving headphone cue. Its level was restored afterward.
 
 Final live PID26896, both tracks cued at4:43.942 remaining, both tempos0.00%, Mixer closed and backlight0. Previous shim is preserved at runtime `/lib/fbshim-pre-touch-tempo.so`. Screenshots inspected in local research show the new Mixer layout, MIDI feedback and touch-adjusted playback. This adds basic touch tempo control; fine adjustment, touch range/key-lock access and physical comfort remain open.
+
+## Native-step tempo buttons
+
+The Mixer now has minus/plus buttons below each TEMPO fader. They dispatch the existing native slider input at the next native tempo step rather than approximating a step by moving a pixel. RX3 v1.19's STEP_TBL_ at0x41c8b0 specifies0.02% at6%,0.05% at10/16%, and0.5% in Wide100%. `tempo-step.h` chooses the next signed quantization bin, clamps endpoints, and offsets floating-point input within the bin to avoid truncation at a rounding boundary. No synthetic tempo value is displayed; the existing native rate getter remains the numeric source.
+
+`test-tempo-step.c` passed local ASan/UBSan and native Pi builds over every native bin in all four ranges, both directions, endpoints and off-grid zero crossings. Mixer layout tests cover both button pairs and the gaps/boundaries. The buttons consume one gesture through release; there is no repeat-on-hold behavior.
+
+Live touch replay passed48checks: on each deck, in each native range, +step,+2step,+step,zero,-step,zero, with exact native readback and the other deck unchanged. Range selection in this test used the native control queue; touch range selection remains separate work. Both ranges were restored to10%. Screenshot inspection confirmed the button pairs fit beneath their faders; the deck2 footer label moved left to leave room.
+
+After reloading both tracks, a fine increase during deck1 playback reported+0.05% and40different FLX6 DMA buffers (RMS79.70,71.34,317.81,284.34). A minus tap returned native rate to zero while the player remained running. Final playerPID27443: both decks cued, both tempos0%, ranges10%, Mixer closed, backlight0. Previous shim backup: runtime `/lib/fbshim-pre-fine-tempo.so`. Physical touch comfort and behavior during sync/tempo-pickup states remain unverified.

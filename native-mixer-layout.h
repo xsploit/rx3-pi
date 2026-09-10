@@ -10,6 +10,15 @@ static inline int mixer_column_center(int index){
  if(index<6)return (index*480+240)/7;
  return 800+((index-10)*480+240)/7;
 }
+static inline int mixer_tempo_step_at(int x,int y,int *direction){
+ if(y<598||y>=632)return -1;
+ for(int i=16;i<18;i++){
+  int local=x-(mixer_column_center(i)-34);
+  if(local>=0&&local<32){*direction=-1;return i;}
+  if(local>=36&&local<68){*direction=1;return i;}
+ }
+ return -1;
+}
 static inline int mixer_slider_at(int x,int y){
  if(x<0||x>=1280)return -1;
  if(y>=628&&y<=678&&x>=48&&x<=1232)return 7;

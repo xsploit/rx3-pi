@@ -23,7 +23,7 @@ for i,label in enumerate(labels):
   base=0 if i<6 or i==16 else 800
   x=base+col*480//7;w=(col+1)*480//7-col*480//7
  a+=spans(label,w,32,14,x,65)
-for label,x,w in [('DECK 1',16,128),('CROSSFADER',480,320),('DECK 2',1136,128)]:a+=spans(label,w,32,18,x,560)
+for label,x,w in [('DECK 1',16,128),('CROSSFADER',480,320),('DECK 2',816,128)]:a+=spans(label,w,32,18,x,560)
 for label,x,w in [('DECK 1',0,480),('OUTPUT / HEADPHONES',480,320),('DECK 2',800,480)]:a+=spans(label,w,48,20,x,6)
 for label,x in [('HEADPHONE CUE 1',32),('HEADPHONE CUE 2',848)]:a+=spans(label,400,70,22,x,650)
 s='/* Generated mixer labels; pixel spans in native panel coordinates. */\nstatic const unsigned short mixer_text[][3]={\n'+''.join('{%d,%d,%d},\n'%r for r in a)+'};\n'

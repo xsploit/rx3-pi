@@ -27,7 +27,7 @@ Source of truth: installed `~/.mixxx/controllers/Pioneer-DDJ-FLX6.midi.xml` and 
 | Physical control | MIDI | Behavior |
 |---|---|---|
 | Encoder turn | B6 40 | Open Browse from player; scroll selected browser list, never waveform zoom |
-| SHIFT + encoder turn | B6 64 | Zoom the shared waveform scale from player view; ignored in Browse |
+| SHIFT + encoder turn | B6 64 | Zoom the shared waveform scale from player view; ignored in Browse and GRID mode |
 | Encoder press | 96 41 | Native enter/open selection |
 | BACK | 96 65 | Open Browse from player; otherwise go back in browser |
 | VIEW | 96 7A | Open Browse; stay there if already open |

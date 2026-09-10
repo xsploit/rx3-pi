@@ -106,7 +106,7 @@ static void *control_thread(void *unused){
   /* BiteDJ SHIFT+BROWSE zoom is separate from normal browse rotation.
    * Never let its native rotary event scroll a library or settings page. */
   if(c.key==0x420c&&c.operation==4&&c.extra==0x425a){
-   if(!player_screen_active()||!main_panel_visible())continue;
+   if(!player_screen_active()||!main_panel_visible()||((int(*)(void))0x17f8a0)())continue;
    sendkey(manager,c.key,c.operation,0,c.value,c.analog,0);
    continue;
   }

@@ -483,3 +483,13 @@ Built the combined ARM32 shim and deployed with a clean player stop. Live PID352
 Host navigation regression includes both zoom directions, channel0 normalization and ignored zero/neutral values; navigation and MIDI reconnect tests passed. Backups home/flx6-rx3-pre-shift-zoom.py and runtime/lib/fbshim-pre-shift-zoom.so. Both decks returned to cue, range10, tempo0, Syncoff, backlight0. This does not fix waveform flicker or complete shifted jog/LED/FX/touchscreen coverage.
 
 Post-deployment touch Play1 produced40distinct FLX6 DMA buffers, RMS54.87/49.74/218.85/198.25 across master/headphone channels; touch Cue1 restored playback state4. This verifies nonzero output after the shim rebuild, not perceived audio quality.
+
+## Guard zoom input while native GRID mode is active (2026-09-10)
+
+Touchscreen investigation found that a1.2second hold on native ZOOM at physical1752,597 enters GRID editing. The same hold exits it. A short tap on GRID1845,597 did not switch modes. Confirmed the visible blue GRID label and red grid markers; CmnFunc_CmnInfo_GetGridAdjustModeFlg0x17f8a0 reads u32 at0x03253564+0x1538, which changed0→1→0 consistently with screenshots.
+
+SHIFT+BROWSE's new425a intent now also rejects input while that native grid flag is set. The generic rotary key is context-dependent; this prevents a dedicated zoom input being forwarded to grid editing. Previous main-window-only guard was incomplete. No grid-edit input was deliberately tested before the fix.
+
+Built/deployed combined ARM32 shim. Live PID35703, both Aaliyah tracks loaded through touch: entered GRID via touch hold, replayed each SHIFT+BROWSE direction separately, confirmed zoom2/grid1 and pixel-identical waveform/grid regions after each. Exited GRID by touch hold and verified normal zoom2→3→2. Finalgrid0,main mode1. Research zoom-grid-guard-trial.py and grid-mode-probe.py retain the assertions. Backupruntime/lib/fbshim-pre-zoom-grid-guard.so. Touchscreen zoom buttons were not added this turn; they remain pending along with other incomplete controls.
+
+Post-build touch Play1 yielded40distinct audio buffers, RMS55.57/50.68/221.59/202.03 on FLX6 master/headphone channels. Touch Cue1 restored both decks to state4; rate0/range10/Syncoff, backlight0. BiteDJ unchanged.

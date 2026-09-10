@@ -183,3 +183,15 @@ The input reader now waits for an absent FLX6 and rediscovers its ALSA address a
 `python3 test-midi-reconnect.py` passed locally and on the Pi. It runs the real bridge/parser with a simulated ALSA transport: absent device, held jog plus pending motion, ENODEV, release events, partial-message reset, stale MSB rejection, changed hw:2 to hw:3 address, and shutdown while absent. `python3 test-navigation.py` also passed. The deployed reader loaded all 87 BiteDJ bindings and opened the real FLX6 hw:2,0,0. Only the MIDI reader restarted; native player PID19723 continued, backlight remained 0.
 
 Physical unplug/replug and USB audio recovery remain unverified. This change does not restart or recover the native player's ALSA audio handles after USB removal. LED feedback, pad-mode switching, physical jog feel and waveform flicker remain open.
+
+## Waveform cadence baseline
+
+Read-only completed-frame probe sampled native waveform rectangles x420..1079, y80..235 and y302..457. It copied the full framebuffer between acquire sequence checks, then hashed RGB pixels and counted bright waveform pixels. Three runs used Aaliyah/Try Again at the existing zoom. The physical backlight stayed off; this measures published pixels, not visible LCD flicker.
+
+| State | Accepted frames | Publication Hz | Deck1 changes/s | Deck2 changes/s | Longest observed change gap |
+|---|---:|---:|---:|---:|---:|
+| Both paused, 3 seconds |174|57.84|0|0|N/A|
+| Deck1 playing, 8 seconds |459|57.51|37.34|0|66.94 ms|
+| Both playing, 8 seconds |461|57.62|37.45|37.58|43.52 ms|
+
+Paused waveform hashes and bright counts were identical across all samples, including paused deck2 while deck1 played. No sampled playing waveform region emptied. One sequence was missed in the deck1-only run; none in the other runs. The median moving-region change interval was about 26.3–26.7 ms. Presenter logs separately reported 60 FPS. These results establish irregular waveform pixel updates below publication cadence; they do not prove a fixed FPS cap, identify the engine timer responsible, rule out partial-region flicker, or demonstrate a fix. Both decks returned to cue through touchscreen replay after measurement. Player PID19723 stayed running.

@@ -282,3 +282,16 @@ Final readback over300ms confirmed both banks0, slip-loop/slipping flags0 and st
 `touch-slip-sizes-trial.py` in local research and Pi home extended the prior live test to all eight native mode2 pads on both decks. Each trial selected the bank by touch, started playback, held the pad through the deployed evdev bridge, checked loop bounds against the pad's beat fraction, released, and waited for native slipping to end. All16 trials passed. Sizes1/16,1/8,1/4,1/2,1,2,1/3,3/4 produced41,81,162,323,645,1290,215,484ms bounds at93BPM. Final playback/background difference was at most10ms. Raw results are retained in local research `touch-slip-sizes-results.json`.
 
 Framebuffer inspection also established that native mode6 displays Release FX (brake/backspin short/long, echo out, mute, build up, ducking), rather than more loop sizes. No effect actions were triggered in that bank. No runtime patch was needed. Both decks ended in Hot Cue mode0 with slip flags clear and positions stationary over300ms at577/427ms; player PID21886, backlight0. Actual physical finger input, Release FX behavior and other outstanding compatibility work remain unverified.
+
+## Release FX Mute audio and cleanup
+
+Live mode6 pad4 touch tests passed on both decks with normal release and SIGTERM of the replay reader. Each trial sampled40 output DMA buffers before, during and after the hold. All held samples had zero peaks/RMS. Before/after samples each contained40 distinct buffers with nonzero master audio. Native simulator status (signed16 at snapshot+616, confirmed from StatWatcher::getSimulatorStatus disassembly) changed -1→3→-1. This verifies actual output mute/recovery, not just the selected pad highlight.
+
+| Deck | Release | Master RMS before (L/R) | Held | Master RMS after (L/R) |
+|---|---|---|---|---|
+|1|Normal|61.54/58.42|0/0|56.89/56.97|
+|2|Normal|62.01/61.04|0/0|47.50/50.19|
+|1|Reader SIGTERM|60.40/59.88|0/0|54.98/53.07|
+|2|Reader SIGTERM|62.21/59.11|0/0|52.88/52.80|
+
+Deck1 cue also muted and recovered; deck2 cue was disabled. Track positions differ between before/after samples, so these numbers demonstrate signal presence, not unchanged gain. Each trial played only its target deck; two-deck isolation was not tested. Research scripts `touch-release-mute-trial.py` and `touch-release-mute-terminated-trial.py`, plus their result JSON files, retain the probes. No runtime code changed. Final state: native PID21886, both banks0, simulator -1, slip flags0, positions stationary300ms at577/427ms, backlight0. Other Release FX actions and physical input remain unverified.

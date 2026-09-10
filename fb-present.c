@@ -9,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include "drm-present.h"
+#include "frame-scale.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "pi-controls.h"
@@ -70,9 +71,7 @@ int main(int argc,char**argv){
  for(;;){
  long long began=ns();
  read_complete_frame();
- if(fullscreen){
-  for(int y=0;y<1200;y++)for(int x=0;x<1920;x++)frame[y*1920+x]=s[(y*2/3)*1280+x*2/3];
- }else{
+ if(!fullscreen){
  memcpy(frame,chrome,sizeof(frame));
  for(int y=0;y<1000;y++){int sy=y*4/5;for(int x=0;x<1600;x++)frame[y*1920+x+160]=s[sy*1280+x*4/5];}
  for(int i=0;i<12;i++)if(state->pressed&(1u<<i))drawbutton(i,1);
@@ -82,10 +81,13 @@ int main(int argc,char**argv){
  char val[24];snprintf(val,sizeof(val),"%d%%",(int)(n*100+.5));label(x+80,y+305,val,25,0xd1dae2);}
  }
  if(kms){d=scanout[back].map;f.line_length=scanout[back].pitch;}
+ if(fullscreen)rx3_fullscreen_present(d,f.line_length,s,frame);
+ else {
  /* Tile the transpose so reads stay in cache instead of striding a whole image. */
  for(int by=0;by<1920;by+=16)for(int bx=0;bx<1200;bx+=16)
   for(int py=by;py<by+16;py++){uint32_t*row=(uint32_t*)(d+py*f.line_length);
    for(int px=bx;px<bx+16;px++)row[px]=frame[(1199-px)*1920+py];}
+ }
  long long finished=ns();draw_total+=finished-began;frames++;
  if(kms){if(drm_present())return 1;long long presented=ns();if(presented-last_present>25000000)late++;last_present=presented;}else{
  deadline+=16666667;

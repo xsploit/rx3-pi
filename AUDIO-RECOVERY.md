@@ -1,3 +1,5 @@
+> Current status: recovery is now integrated into build.sh and deployed. The final section records the live FLX6 driver-loss test. Earlier “not deployed” sections are development history.
+
 # Audio recovery investigation
 
 Status: the pair-reopen controller and ALSA parameter driver are implemented and tested in isolation; live reconnect is not integrated or verified. This is distinct from the working MIDI rediscovery loop. The live player was left running and paused; no USB device was detached and no native audio error was injected.
@@ -119,3 +121,18 @@ The first isolated run against the real `rx3out`/`rx3cue` plug/route/dmix device
 After this correction, the complete interposer harness passed inside the embedded runtime against the actual connected FLX6 routes: eight immediate pair reopens, two simulated absence/backoff/recovery cycles, both output orders, exact parameter checks and128-frame silent writes. Offline paired pacing measured92.947/92.945ms for92.880ms of blocks. Separate embedded null tests, including partial setup rollback, still pass.
 
 To reproduce the hardware check, stop the player and any other audio owner first, then run `sh test-audio-proxy-runtime.sh /home/pompu_5/rx3-rootfs --flx6`; restart the player afterward. This mode uses the runtime's real ALSA configuration and writes silence. The test did not unplug/reset USB, simulate a disappearing kernel device, verify audible output or validate successful PCM link replay. The live shim remains unchanged. RX3 was restarted afterward and both tracks reloaded through touch; backlight remained0.
+
+
+## Live deployment and real device-loss recovery
+
+`build.sh` now builds the combined shim through `build-audio-candidate.sh`, linking against the actual embedded libraries and preserving native ALSA symbol versions with `fbshim-audio.map`. The former audio wrappers are excluded with RX3_AUDIO_RECOVERY; framebuffer, native UI and input hooks remain included. The build output and deployed `/lib/fbshim.so` both hash to `2ccbe392b8a2571cc2fa8c5ec4df7f3a9d1dfff79f911a524d6f3db61e9a8e47`. The preceding working binary is preserved as `/lib/fbshim-pre-audio-recovery.so` inside the Pi runtime.
+
+The combined shim passed eager symbol resolution inside the ARM32 runtime and booted the real player (PID25426). Touch loaded both tracks. Read-only process inspection confirmed both configured handles bound to a LIVE recovery pair at44100Hz. Before loss, playing deck1 produced40 distinct DMA buffers and nonzero master/headphone audio.
+
+A sysfs test detached the actual FLX6 `snd-usb-audio` interfaces. The player remained running, set the pair OFFLINE, cleared both real handles and retried at its backoff interval. The first manual attempt detached only the primary interface: kernel rebind failed because the other audio/MIDI interfaces retained a shutdown card instance. Releasing the remaining interfaces and binding audio plus MIDI control restored the card; the same player recovered. The corrected repeat test captures and releases all FLX6 interfaces belonging to snd-usb-audio, then rebinds each that has not already been claimed. It passed automatically with the same PID: OFFLINE with null handles during loss, LIVE with replacement handles and zero error afterward. The MIDI reader also reported reconnection to hw:2,0,0.
+
+After the corrected test, deck1 and deck2 each produced40 distinct actual DMA buffers during touch-started playback. Deck1 RMS was[51.87,49.77,206.37,198.29]; deck2 RMS was[47.94,46.02,0,0] with deck1 headphone cue still selected. Both decks were then returned to cue. A completed-frame screenshot showed both tracks, stacked waveforms and the native touch controls; the panel backlight remained0.
+
+`test-audio-live-state.py` is a read-only probe whose local build ELF must match the deployed shim. `test-audio-live-reconnect.py` is an explicit root-only hardware disruption test: run only on the Pi with the matching build, paused decks, and the FLX6 at card2. It checks device identity and releases/rebinds only that device's snd-usb-audio interfaces, using finally for restoration. The test is not part of ordinary builds or the null-PCM suite.
+
+This establishes recovery from actual ALSA device disappearance and return within one running player, plus playback afterward. It does not establish uninterrupted audible playback, a physical cable-unplug test, card-number-change recovery on real hardware, or successful ALSA hardware-link replay. Waveform flicker, physical jog feel and full reboot/autostart verification remain open.

@@ -24,6 +24,7 @@ extern int write(int,const void*,unsigned);
 static void logtext(const char *s){unsigned n=0;while(s[n])n++;write(2,s,n);}
 static int logresult(const char *s,int v){char h[12]=" 00000000\n";unsigned u=v;for(int i=8;i>0;i--){h[i]="0123456789abcdef"[u&15];u>>=4;}logtext(s);write(2,h,10);return v;}
 void *dlopen(const char *name,int flags){static void *(*real)(const char*,int);if(!real)real=dlsym((void*)-1,"dlopen");return real(name,flags&~8);}
+#ifndef RX3_AUDIO_RECOVERY
 int snd_pcm_open(void **pcm,const char *name,int stream,int mode){
  static int (*real)(void**,const char*,int,int);if(!real)real=dlsym((void*)-1,"snd_pcm_open");
  unsigned n=0;while(name[n])n++;const char *target=stream?"null":(n&&name[n-1]=='0'?"rx3out":(n&&name[n-1]=='1'?"rx3cue":"null"));
@@ -36,6 +37,7 @@ WRAP2(snd_pcm_hw_params_any)
 int snd_pcm_hw_params_set_access(void*a,void*b,int c){static int(*real)(void*,void*,int);if(!real)real=dlsym((void*)-1,"snd_pcm_hw_params_set_access");return logresult("interleaved access",real(a,b,c==4?3:c));}
 WRAP3(snd_pcm_hw_params_set_format)
 WRAP3(snd_pcm_hw_params_set_channels)
+#endif
 int snd_ctl_open(void **ctl,const char *name,int mode){static int(*real)(void**,const char*,int);if(!real)real=dlsym((void*)-1,"snd_ctl_open");return logresult("CTL open",real(ctl,"hw:CARD=DDJFLX6",mode));}
 int snd_pcm_hw_params_get_channels_max(const void *p,unsigned *v){static int(*real)(const void*,unsigned*);if(!real)real=dlvsym((void*)-1,"snd_pcm_hw_params_get_channels_max","ALSA_0.9.0rc4");int r=real(p,v);if(r>=0&&*v>2)*v=2;logresult("channels max",*v);return logresult("channels max result",r);}
 int snd_ctl_pcm_info(void *ctl,void *info){

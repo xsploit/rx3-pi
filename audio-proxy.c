@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
-/* Standalone integration candidate. Not yet part of the live fbshim build. */
+/* Interposed ALSA recovery for the native RX3 player. */
 static pthread_mutex_t mutex=PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static struct rx3_alsa_driver alsa;
 static struct rx3_audio_pair pair;

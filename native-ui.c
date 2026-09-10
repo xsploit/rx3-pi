@@ -8,6 +8,7 @@
 #include "native-mixer.h"
 #include "native-pad-modes.h"
 extern char *program_invocation_short_name;
+extern void rx3_touch_navigation_tick(void);
 volatile int rx3_native_ui_ready=0,rx3_native_ui_pressed=-1;
 /* Native window keys also determine stacking and must be unique:
  * player strip1, mixer2, compact navigation3, pad selectors4. */
@@ -57,7 +58,8 @@ static int paint(int navigation,int show){
  return 1;
 }
 static int draw(void *arg){
- int result=original_draw(arg),main=main_panel_visible(),show=player_screen_active();
+ int result=original_draw(arg);rx3_touch_navigation_tick();
+ int main=main_panel_visible(),show=player_screen_active();
  rx3_mixer_draw(main);
  rx3_pad_modes_draw(main&&show&&!rx3_mixer_visible);
  int ok1=paint(0,!disabled&&show&&main),ok2=paint(1,!disabled&&show&&!main);

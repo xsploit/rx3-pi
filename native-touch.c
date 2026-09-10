@@ -14,7 +14,9 @@
 extern char *program_invocation_short_name;
 struct touch {uint8_t down,pad[3];int x,y;};
 static void (*original_touch)(void*,const struct touch*,void*);
-static int held_key,held_channel,held_slider=-1;
+static int held_key,held_channel,held_slider=-1,return_from_source;
+static void *source_return_handler;
+static int source_return_pending,source_return_frames,source_return_ready;
 extern volatile int rx3_native_ui_ready,rx3_native_ui_pressed;
 static void pad_key(void *handler,int key,int operation,int channel){
  void *root=*(void**)handler;
@@ -26,10 +28,29 @@ static void slider(void *handler,int index,int x,int y){
  float value=mixer_slider_value(index,x,y);
  if(manager)rx3_dispatch_key(manager,rx3_mixer_bindings[index].key,index>=16?5:4,rx3_mixer_bindings[index].channel,0,index>=16?2.f*value-1.f:value,0);
 }
+/* Source applies its first transition asynchronously after release. Advance
+ * the final Browse toggle from rendering once that transition is visible. */
+void rx3_touch_navigation_tick(void){
+ if(!__atomic_load_n(&source_return_pending,__ATOMIC_ACQUIRE))return;
+ if(!player_screen_active()||main_panel_visible()||++source_return_frames>120){
+  __atomic_store_n(&source_return_pending,0,__ATOMIC_RELEASE);return;
+ }
+ if(((int(*)(void))0x1126d0)()==12){source_return_ready=0;return;}
+ if(++source_return_ready<3)return;
+ pad_key(source_return_handler,0x202,0,0);pad_key(source_return_handler,0x202,2,0);
+ __atomic_store_n(&source_return_pending,0,__ATOMIC_RELEASE);
+}
 static void native_touch(void *handler,const struct touch *t,void *mode){
  if(held_slider>=0){if(!main_panel_visible()||!rx3_mixer_visible){held_slider=-1;held_key=t->down?-1:0;return;}if(t->down)slider(handler,held_slider,t->x,t->y);else held_slider=-1;return;}
  if(held_key){
-  if(!t->down){if(held_key>0)pad_key(handler,held_key,2,held_channel);held_key=0;rx3_native_ui_pressed=-1;}
+  if(!t->down){
+   if(held_key>0)pad_key(handler,held_key,2,held_channel);
+   if(return_from_source){
+    source_return_handler=handler;source_return_frames=0;source_return_ready=0;
+    __atomic_store_n(&source_return_pending,1,__ATOMIC_RELEASE);
+   }
+   return_from_source=0;held_key=0;rx3_native_ui_pressed=-1;
+  }
   return;
  }
  int main_visible=main_panel_visible();
@@ -41,7 +62,9 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
    if(!main_visible){
     static const int navkeys[6]={0x203,0x420e,0x202,0x420d,0x201,0x20b};
     i=(t->x-680)/100;held_key=navkeys[i];held_channel=0;rx3_native_ui_pressed=10+i;
-    int tag_list=((int(*)(void))0x1126d0)()==4;
+    int browse_mode=((int(*)(void))0x1126d0)(),tag_list=browse_mode==4;
+    /* Finish Source->Browse->Player on release after the first transition. */
+    return_from_source=i==2&&browse_mode==12;
     if(i==2&&tag_list)held_key=0x203; /* Close Tag List directly to player. */
     if(i==0&&tag_list){held_key=-1;return;}
     pad_key(handler,held_key,0,0);

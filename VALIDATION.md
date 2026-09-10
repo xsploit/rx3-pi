@@ -441,3 +441,11 @@ Live PID33450 extends the compact navigation surface leftward: six100px cells, n
 Native screenshots and touch replay verified selected-track addition, one-item Tag List, repeat Tag List remaining open, removal to zero items, and Player returning to main. The first candidate Player action returned to Browse; corrected to native0203 in Tag List and final visibility assertion passed. Other main transport/Mixer geometry was unchanged. Final both Aaliyah tracks cued at9307BPM, rate0, range10, keylockoff, Syncoff; brightness0. Backup runtime/lib/fbshim-pre-touch-tags.so. Evidence research/touch-tag-trial.py/results and /tmp/touch-tag-{added,removed,player}.png. Audio was not remeasured for this navigation-only addition.
 
 Physical comfort and behavior of Tag actions in non-track lists/other media contexts remain unverified.
+
+## Player return from Source
+
+The widened toolbar check found Info->Player already working, but Source->Player stopped at Browse. Native Source is browser mode12; its first Browse-key transition is asynchronous and completes after touch release. Two immediately queued presses, and then a release-time second press, both failed live checks.
+
+The final adapter marks a pending return on release. The GUI draw hook observes Source closing, waits three rendered frames outside Source, then queues the final Browse press/release. It cancels if main is already visible, the player screen becomes inactive, or120frames elapse. It does not sleep on the GUI thread.
+
+Live final build passed four touch sequences: Source entered from main, Browse, Tag List and Info, each followed by one Player tap. Every case ended with the main panel visible and browser mode1. Both tracks remained loaded/cued at original BPM9307, tempo0, range10, keylockoff, Syncoff, displayoff. Backup runtime/lib/fbshim-pre-source-player.so. Research source-player-trial.py/results.json. Fast overlapping gestures and stalled-render timeout behavior remain unverified; audio was not remeasured for this navigation change.

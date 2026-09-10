@@ -1,6 +1,6 @@
 # Audio recovery investigation
 
-Status: the pair-reopen controller is implemented and tested in isolation; live reconnect is not integrated or verified. This is distinct from the working MIDI rediscovery loop. The live player was left running and paused; no USB device was detached and no native audio error was injected.
+Status: the pair-reopen controller and ALSA parameter driver are implemented and tested in isolation; live reconnect is not integrated or verified. This is distinct from the working MIDI rediscovery loop. The live player was left running and paused; no USB device was detached and no native audio error was injected.
 
 ## Verified native error path
 
@@ -44,3 +44,16 @@ gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -o /tmp/test
 ```
 
 Next integrate a driver that saves/restores real ALSA parameters, resolves stable caller handles to replacements, distinguishes recoverable errors from device loss, and provides paced unavailable output. Keep the vendor DMA error path unreachable for managed output errors. Then test the adapter before any live USB detach.
+
+## ALSA parameter driver (not deployed)
+
+`audio-alsa.c/.h` now supplies the pair controller's real ALSA callbacks. It snapshots current hardware and software parameters for each configured playback PCM, retaining the previous good snapshot if capture fails. Reopen uses the saved PCM name, applies fresh copies of both parameter objects, and restores the caller's blocking mode. Opening temporarily adds NONBLOCK to avoid waiting on a busy device. The four entry points that would otherwise recurse through shim wrappers are resolved with RTLD_NEXT. Partial handles are returned to the pair controller for cleanup.
+
+`test-audio-alsa.c` passed with local ASan/UBSan against ALSA1.2.16.1 and on the Pi host against ALSA1.2.14. It uses two real ALSA null PCMs with stereo S16_LE,44100Hz,128-frame periods and512-frame buffers, plus distinct start thresholds and explicit stop/silence settings. Four successful pair reopens preserved every inspected setting and accepted128-frame writes. An injected failure on the second output's software-parameter application, after real open/hardware setup, left both published handles null; the subsequent retry restored both. Failed snapshot capture also preserved the earlier good snapshot.
+
+These tests used the host ALSA libraries, not the ARM32 firmware runtime or the FLX6/dmix hardware chain. Null PCM accepting writes is not evidence of audible output or USB reconnect. Neither recovery source is linked into the live shim yet. Outstanding integration: stable caller-handle lookup, complete call interception and serialization, write-error classification, bounded underrun/suspend handling, offline pacing/status, target ARM32 shared-library validation, then real routed-output recovery tests.
+
+```sh
+gcc -std=gnu11 -O2 -Wall -Wextra -Werror -o /tmp/test-audio-alsa audio-recovery.c audio-alsa.c test-audio-alsa.c $(pkg-config --cflags --libs alsa) -ldl
+/tmp/test-audio-alsa
+```

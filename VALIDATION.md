@@ -55,3 +55,23 @@ Native strip remains visible across active screen0's player, Browse and Source v
 From a fresh player without a source, touch Browse opened the empty list; touch Player returned to the empty player. Re-entered Browse and touched Source to open device selection. Selected USB2, entered Track, and exercised Back, which dismissed selected-track load controls. Selecting the first track again and tapping Load1 loaded Aaliyah/Try Again. Subsequent Play/Cue replay returned to its cue point. All navigation in this verification used the touch bridge, without direct FIFO navigation commands. Pi build and navigation regression test passed. Backlight remained0.
 
 The strip occupies the native header's upper44pixels, including its original title/Info area. Header information/Info access needs a layout refinement. Some transition captures lacked the Source label; a later cued capture contained all nine labels. This remains a rendering observation to investigate, not proof of a fully flicker-free UI.
+
+## Mixer output verification and deck-fader failure
+
+Live player PID15801, FLX6 four-channel S16LE hardware buffer,40 reads of512frames at25ms intervals per measurement. Reads were from the existing mapped playback DMA buffer; this verifies generated output data, not a fresh human listening test. Touch replay controlled the panel.
+
+| Control state | Master L/R RMS | Headphone L/R RMS | Result |
+|---|---|---|---|
+| Initial playback |184.39 /173.74|259.12 /244.16|Both output pairs active|
+| Headphone volume0 |127.17 /127.87|0 /0|Headphone pair silent, master active|
+| Headphone volume restored~50% |188.10 /172.04|264.23 /241.68|Headphone pair active again|
+| Master0 |0 /0|447.23 /460.14|Master pair silent, headphone cue active|
+| Master restored~60%, deck1 level0 |164.24 /165.73|457.15 /460.98|FAIL: master should be silent for the only playing deck|
+| Deck1 level restored100%, cue1 off |234.84 /243.62|0 /0|Cue button silences headphone pair|
+| Cue1 on |207.61 /219.84|288.52 /305.50|Cue audio restored|
+
+Different rows sample different portions of the song; nonzero RMS ratios are not transfer-function measurements. Silent pairs had both zero RMS and zero peaks. All playing measurements had40distinct buffers.
+
+Replayed FLX6 B0 13 20 / B0 33 00 through the real MIDI bridge. Mixer screenshot displayed deck1 level25%, proving MIDI-to-panel feedback through shared state. This does not prove physical knob/fader handling.
+
+Repeated deck1 level0 test still left master audio. Read-only process inspection confirmed mixer input0 fader value0.0, curve1, target gain0, settled residual~7.7e-32. Native curve tables end in0, so blindly translating the fader to a different input range would be unjustified. Native path is onEv_VolumeFader0x2d35a0 -> DjEngineIF0x4c68c -> MixerEngine0x56ed4 -> ChannelFader::setFader0x9bb54. Cueing deck1 then made all four hardware channels exactly zero. Investigate downstream mixing/output routing or a parallel deck signal path. Deck1 fader restored100%; player paused at cue; backlight0.

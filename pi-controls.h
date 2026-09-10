@@ -1,7 +1,11 @@
 #ifndef PI_CONTROLS_H
 #define PI_CONTROLS_H
+#ifndef UI_STATE
 #define UI_STATE "/home/pompu_5/rx3-rootfs/dev/rx3-ui-state"
+#endif
+#ifndef UI_CONTROL
 #define UI_CONTROL "/home/pompu_5/rx3-rootfs/dev/rx3-control"
+#endif
 #define CONTENT_X 160
 #define CONTENT_W 1600
 #define CONTENT_H 1000

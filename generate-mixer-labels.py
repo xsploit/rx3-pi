@@ -39,7 +39,7 @@ for char in '0123456789+-.BPM':
  for x,y,w in spans(char,8,26,13):s+='{%d,%d,%d,%d},\n'%(ord(char),x,y,w)
 s+='};\n'
 s+='static const unsigned short tempo_range_text[][4]={\n'
-for value,label in ((6,'6%'),(10,'10%'),(16,'16%'),(100,'WIDE')):
+for value,label in ((6,'6%'),(10,'10%'),(16,'16%'),(25,'25%'),(100,'WIDE')):
  for x,y,w in spans(label,80,48,18):s+='{%d,%d,%d,%d},\n'%(value,x,y,w)
 s+='};\n'
 s+='static const unsigned short tempo_pickup_text[][4]={\n'

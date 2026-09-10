@@ -6,6 +6,7 @@
 #include "native-ui-glyphs.h"
 #include "native-screen.h"
 #include "native-grid.h"
+#include "native-tempo25.h"
 #include "native-mixer.h"
 #include "native-pad-modes.h"
 #include "native-zoom-layout.h"
@@ -86,6 +87,7 @@ static int paint(int navigation,int show){
  return 1;
 }
 static int draw(void *arg){
+ rx3_tempo25_artwork_tick();
  int result=original_draw(arg);rx3_touch_navigation_tick();rx3_grid_tick();
  int main=main_panel_visible(),show=player_screen_active();
  rx3_mixer_draw(main);

@@ -76,3 +76,9 @@ Pressing the FLX6 browse encoder from the player screen opens Browse. Inside Bro
 Touch Tag List opens the Prepare equivalent; Tag + adds the selected track from Browse and becomes Tag − within Tag List for removal. Player returns directly to the decks from Tag List. Existing Player/Back/Source/Info touch positions are unchanged.
 
 Touch Search opens the native on-screen keyboard. Type a query, tap a result to hide the keyboard, then use its Load1/Load2 buttons. Search occupies physical x945,y30 in the browser toolbar; all previous navigation positions remain unchanged.
+
+### Preferred BiteDJ fourth tempo range
+
+Build the current shim, then create a separate executable candidate with `python3 patch-tempo25.py ORIGINAL_RBP_PI OUTPUT_RBP_PI`. The input must be the unmodified-in-tempo RX3 v1.19 Pi executable; already-patched input is rejected. Stop RX3 before replacing its executable and shim together, and retain both originals for rollback. The script does not ship or download firmware. `build.sh` builds the shim but does not apply this separate executable patch.
+
+The fourth range becomes25%, including original counter artwork and hundredths tempo display. `generate-tempo25-label.py` and `generate-mixer-labels.py` regenerate label headers using ImageMagick and Liberation Sans. The native artwork hook checks the patched engine and snapshot tables, image dimensions and format before writing. Runtime status `rx3_tempo25_artwork_state` is1 after success, negative on validation failure. Use the matching executable and shim as a pair.

@@ -5,6 +5,7 @@
 #include "native-screen.h"
 #include "mixer-state.h"
 #include "native-mixer.h"
+#include "native-mixer-layout.h"
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -18,13 +19,13 @@ static void pad_key(void *handler,int key,int operation,int channel){
  void *manager=root?*(void**)((char*)root+0x64):0;
  if(manager)rx3_dispatch_key(manager,key,operation,channel,0,0.f,0);
 }
-static void slider(void *handler,int index,int y){
+static void slider(void *handler,int index,int x,int y){
  void *root=*(void**)handler;void *manager=root?*(void**)((char*)root+0x64):0;
- float value=(594-y)/390.f;if(value<0)value=0;if(value>1)value=1;
+ float value=mixer_slider_value(index,x,y);
  if(manager)rx3_dispatch_key(manager,rx3_mixer_bindings[index].key,4,rx3_mixer_bindings[index].channel,0,value,0);
 }
 static void native_touch(void *handler,const struct touch *t,void *mode){
- if(held_slider>=0){if(!main_panel_visible()||!rx3_mixer_visible){held_slider=-1;held_key=t->down?-1:0;return;}if(t->down)slider(handler,held_slider,t->y);else held_slider=-1;return;}
+ if(held_slider>=0){if(!main_panel_visible()||!rx3_mixer_visible){held_slider=-1;held_key=t->down?-1:0;return;}if(t->down)slider(handler,held_slider,t->x,t->y);else held_slider=-1;return;}
  if(held_key){
   if(!t->down){if(held_key>0)pad_key(handler,held_key,2,held_channel);held_key=0;rx3_native_ui_pressed=-1;}
   return;
@@ -40,7 +41,8 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
   }
   if(!main_visible){original_touch(handler,t,mode);return;}
   if(rx3_mixer_visible){
-   if(t->x>=0&&t->x<1280&&t->y>=184&&t->y<=614){held_slider=t->x/80;slider(handler,held_slider,t->y);}
+   int index=mixer_slider_at(t->x,t->y);
+   if(index>=0){held_slider=index;slider(handler,held_slider,t->x,t->y);}
    else if(t->y>=694&&t->y<764&&((t->x>=32&&t->x<432)||(t->x>=848&&t->x<1248))){held_key=0x5020;held_channel=t->x<640?1:2;pad_key(handler,held_key,0,held_channel);}
    else held_key=-1; /* Consume blank-panel gestures through release. */
    return;

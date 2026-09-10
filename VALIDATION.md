@@ -118,3 +118,11 @@ For each EQ measurement, returned deck1 Aaliyah/Try Again to cue, changed only t
 | Low minimum |5058780.5|114337369.8|1675513.9|
 
 All three touch controls affect actual output in their expected frequency regions. Samples begin near the same cue but are not phase-aligned; these measurements do not establish exact crossover frequencies or manufacturer EQ curves. Each contained40distinct buffers. Restored trim and all EQ controls to center, player cued, mixerclosed, backlight0. Independent deck2 EQ isolation, boosts, and physical knob operation remain unverified.
+
+## Horizontal touchscreen crossfader
+
+Moved crossfader to a full-width horizontal track, labeled Deck1 left and Deck2 right. Master, headphone volume and headphone mix now share the center bank as three wider columns. Native key mapping and normalized crossfader values remain unchanged. Shared native-mixer-layout.h defines the renderer column centers, touch regions and value conversion; the label generator uses the corresponding column widths.
+
+Pi build/deployment succeeded. Completed-frame images verified centered layout, a continuous physical-input replay drag fromx90through1840 at y978 reaching the right endpoint, left tap, center tap, and independent headphone-volume0 at its new location. Restored headphone volume50%. Layout checks passed locally and onPi for every vertical slider center, horizontal endpoints/center/clamping, and blank gaps. Native navigation and mixer-state regressions passed. These checks establish touch dispatch/rendering, not a new audio endpoint test; native crossfader DSP endpoint tests are recorded above.
+
+Updated physical replay coordinates: crossfader y978, left margin90, center960, right margin1840. Master columncenter~800; headphone volume960; headphone mix1120. Vertical endpoints remain y285/920, midpoint599. Deck-control and headphone-cue button positions remain unchanged. Screen staysdark; player has no tracks loaded after this restart.

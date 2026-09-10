@@ -2,6 +2,7 @@
 #include <string.h>
 #include "mixer-state.h"
 #include "native-mixer.h"
+#include "native-mixer-layout.h"
 #include "native-mixer-glyphs.h"
 volatile int rx3_mixer_visible;
 static void *window;
@@ -40,13 +41,20 @@ void rx3_mixer_draw(int main_visible){
  for(unsigned i=0;i<1280*756;i++)canvas[i]=0x1082;
  box(0,0,480,54,0x018e);box(480,0,320,54,0x2945);box(800,0,480,54,0x018e);
  for(int i=0;i<16;i++){
-  int x=i*80;float v=state.levels[i];if(v<0)v=0;if(v>1)v=1;
+  if(i==7)continue;
+  int x=mixer_column_center(i)-40;float v=state.levels[i];if(v<0)v=0;if(v>1)v=1;
   box(x+38,160,4,390,0x528a);box(x+20,354,40,2,0x528a);
   if(state.valid&(1u<<i)){
    int y=550-(int)(v*390+.5f);
    box(x+36,y,8,550-y,0x04bf);box(x+12,y-7,56,14,0xe73c);
    number(x+22,110,(unsigned)(v*100+.5f));
   }
+ }
+ box(80,606,1120,4,0x528a);box(638,592,4,32,0x528a);
+ if(state.valid&(1u<<7)){
+  float v=state.levels[7];if(v<0)v=0;if(v>1)v=1;
+  int x=80+(int)(v*1120+.5f);
+  box(80,604,x-80,8,0x04bf);box(x-10,592,20,32,0xe73c);
  }
  box(32,650,400,70,state.cue&1?0x04bf:0x4208);
  box(848,650,400,70,state.cue&2?0x04bf:0x4208);

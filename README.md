@@ -8,7 +8,7 @@ Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry 
 - Playback confirmed audible by the owner through FLX6 cue/headphones. Master channels1/2 and headphones3/4 routed through ALSA, using stable card ID `DDJFLX6` rather than a numeric card index.
 - Fullscreen landscape1920x1200 display from native1280x800; DRM page-flip presenter measures about60FPS. A sequence-checked pair of completed-frame buffers now separates composition from presentation.
 - Native browser touch and A–H hot-cue touch adapters. Transport/Source controls are available before loading the first track. Browse and Source views expose Player, Back and Source navigation buttons. Native transport strip uses its own locked RGB565 window surface; repeated presses keep labels visible in screenshot tests.
-- Native Mixer panel with 16 touch sliders and two headphone-cue buttons, sharing input state with FLX6. Touch replay verified level taps, drag, cue toggle and return to waveforms; headphone volume/cue and master mute verified in hardware output data. Startup now assigns each player to its corresponding mixer channel. Both deck faders mute their own master signal while headphone cue remains available, verified in FLX6 output data. Crossfader assignments initialize to deck1 left/deck2 right; both endpoints are verified in output data. Native FILTER is selected at startup on both channels; deck1 low/high/center response is verified in output data. Deck1 trim mute and all three EQ cuts also passed output checks.
+- Native Mixer panel with 15 vertical touch sliders and a horizontal crossfader and two headphone-cue buttons, sharing input state with FLX6. Touch replay verified level taps, drag, cue toggle and return to waveforms; headphone volume/cue and master mute verified in hardware output data. Startup now assigns each player to its corresponding mixer channel. Both deck faders mute their own master signal while headphone cue remains available, verified in FLX6 output data. Crossfader assignments initialize to deck1 left/deck2 right; both endpoints are verified in output data. Native FILTER is selected at startup on both channels; deck1 low/high/center response is verified in output data. Deck1 trim mute and all three EQ cuts also passed output checks.
 - 87 FLX6 MIDI bindings read from the user's installed BiteDJ XML. Jogs, tempo, mixer, play/cue/load, browse encoder and navigation adapters.
 - BiteDJ files remain unchanged. Stop this runtime before returning to BiteDJ.
 
@@ -38,6 +38,8 @@ On the Pi, with ARM32 cross compiler and native gcc, FreeType/libdrm development
 ```sh
 sh build.sh
 python3 test-navigation.py
+gcc -I . -o build/test-mixer-layout test-mixer-layout.c
+./build/test-mixer-layout
 gcc -O2 -o build/test-mixer-state test-mixer-state.c mixer-state.c
 ./build/test-mixer-state
 gcc -O2 -o build/test-frame-exchange test-frame-exchange.c $(pkg-config --cflags --libs freetype2 libdrm)

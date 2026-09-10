@@ -13,6 +13,22 @@
 #include FT_FREETYPE_H
 #include "pi-controls.h"
 static uint32_t frame[1920*1200],chrome[1920*1200];
+static uint32_t complete_frame[1280*800],candidate_frame[1280*800];
+static uint32_t *published;
+static unsigned accepted,rejected;
+static void read_complete_frame(void){
+ if(!published)return;
+ for(int tries=0;tries<3;tries++){
+  uint32_t before=__atomic_load_n(published+1,__ATOMIC_ACQUIRE);
+  if(!before){rejected++;continue;}
+  memcpy(candidate_frame,(char*)published+4096+(before&1)*sizeof(candidate_frame),sizeof(candidate_frame));
+  __atomic_thread_fence(__ATOMIC_SEQ_CST);
+  uint32_t after=__atomic_load_n(published+1,__ATOMIC_ACQUIRE);
+  if(before==after){memcpy(complete_frame,candidate_frame,sizeof(complete_frame));accepted++;return;}
+  rejected++;
+ }
+ /* Keep the previous complete image when the producer is busy. */
+}
 static FT_Face face;
 static long long ns(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (long long)t.tv_sec*1000000000+t.tv_nsec;}
 static void sleep_until(long long target){struct timespec t={target/1000000000,target%1000000000};clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&t,0);}
@@ -34,6 +50,13 @@ int main(int argc,char**argv){
  struct fb_fix_screeninfo f;struct fb_var_screeninfo v;ioctl(dst,FBIOGET_FSCREENINFO,&f);ioctl(dst,FBIOGET_VSCREENINFO,&v);
  if(v.xres!=1200||v.yres!=1920||v.bits_per_pixel!=32){fprintf(stderr,"Unexpected display geometry\n");return 1;}
  uint32_t *s=mmap(0,1280*800*4,PROT_READ,MAP_SHARED,src,0);unsigned char *d=mmap(0,f.smem_len,PROT_READ|PROT_WRITE,MAP_SHARED,dst,0);if(s==MAP_FAILED||d==MAP_FAILED)return 1;
+ if(argc>3&&!strcmp(argv[3],"--coherent")){
+  int pf=open("/home/pompu_5/rx3-rootfs/dev/rx3-present-frame",O_RDONLY);
+  if(pf<0){perror("completed-frame buffer");return 1;}
+  published=mmap(0,4096+2*sizeof(complete_frame),PROT_READ,MAP_SHARED,pf,0);close(pf);
+  if(published==MAP_FAILED)return 1;
+  s=complete_frame;
+ }
  int sf=open(UI_STATE,O_RDWR|O_CREAT,0600);if(sf<0||ftruncate(sf,sizeof(struct ui_state)))return 1;
  struct ui_state *state=mmap(0,sizeof(*state),PROT_READ|PROT_WRITE,MAP_SHARED,sf,0);if(state==MAP_FAILED)return 1;
  if(state->magic!=0x52583332){*state=(struct ui_state){0x52583332,{1,.6,0,1,.5,.5},0,1};}
@@ -46,6 +69,7 @@ int main(int argc,char**argv){
  long long deadline=ns(),report=deadline,draw_total=0,last_present=deadline;unsigned frames=0,late=0;
  for(;;){
  long long began=ns();
+ read_complete_frame();
  if(fullscreen){
   for(int y=0;y<1200;y++)for(int x=0;x<1920;x++)frame[y*1920+x]=s[(y*2/3)*1280+x*2/3];
  }else{
@@ -67,6 +91,6 @@ int main(int argc,char**argv){
  deadline+=16666667;
  if(finished>deadline){late++;deadline=finished;}
  sleep_until(deadline);}
- if(frames==180){long long now=ns();fprintf(stderr,"present %.1f fps, draw %.2f ms, late %u/180\n",frames*1e9/(now-report),draw_total/180e6,late);report=now;frames=late=0;draw_total=0;}
+ if(frames==180){long long now=ns();fprintf(stderr,"present %.1f fps, draw %.2f ms, late %u/180\n",frames*1e9/(now-report),draw_total/180e6,late);if(published)fprintf(stderr,"complete-frame accepted %u retries %u\n",accepted,rejected);accepted=rejected=0;report=now;frames=late=0;draw_total=0;}
  }
 }

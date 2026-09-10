@@ -17,8 +17,8 @@ def targets():
    if not args:continue
    exe=os.path.basename(args[0])
    if exe=='rbp-pi' and args[0]=='/root/pdj/rbp-pi':kind='player'
-   elif exe=='rx3-fb-present' and args[1:]==[home+'rx3-rootfs/dev/fb0']:kind='display'
-   elif exe=='rx3-touch-bridge' and len(args)==3 and args[2]==home+'rx3-rootfs/dev/tsc2007_2-0048':kind='touch'
+   elif exe=='rx3-fb-present' and len(args)>=2 and args[1]==home+'rx3-rootfs/dev/fb0' and all(a in ('--fullscreen','--coherent') for a in args[2:]):kind='display'
+   elif exe=='rx3-touch-bridge' and len(args)>=3 and args[2]==home+'rx3-rootfs/dev/tsc2007_2-0048' and all(a=='--fullscreen' for a in args[3:]):kind='touch'
    elif exe=='python3' and len(args)==2 and args[1] in ('flx6-rx3.py',home+'flx6-rx3.py'):kind='midi'
    else:continue
    result[kind].append(int(d.name))

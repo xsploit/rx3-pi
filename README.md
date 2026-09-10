@@ -22,7 +22,7 @@ Native transport is experimental. Browser/load/play/pause were exercised through
 
 Touch-only ZOOM−/+ buttons sit above the native ZOOM/GRID selector. They change the shared waveform scale and hide in GRID mode and Mixer. These are added touch controls using native RX3 commands.
 
-SHIFT+jog now translates the selected MIDI deck’s beatgrid in5ms steps per16ticks, preserving scratch cancellation. Native offset and rendered grid movement passed replay tests; physical feel remains unverified. Edits outside visible GRID now use the native save lifecycle; alternating edits on both decks survived a player restart. Cross-deck interaction with an already-open GRID editor and heavy-I/O save stress remain unverified. Known mapping difference: BiteDJ’s final tempo range is25%; RX3 currently uses WIDE100%. Neither behavior is claimed as full parity.
+SHIFT+jog now translates the selected MIDI deck’s beatgrid in5ms steps per16ticks, preserving scratch cancellation. Native offset and rendered grid movement passed replay tests; physical feel remains unverified. Edits outside visible GRID now use the native save lifecycle; alternating edits on both decks survived a player restart. Cross-deck interaction with an already-open GRID editor and heavy-I/O save stress remain unverified. The matched executable/shim checkpoint now uses BiteDJ’s preferred 6/10/16/25% tempo ranges, including native 25% artwork and hundredths display. This does not establish full controller parity; see the 25% range instructions below.
 
 ## FLX6 navigation
 

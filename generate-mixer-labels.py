@@ -13,7 +13,7 @@ def spans(text,w,h,size,ox=0,oy=0):
    while x<w and b[y*w+x]>=128:x+=1
    out.append((ox+start,oy+y,x-start))
  return out
-labels=['TRIM','HIGH','MID','LOW','FILTER','LEVEL','MASTER','CROSS','HP VOL','HP MIX','TRIM','HIGH','MID','LOW','FILTER','LEVEL','TEMPO %','TEMPO %']
+labels=['TRIM','HIGH','MID','LOW','FILTER','LEVEL','MASTER','CROSS','HP VOL','HP MIX','TRIM','HIGH','MID','LOW','FILTER','LEVEL','FADER %','FADER %']
 a=[]
 for i,label in enumerate(labels):
  if i==7:continue
@@ -35,7 +35,7 @@ for d in range(10):
  for x,y,w in spans(str(d),12,26,18):s+='{%d,%d,%d,%d},\n'%(d,x,y,w)
 s+='};\n'
 s+='static const unsigned short tempo_text[][4]={\n'
-for char in '0123456789+-.':
+for char in '0123456789+-.BPM':
  for x,y,w in spans(char,8,26,13):s+='{%d,%d,%d,%d},\n'%(ord(char),x,y,w)
 s+='};\n'
 s+='static const unsigned short tempo_range_text[][4]={\n'

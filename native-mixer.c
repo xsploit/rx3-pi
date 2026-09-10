@@ -9,6 +9,7 @@ static void *window;
 static int shown,disabled,painted;
 static uint32_t revision;
 static int last_tempo[2],last_range[2],last_lock[2];
+static unsigned last_bpm[2];
 static uint16_t canvas[1280*756];
 static void box(int x,int y,int w,int h,uint16_t color){
  for(int yy=y;yy<y+h;yy++)for(int xx=x;xx<x+w;xx++)canvas[yy*1280+xx]=color;
@@ -22,6 +23,11 @@ static void number(int x,int y,unsigned n){
    box(x+d*12+mixer_digits[i][1],y+mixer_digits[i][2],mixer_digits[i][3],1,0xffff);
  }
 }
+static void tempo_string(int center,int y,const char *text,unsigned n){
+ int x=center-(int)n*4;
+ for(unsigned d=0;d<n;d++)for(unsigned i=0;i<sizeof(tempo_text)/sizeof(tempo_text[0]);i++)
+  if(tempo_text[i][0]==(unsigned)text[d])box(x+d*8+tempo_text[i][1],y+tempo_text[i][2],tempo_text[i][3],1,0xffff);
+}
 static void tempo_number(int center,int y,int rate){
  char text[8];unsigned n=0,a=rate<0?-rate:rate;
  text[n++]=rate<0?'-':'+';
@@ -29,9 +35,20 @@ static void tempo_number(int center,int y,int rate){
  if(a>=1000)text[n++]='0'+a/1000%10;
  text[n++]='0'+a/100%10;text[n++]='.';
  text[n++]='0'+a/10%10;text[n++]='0'+a%10;
- int x=center-(int)n*4;
- for(unsigned d=0;d<n;d++)for(unsigned i=0;i<sizeof(tempo_text)/sizeof(tempo_text[0]);i++)
-  if(tempo_text[i][0]==(unsigned)text[d])box(x+d*8+tempo_text[i][1],y+tempo_text[i][2],tempo_text[i][3],1,0xffff);
+ tempo_string(center,y,text,n);
+}
+/* Effective BPM is separate from the fader setting during native Sync/pickup. */
+static void bpm_number(int center,unsigned bpm){
+ char text[8];unsigned n=0;
+ if(!bpm||bpm>=100000){text[n++]='-';text[n++]='-';text[n++]='-';}
+ else {
+  unsigned a=bpm/10; /* Native display truncates to tenths. */
+  if(a>=1000)text[n++]='0'+a/1000;
+  if(a>=100)text[n++]='0'+a/100%10;
+  text[n++]='0'+a/10%10;text[n++]='.';text[n++]='0'+a%10;
+ }
+ text[n++]='B';text[n++]='P';text[n++]='M';
+ tempo_string(center,134,text,n);
 }
 void rx3_mixer_draw(int main_visible){
  if(!main_visible)rx3_mixer_visible=0;
@@ -50,9 +67,10 @@ void rx3_mixer_draw(int main_visible){
  if(!show)return;
  struct rx3_mixer_snapshot state;rx3_mixer_snapshot(&state);
  int tempo[2]={((int(*)(int))0xfd2dc)(0),((int(*)(int))0xfd2dc)(1)};
+ unsigned bpm[2]={((unsigned(*)(int))0xfd1fc)(0),((unsigned(*)(int))0xfd1fc)(1)};
  int range[2]={((int(*)(int))0xfd2b4)(0),((int(*)(int))0xfd2b4)(1)};
  int keylock[2]={((int(*)(int))0xfd30c)(0),((int(*)(int))0xfd30c)(1)};
- if(painted&&revision==state.revision&&tempo[0]==last_tempo[0]&&tempo[1]==last_tempo[1]&&range[0]==last_range[0]&&range[1]==last_range[1]&&keylock[0]==last_lock[0]&&keylock[1]==last_lock[1])return;
+ if(painted&&bpm[0]==last_bpm[0]&&bpm[1]==last_bpm[1]&&revision==state.revision&&tempo[0]==last_tempo[0]&&tempo[1]==last_tempo[1]&&range[0]==last_range[0]&&range[1]==last_range[1]&&keylock[0]==last_lock[0]&&keylock[1]==last_lock[1])return;
  for(unsigned i=0;i<1280*756;i++)canvas[i]=0x1082;
  box(0,0,480,54,0x018e);box(480,0,320,54,0x2945);box(800,0,480,54,0x018e);
  for(int deck=0;deck<2;deck++){
@@ -71,7 +89,7 @@ void rx3_mixer_draw(int main_visible){
   if(state.valid&(1u<<i)){
    int y=550-(int)(v*390+.5f);
    box(x+36,y,8,550-y,0x04bf);box(x+12,y-7,56,14,0xe73c);
-   if(i>=16)tempo_number(x+40,110,tempo[i-16]);
+   if(i>=16){tempo_number(x+40,103,tempo[i-16]);bpm_number(x+40,bpm[i-16]);}
    else number(x+22,110,(unsigned)(v*100+.5f));
   }
  }
@@ -100,6 +118,6 @@ void rx3_mixer_draw(int main_visible){
  ((int(*)(void*))0x1a1cb0)(window);
  ((int(*)(void*,int,int,int,int,int))0x1a0948)(window,0,0,1280,756,0x4000);
  revision=state.revision;last_tempo[0]=tempo[0];last_tempo[1]=tempo[1];
- for(int i=0;i<2;i++){last_range[i]=range[i];last_lock[i]=keylock[i];}
+ for(int i=0;i<2;i++){last_bpm[i]=bpm[i];last_range[i]=range[i];last_lock[i]=keylock[i];}
  painted=1;
 }

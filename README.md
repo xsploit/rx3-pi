@@ -59,3 +59,5 @@ Native patch addresses are specific to RX3 v1.19. Original player SHA256: `60bcb
 No proprietary firmware, music, library database, SSH credentials or machine image is committed. `recover-firmware.py` downloads hash-verified official source/update packages and extracts the firmware key from the published source package. It creates local outputs only and does not flash hardware. `patch-player.py` expects `pi-runtime/rbp` and generated `pi-clock.bin`; rootfs assembly remains a documented outstanding task.
 
 Screenshots are evidence of the development checkpoint. The Pi backlight can remain at0 while memory screenshots are taken. Do not re-enable it while the owner sleeps.
+
+The Mixer shows FADER % and effective playback BPM separately, so retained Sync/pickup tempo is visible even when the fader is centered. Fine tempo buttons still adjust the fader setting and do not yet take over a held playback tempo.

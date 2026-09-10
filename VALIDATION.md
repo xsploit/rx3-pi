@@ -363,3 +363,11 @@ Touch replay toggled the native engine Sync flag while cued and playing in PID28
 The Mixer currently displays `UiGetPlayTempoRate`, which represents the fader setting during pickup. Its fine buttons also use that value. This is an identified UI/control gap, not verified Sync/pickup completion. Read-only disassembly confirms snapshot offsets: effective BPM +20, original BPM +24, tempo target +28, fader rate +34. The earlier research probe labeled +28 as `bpm_raw`; it must not be interpreted as effective BPM.
 
 Playback produced 40 distinct DMA buffers with positive master and headphone RMS. Final state was verified beyond the fader alone: both actual and original BPM 9307, rate 0, Sync off, cued, brightness 0. No runtime changes were deployed in this investigation.
+
+## Separate fader setting and effective BPM
+
+Mixer now labels the percentage FADER % and shows a separate effective BPM from native UiGetPlayBpm (0xfd1fc), including cache invalidation when only BPM changes. ARM build and live deployment passed in PID29019. Both neutral and pickup screenshots were inspected; the display shows +0.00 with 88.4 BPM on deck1 while deck2 shows -5.00 with 88.4 BPM. This reflects native state rather than estimating playback tempo from the fader.
+
+The live trial verified deck1 Sync following deck2: both effective BPM8842, deck1 fader+500, deck2-500, master flagdeck2 and Sync flagdeck1. After Sync off and deck1 fadercenter, its effective BPM stayed8842 while fader became0. Forty distinct DMA buffers, RMS79.48/81.19/223.90/227.11. The initial attempted reproduction synchronized the already-master deck2 and did not create pickup; its assertion failed and cleanup restored both decks. The corrected trial used deck1 as follower.
+
+Final: both cued, actual/original BPM9307, faders0, Syncoff, range10, keylockoff, Mixerclosed, backlight0. Backup runtime/lib/fbshim-pre-bpm-feedback.so. Fine-button takeover remains unresolved; this change makes the separate values visible and does not override native pickup.

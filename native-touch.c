@@ -5,6 +5,7 @@
 #include "native-screen.h"
 #include "mixer-state.h"
 #include "native-mixer.h"
+#include "native-pad-modes.h"
 #include "native-mixer-layout.h"
 #include <string.h>
 #include <sys/mman.h>
@@ -45,6 +46,12 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
    if(index>=0){held_slider=index;slider(handler,held_slider,t->x,t->y);}
    else if(t->y>=694&&t->y<764&&((t->x>=32&&t->x<432)||(t->x>=848&&t->x<1248))){held_key=0x5020;held_channel=t->x<640?1:2;pad_key(handler,held_key,0,held_channel);}
    else held_key=-1; /* Consume blank-panel gestures through release. */
+   return;
+  }
+  if(rx3_pad_modes_ready&&t->y>=492&&t->y<518&&t->x>=0&&t->x<1280){
+   int deck=t->x/640,local=t->x%640-10,col=local/158;
+   held_key=-1;
+   if(local>=0&&col>=0&&col<4&&local%158<150){held_key=0x4113+col;held_channel=deck+1;pad_key(handler,held_key,0,held_channel);}
    return;
   }
   int row=t->y>=518&&t->y<=540?0:(t->y>=548&&t->y<=570?1:-1);

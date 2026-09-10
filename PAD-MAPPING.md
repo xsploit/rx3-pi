@@ -45,3 +45,11 @@ FLX6 notes0x60–67 map to native keys0x4117–0x411e in bank1: 1/4, 1/2, 1, 2, 
 The reader tracks each held pad's native bank. A new bank press releases old-bank pads on that deck before requesting bank selection. A delayed old-bank NoteOff cannot release a new action occupying the same native pad key. Duplicate press packets for an already-held pad are ignored; disconnect cleanup clears pad ownership. This covers MIDI-originated overlap only: simultaneous native-touch/controller bank changes still need testing.
 
 BiteDJ's `lights.*.*Mode` entries describe LED output addresses. The XML does not establish corresponding mode-button input mappings; do not infer an input handler from those LED constants alone. Actual mode-button input capture remains pending.
+
+## Touchscreen mode selection
+
+Each deck now has Hot Cue, Beat Loop, Slip Loop and Beat Jump buttons directly above its eight pads. Tap a different mode to select its first bank; tap the selected mode again to switch banks. Blue shows the selected mode and a `2` identifies its second bank. The highlight follows actual native state, including bank changes from MIDI. Mode selectors hide in Browse and while the mixer is open.
+
+![Native touch mode selectors with second banks selected](native-pad-modes.png)
+
+All four selectors and both banks were verified by touch replay on both decks. Touch-only Beat Jump forward/back and four-beat loop on/off also passed. Physical finger testing and the full set of secondary-bank pad actions remain pending.

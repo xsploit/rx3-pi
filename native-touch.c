@@ -8,6 +8,7 @@
 #include "native-pad-modes.h"
 #include "native-mixer-layout.h"
 #include "tempo-step.h"
+#include "native-zoom-layout.h"
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -18,6 +19,7 @@ static int held_key,held_channel,held_slider=-1,return_from_source;
 static void *source_return_handler;
 static int source_return_pending,source_return_frames,source_return_ready;
 extern volatile int rx3_native_ui_ready,rx3_native_ui_pressed;
+extern volatile int rx3_native_zoom_ready;
 static void pad_key(void *handler,int key,int operation,int channel){
  void *root=*(void**)handler;
  void *manager=root?*(void**)((char*)root+0x64):0;
@@ -74,6 +76,13 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
    if(i==7)rx3_mixer_visible=!rx3_mixer_visible;else pad_key(handler,held_key,0,held_channel);return;
   }
   if(!main_visible){original_touch(handler,t,mode);return;}
+  int zoom_direction=rx3_zoom_direction_at(t->x,t->y);
+  if(rx3_native_zoom_ready&&!rx3_mixer_visible&&!((int(*)(void))0x17f8a0)()&&zoom_direction){
+   held_key=-1;rx3_native_ui_pressed=zoom_direction<0?20:21;
+   void *root=*(void**)handler;void *manager=root?*(void**)((char*)root+0x64):0;
+   if(manager)rx3_dispatch_key(manager,0x420c,4,0,zoom_direction,0.f,0);
+   return;
+  }
   if(rx3_mixer_visible){
    int header_channel=0,header_key=mixer_header_key_at(t->x,t->y,&header_channel);
    if(header_key){held_key=header_key;held_channel=header_channel;pad_key(handler,held_key,0,held_channel);return;}

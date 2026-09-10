@@ -20,7 +20,11 @@ The owner still sees waveform flicker and motion less smooth than BiteDJ. Presen
 
 Native transport is experimental. Browser/load/play/pause were exercised through touch replay; full physical touch comfort, all controls and full state feedback are not verified. Physical control comfort, MIDI LEDs, full pad/FX sound validation, shifted jogs, deck3/4 policy, sync/pickup behavior, physical unplug/card-renumber tests and a full reboot validation remain incomplete. Browser acceleration is not ported; the encoder currently moves one native step per MIDI delta. Long VIEW opens the native Tag List (Prepare equivalent); SHIFT+VIEW adds the selected track from Browse or removes it within Tag List. Scripts retain the current Pi's paths, group IDs and FLX6 card identity and require adapting to another installation.
 
+Touch-only ZOOM−/+ buttons sit above the native ZOOM/GRID selector. They change the shared waveform scale and hide in GRID mode and Mixer. These are added touch controls using native RX3 commands.
+
 ## FLX6 navigation
+
+User preference: match the installed BiteDJ FLX6 behavior; disclose RX3 limitations rather than silently replacing preferred mappings. Preserve BiteDJ files.
 
 Source of truth: installed `~/.mixxx/controllers/Pioneer-DDJ-FLX6.midi.xml` and its BiteDJ script.
 

@@ -7,9 +7,11 @@
 #include "native-screen.h"
 #include "native-mixer.h"
 #include "native-pad-modes.h"
+#include "native-zoom-layout.h"
 extern char *program_invocation_short_name;
 extern void rx3_touch_navigation_tick(void);
 volatile int rx3_native_ui_ready=0,rx3_native_ui_pressed=-1;
+volatile int rx3_native_zoom_ready=0;
 /* Native window keys also determine stacking and must be unique:
  * player strip1, mixer2, compact navigation3, pad selectors4. */
 struct surface {void *window;int shown,painted,last_pressed,last_tag_list;};
@@ -17,6 +19,31 @@ static struct surface surfaces[2]={{0,-1},{0,-1}};
 static int disabled;
 volatile int rx3_ui_failure[4];
 static int (*original_draw)(void*);
+static int paint_zoom(int show){
+ static struct surface s={0,-1};
+ if(!s.window&&show){
+  uint32_t desc[13]={0};desc[2]=RX3_ZOOM_W|(RX3_ZOOM_H<<16);desc[3]=9;desc[5]=5;desc[7]=RX3_ZOOM_X;desc[8]=RX3_ZOOM_Y;
+  if(((int(*)(void**,const void*))0x1a2634)(&s.window,desc)||!s.window)return 0;
+ }
+ if(!s.window)return 1;
+ if(s.shown!=show){
+  ((int(*)(void*,int,unsigned))0x1a061c)(s.window,show?1:2,8);
+  ((int(*)(void*,unsigned))0x1a0a28)(s.window,show?255:0);s.shown=show;s.painted=0;
+ }
+ if(!show)return 1;
+ int pressed=rx3_native_ui_pressed-20;
+ if(s.painted&&s.last_pressed==pressed)return 1;
+ void *pixels=0;int pitch=0;
+ if(((int(*)(void*,void**,int*))0x1a1c48)(s.window,&pixels,&pitch))return 0;
+ if(!pixels||pitch<RX3_ZOOM_W*2){((int(*)(void*))0x1a1cb0)(s.window);return 0;}
+ for(int y=0;y<RX3_ZOOM_H;y++)for(int x=0;x<RX3_ZOOM_W;x++)
+  ((uint16_t*)((char*)pixels+y*pitch))[x]=(x>=88&&x<92)?0:(x/90==pressed?0x739c:0x2945);
+ for(unsigned i=0;i<sizeof(zoom_spans)/sizeof(zoom_spans[0]);i++)for(unsigned x=zoom_spans[i][0];x<zoom_spans[i][0]+zoom_spans[i][2];x++)
+  ((uint16_t*)((char*)pixels+zoom_spans[i][1]*pitch))[x]=0xffff;
+ ((int(*)(void*))0x1a1cb0)(s.window);
+ ((int(*)(void*,int,int,int,int,int))0x1a0948)(s.window,0,0,RX3_ZOOM_W,RX3_ZOOM_H,0x4000);
+ s.painted=1;s.last_pressed=pressed;return 1;
+}
 static int paint(int navigation,int show){
  struct surface *s=&surfaces[navigation];int width=navigation?700:1280,cell=navigation?100:142;
  if(!s->window&&show){
@@ -62,6 +89,8 @@ static int draw(void *arg){
  int main=main_panel_visible(),show=player_screen_active();
  rx3_mixer_draw(main);
  rx3_pad_modes_draw(main&&show&&!rx3_mixer_visible);
+ int zoom_show=!disabled&&show&&main&&!rx3_mixer_visible&&!((int(*)(void))0x17f8a0)();
+ rx3_native_zoom_ready=paint_zoom(zoom_show)&&zoom_show;
  int ok1=paint(0,!disabled&&show&&main),ok2=paint(1,!disabled&&show&&!main);
  if(!ok1||!ok2)disabled=1;
  rx3_native_ui_ready=!disabled&&show;

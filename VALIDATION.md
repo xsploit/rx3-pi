@@ -493,3 +493,13 @@ SHIFT+BROWSE's new425a intent now also rejects input while that native grid flag
 Built/deployed combined ARM32 shim. Live PID35703, both Aaliyah tracks loaded through touch: entered GRID via touch hold, replayed each SHIFT+BROWSE direction separately, confirmed zoom2/grid1 and pixel-identical waveform/grid regions after each. Exited GRID by touch hold and verified normal zoom2→3→2. Finalgrid0,main mode1. Research zoom-grid-guard-trial.py and grid-mode-probe.py retain the assertions. Backupruntime/lib/fbshim-pre-zoom-grid-guard.so. Touchscreen zoom buttons were not added this turn; they remain pending along with other incomplete controls.
 
 Post-build touch Play1 yielded40distinct audio buffers, RMS55.57/50.68/221.59/202.03 on FLX6 master/headphone channels. Touch Cue1 restored both decks to state4; rate0/range10/Syncoff, backlight0. BiteDJ unchanged.
+
+## Touchscreen zoom buttons (2026-09-10)
+
+Added native DS_GR window5 with ZOOM−/+ at x1090,y354,width180,height28, in the blank space above the original ZOOM/GRID selector. The buttons do not cover the waveform panels or replace that selector. They appear only on the player screen with Mixer closed and GRID mode off. Shared native-zoom-layout.h defines draw/hit geometry; one touch gesture emits one native rotary step, consuming motion/hold until release. They are added touch controls driving native RX3 functions, not original Pioneer touchscreen widgets.
+
+Built/deployed ARM32 shim. Live PID36012: touch replay plus2→3,minus3→2,1.2second held plus2→3 only once,minus3→2. GRID entry hides buttons; touches at their former locations leave zoom/grid unchanged; leaving GRID restores them. Mixer also hides them. Screenshot native-touch-zoom.png inspected with both waveforms and the original selector unobscured. During the first Mixer trial, taps at the former zoom positions reached the Mixer filter/tempo controls as expected; deck2filter and tempo were explicitly restored to.5/0. The retained trial avoids those unrelated Mixer slider taps. Physical target comfort and all screen variants remain unverified.
+
+Backup runtime/lib/fbshim-pre-touch-zoom.so. User reiterated that their installed BiteDJ FLX6 mapping contains their preferred behavior: use it as the authority, preserve it, and disclose native limitations instead of silently substituting RX3 defaults. The new controls here are touchscreen additions; FLX6 mappings unchanged this turn.
+
+Post-build touch playback produced40distinct audio buffers, RMS55.73/52.11/222.16/207.72 on master/headphones. Returned both decks to cue, rate0/range10/Syncoff and backlight0.

@@ -419,3 +419,11 @@ The first candidate used CmnFunc_CmnInfo_GetTagListWindowDispFlg, but that retur
 Live final PID32360 passed long-VIEW and normal-VIEW repeated-input sequences. Native screenshots verified an empty Tag List, addition of one Aaliyah track, and removal back to zero items. MIDI parser checks verified all four View/Back variants and release suppression; reconnect/parser tests still pass. Test sequence results are research/prepare-mapping-results.json. Both decks remain loaded/cued at BPM9307, tempo0, range10, keylockoff, Syncoff; player screen restored, brightness0. Runtime backup/lib/fbshim-pre-prepare.so and bridge/home/pompu_5/flx6-rx3-pre-prepare.py. BiteDJ files were only read.
 
 Physical long/shift gesture timing and navigation through other media types remain unverified. Browser acceleration and the full encoder push behavior still require work. Audio was not remeasured for these navigation-only changes.
+
+## FLX6 encoder push navigation
+
+Before this change, MIDI encoder push9641 passed directly to native RotarySelector and stayed on the player screen. The bridge now emits a dedicated4250 intent on press and suppresses release; the control adapter opens Browse from the player or emits paired native RotarySelector press/release within Browse. Existing rotation intent remains separate.
+
+Live PID32643: encoder push opened Browse, BACK shifted focus to the Track sidebar, and push moved into the selected track list. A further push on the track opened Track Menu. MIDI rotation+1 and another push chose Load to Deck1, returning to the player with the track cued. Screenshots /tmp/encoder-{open-browse,back,enter,track-press,loaded}.png inspected. A subsequent touch Play produced40distinct DMA buffers, RMS56.13/51.58/223.82/205.71, then Cue restored the deck.
+
+Final both Aaliyah tracks cued, original/actual BPM9307, rate0, range10, keylockoff, Syncoff; no display enable occurred. Backups runtime/lib/fbshim-pre-encoder-push.so and home/flx6-rx3-pre-encoder-push.py. MIDI reconnect/parser regression passed. Research encoder-push-trial.py/results cover the main/sidebar sequence. Full folder/media navigation, acceleration and physical encoder feel remain unverified.

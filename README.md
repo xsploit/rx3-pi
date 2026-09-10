@@ -63,3 +63,5 @@ Screenshots are evidence of the development checkpoint. The Pi backlight can rem
 The Mixer shows FADER % and effective playback BPM separately, so retained Sync/pickup tempo is visible even when the fader is centered. After Sync is switched off, fine tempo buttons first catch a held tempo within the selected range, then apply one native step. Active Sync remains under native control. Held tempos outside the current range require widening the range; different-track pickup was checked in WIDE on both decks; extreme-BPM cases and the audible transition still need validation.
 
 FLX6 tempo inputs now use soft pickup after a touchscreen tempo change: move the hardware fader to or across the touch setting before it takes control. This applies to the updated bridge and shim together. The Mixer shows amber MATCH FASTER / MATCH SLOWER until pickup, or MATCH FADER before a hardware position is known. These describe speed direction; physical feel remains unverified.
+
+Pressing the FLX6 browse encoder from the player screen opens Browse. Inside Browse it enters the selected pane/item or opens the native Track Menu; rotation and another press can select Load to Deck 1/2.

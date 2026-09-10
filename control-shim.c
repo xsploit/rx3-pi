@@ -90,10 +90,13 @@ static void *control_thread(void *unused){
   }
   /* BiteDJ VIEW opens Browse; BACK opens Browse or steps up in it.
    * Consume release in the bridge and emit paired native key events here. */
-  if(c.operation==0&&(c.extra==0x4256||c.extra==0x424b)){
+  if(c.operation==0&&(c.extra==0x4256||c.extra==0x424b||c.extra==0x4250)){
    if(main_panel_visible()||(c.extra==0x4256&&(!main_panel_visible()&&((int(*)(void))0x1126d0)()==4))){
     sendkey(manager,0x202,0,0,0,0.f,0);
     sendkey(manager,0x202,2,0,0,0.f,0);
+   }else if(c.extra==0x4250){
+    sendkey(manager,0x420c,0,0,0,0.f,0);
+    sendkey(manager,0x420c,2,0,0,0.f,0);
    }else if(c.extra==0x424b){
     sendkey(manager,0x420d,0,0,0,0.f,0);
     sendkey(manager,0x420d,2,0,0,0.f,0);

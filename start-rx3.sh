@@ -6,6 +6,8 @@ flock -x 9
 new_player=0
 if ! pgrep -x rbp-pi >/dev/null; then
 new_player=1
+# Recreate volatile device/library mounts after a reboot.
+python3 /home/pompu_5/prepare-runtime.py
 # Allocate the shared completed-frame file before launching either process.
 truncate -s 8196096 /home/pompu_5/rx3-rootfs/dev/rx3-present-frame
 # Reset the touchscreen's displayed controls to match firmware startup defaults.

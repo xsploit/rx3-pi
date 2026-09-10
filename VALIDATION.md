@@ -146,3 +146,13 @@ Before the change:188stationary player frames all had2748bright label pixels. A 
 After a fresh build/restart:125empty-player frames retained2748pixels. Browse transition again moved directly between expected counts. Touch-selected USB2/Track and loaded the observed first-row Load1. During playback198distinct completed frames all retained2748label pixels; after Cue196frames also retained2748. Hardware audio contained40distinct buffers with nonzero master/headphone data during playback. Navigation, mixer-state and layout regression tests passed.
 
 The probe reads only the top44rows from sequence-verified frame snapshots and counts pixels whose RGB components are all>=220. It establishes sampled label retention, not waveform frame rate, visual smoothness, or absence of all possible transition artifacts. Backlight remains0; deck1 cued, deck2 unloaded.
+
+## Runtime mount recovery
+
+Added prepare-runtime.py and invoked it from start-rx3.sh before launching a new player. It restores bind mounts for dev/null,zero,urandom,full,snd and proc/asound; restores USB1 by known filesystem UUID; mounts USB2 Contents/Music/Artwork read-only. It leaves the local export database/analysis untouched, rejects unexpected mount sources, and provides --check with no mutations. It preserves the firmware's fake proc files rather than mounting over the entire proc directory.
+
+When the desktop already mounts this FAT filesystem read/write, a second direct read-only filesystem mount fails with conflicting RO state. Preparation now locates the existing whole-filesystem mount and creates a read-only bind view instead. The desktop mount retained its original rw/UTF8 options after recovery. A direct read-only mount is only attempted when no existing external whole-filesystem mount is found; that branch and the absent-USB path remain untested live.
+
+With RX3 stopped, removed all ten runtime bind/library mounts. --check failed as expected. Preparation restored all ten and a subsequent --check passed. SHA256 of local export.pdb and a sampled USBANLZ EXT file stayed unchanged across preparation. New startup ran the preparation step and launched the player. Touch-browsed USB2, inspected the current selected row, loaded Aaliyah/Try Again, and played: hardware DMA showed nonzero master/headphone output with40distinct buffers. Player then cued. Backlight stayed0.
+
+This tests loss/recreation of runtime mounts on the existing Pi, not a complete reboot. Firmware/rootfs assembly, persistent device-file provisioning, desktop/display startup ordering, and unattended boot service still require work. BiteDJ files were not modified.

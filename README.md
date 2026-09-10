@@ -16,7 +16,7 @@ Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry 
 
 The owner still sees waveform flicker and motion less smooth than BiteDJ. Presenter FPS does not establish coherent native frames or waveform cadence. Completed-frame exchange now addresses unsynchronised producer/consumer reads; perceived flicker and native waveform cadence still require verification.
 
-Native transport is experimental. Browser/load/play/pause were exercised through touch replay; full physical touch comfort, all controls and full state feedback are not verified. Full mixer audio-effect verification, MIDI LEDs, pad modes, shifted jogs, deck3/4 policy, reconnect handling and reproducible reboot installation remain incomplete. Browser acceleration is not ported; the encoder currently moves one native step per MIDI delta. VIEW-long/SHIFT variants remain unmapped. Scripts retain the current Pi's paths, group IDs and FLX6 card identity and require adapting to another installation.
+Native transport is experimental. Browser/load/play/pause were exercised through touch replay; full physical touch comfort, all controls and full state feedback are not verified. Full mixer audio-effect verification, MIDI LEDs, pad modes, shifted jogs, deck3/4 policy, reconnect handling and a full reboot validation remain incomplete. Browser acceleration is not ported; the encoder currently moves one native step per MIDI delta. VIEW-long/SHIFT variants remain unmapped. Scripts retain the current Pi's paths, group IDs and FLX6 card identity and require adapting to another installation.
 
 ## FLX6 navigation
 
@@ -46,7 +46,7 @@ gcc -O2 -o build/test-frame-exchange test-frame-exchange.c $(pkg-config --cflags
 ./build/test-frame-exchange
 ```
 
-Output stays in `build/`. Build does not install or start anything. `start-rx3.sh`/`stop-rx3.sh` describe the tested runtime, but assume prepared chroot, bind mounts, FIFO/device files and writable local library analysis. Do not treat this checkpoint as an unattended installer.
+Output stays in `build/`. Build does not install or start anything. `start-rx3.sh` calls `/home/pompu_5/prepare-runtime.py` before a new player starts, so deploy that helper alongside the start script. Preparation restores device/ALSA bind mounts and the known USB export's read-only views, reusing an existing desktop USB mount when present. `python3 prepare-runtime.py --check` inspects without changes. Existing rootfs files, FIFOs and prepared writable library analysis are still prerequisites. This is not a fresh-system installer or a verified unattended boot service.
 
 Native patch addresses are specific to RX3 v1.19. Original player SHA256: `60bcbd8876116bf09f0d8f747f95d7c7d3081ebd39d6fe14d56005a22f7f3b09`.
 

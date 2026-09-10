@@ -217,3 +217,11 @@ This explains repeated waveform images at the tested zoom; it does not establish
 `python3 test-touch-recovery.py` passed locally and on Pi. It compiles and runs the actual bridge against isolated paths, sends Linux evdev replay packets, and verifies native up reports after EOF, SIGTERM and SYN_DROPPED. It also checks that motion without a fresh tracking ID cannot resume the dropped press, fresh contact works, and an absent-device wait stops cleanly. These tests do not simulate real evdev disconnect/reopen; physical reconnection remains unverified.
 
 Deployed only the rebuilt touch bridge; native player PID19723 continued. Real panel path opened successfully. Touch replay through the deployed binary started deck1: forty distinct DMA buffers, master RMS60.34/56.45 and headphone RMS240.39/224.93. Cue replay then restored deck1 to cue. Backlight remained0. BiteDJ files unchanged. Backup: `/home/pompu_5/rx3-touch-bridge-pre-recovery`.
+
+## Real evdev reconnect test with isolated uinput device
+
+`sudo python3 test-touch-evdev-reconnect.py` passed on the Pi. It creates temporary Linux uinput devices and runs the actual bridge against a temporary symlink and isolated report/control/state files. The new optional `--exclusive` flag acquires EVIOCGRAB before test contact injection, preventing other input consumers from receiving those contacts. The physical-panel startup command remains unchanged.
+
+The test starts with an absent path, connects a virtual device, holds a touch, destroys the device, verifies ten native release reports, then reconnects through the same path with axis maxima changed from1199/1919 to599/959. Fresh contact maps to the same native coordinates2025/1995, proving the bridge refreshes axis ranges when reopening. The process survives device loss and exits cleanly on SIGTERM, releasing the second contact. Temporary virtual devices were destroyed during cleanup. The existing replay recovery tests still pass.
+
+This verifies the real Linux evdev loss/reopen path, including ioctl range discovery. It does not verify physical I2C panel-driver or cable recovery, or resume contacts held across a disconnect. The rebuilt bridge is deployed and connected to the real panel; native player PID19723 continued and backlight stayed0. No player control commands or music playback were sent by this isolated test.

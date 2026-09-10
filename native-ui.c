@@ -12,8 +12,8 @@ static void *window;
 static int disabled,shown=-1;
 static int (*original_draw)(void*);
 static int draw(void *arg){
- int result=original_draw(arg),show=main_panel_visible();
- rx3_mixer_draw(show);
+ int result=original_draw(arg),main=main_panel_visible(),show=player_screen_active();
+ rx3_mixer_draw(main);
  if(disabled)return result;
  if(!window&&show){
   uint32_t desc[13]={0};desc[2]=1280|(44u<<16);desc[3]=9;desc[5]=1; /* Smaller z draws last in DS_HW_UpdateScreen. */
@@ -31,14 +31,16 @@ static int draw(void *arg){
   int rc=((int(*)(void*,void**,int*))0x1a1c48)(window,&pixels,&pitch);
   if(rc||!pixels||pitch<1280*2){rx3_native_ui_ready=0;disabled=1;return result;}
   for(int y=0;y<44;y++)for(int x=0;x<1280;x++){
-   unsigned c=x%142>=140?0x080808:(x/142==pressed?0x707070:0x242424);
+   unsigned c=(x%142>=140&&(main||x<284||x>=1136))?0x080808:(x/142==pressed?0x707070:0x242424);
    if(pitch>=5120)((uint32_t*)((char*)pixels+y*pitch))[x]=0xff000000|c;
    else ((uint16_t*)((char*)pixels+y*pitch))[x]=((c>>8)&0xf800)|((c>>5)&0x7e0)|((c>>3)&31);
   }
-  for(unsigned i=0;i<sizeof(text_spans)/sizeof(text_spans[0]);i++){
-   for(unsigned x=text_spans[i][0];x<text_spans[i][0]+text_spans[i][2];x++){
-    if(pitch>=5120)((uint32_t*)((char*)pixels+text_spans[i][1]*pitch))[x]=0xffffffff;
-    else ((uint16_t*)((char*)pixels+text_spans[i][1]*pitch))[x]=0xffff;
+  const unsigned short (*spans)[3]=main?text_spans:navigation_spans;
+  unsigned count=main?sizeof(text_spans)/sizeof(text_spans[0]):sizeof(navigation_spans)/sizeof(navigation_spans[0]);
+  for(unsigned i=0;i<count;i++){
+   for(unsigned x=spans[i][0];x<spans[i][0]+spans[i][2];x++){
+    if(pitch>=5120)((uint32_t*)((char*)pixels+spans[i][1]*pitch))[x]=0xffffffff;
+    else ((uint16_t*)((char*)pixels+spans[i][1]*pitch))[x]=0xffff;
    }
   }
   ((int(*)(void*))0x1a1cb0)(window);

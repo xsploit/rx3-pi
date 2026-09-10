@@ -47,3 +47,11 @@ Added a native RGB565 Mixer window below the transport strip: 16 sliders for bot
 Pi build and controlled deployment succeeded. Completed-frame captures verified initial layout, deck1 level tap to50%, headphone cue1 toggle off, continuous level drag from100% to50%, and close returning to loaded Aaliyah/Try Again waveform at its cue position. Restored deck1 level100%; headphone cue1 enabled. Browse hides Mixer correctly, but entering Browse with no source selected leaves no visible touch route back. A direct native Source command recovered that test, followed by touch-only USB2 selection and track loading. This gap remains open.
 
 No physical finger, multitouch, MIDI-to-panel repaint or individual DSP-effect verification is claimed by this checkpoint. Backlight stayed0.
+
+## Browse navigation by touch
+
+Native strip remains visible across active screen0's player, Browse and Source views. Player mode retains transport/mixer controls; other views show Player (native Browse toggle), Back and Source. Non-strip native list touches still pass through, and the mixer/pad adapters stay restricted to the main panel.
+
+From a fresh player without a source, touch Browse opened the empty list; touch Player returned to the empty player. Re-entered Browse and touched Source to open device selection. Selected USB2, entered Track, and exercised Back, which dismissed selected-track load controls. Selecting the first track again and tapping Load1 loaded Aaliyah/Try Again. Subsequent Play/Cue replay returned to its cue point. All navigation in this verification used the touch bridge, without direct FIFO navigation commands. Pi build and navigation regression test passed. Backlight remained0.
+
+The strip occupies the native header's upper44pixels, including its original title/Info area. Header information/Info access needs a layout refinement. Some transition captures lacked the Source label; a later cued capture contained all nine labels. This remains a rendering observation to investigate, not proof of a fully flicker-free UI.

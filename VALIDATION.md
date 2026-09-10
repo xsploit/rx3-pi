@@ -427,3 +427,9 @@ Before this change, MIDI encoder push9641 passed directly to native RotarySelect
 Live PID32643: encoder push opened Browse, BACK shifted focus to the Track sidebar, and push moved into the selected track list. A further push on the track opened Track Menu. MIDI rotation+1 and another push chose Load to Deck1, returning to the player with the track cued. Screenshots /tmp/encoder-{open-browse,back,enter,track-press,loaded}.png inspected. A subsequent touch Play produced40distinct DMA buffers, RMS56.13/51.58/223.82/205.71, then Cue restored the deck.
 
 Final both Aaliyah tracks cued, original/actual BPM9307, rate0, range10, keylockoff, Syncoff; no display enable occurred. Backups runtime/lib/fbshim-pre-encoder-push.so and home/flx6-rx3-pre-encoder-push.py. MIDI reconnect/parser regression passed. Research encoder-push-trial.py/results cover the main/sidebar sequence. Full folder/media navigation, acceleration and physical encoder feel remain unverified.
+
+## Artist/album navigation and deck2 touch cue
+
+Without changing runtime code, exercised a different library route in PID32643: touch Artist category, encoder push into AAMAR, encoder push into SVMMER SVN vol.4, then touch Load2 for Estara. Screenshots confirmed each parent/child page. Touch Mixer, headphone Cue2 and Play2 produced40distinct DMA buffers, RMS62.53/66.36/247.14/261.46, proving both master and cue output for this loaded track. Touch Cue2 returned deck2 to cue; the added headphone selection was toggled off and Mixer closed.
+
+Two FLX6 BACK presses from the track page returned to the album page and then the artist list; screenshots independently verified the titles/selection. Player restored afterward. Final deck1 Aaliyah original/actual BPM9307, deck2 Estara9505, both mode4/cued, faders0, range10, keylockoff, Syncoff. Display remained off. This verifies one nested analysed-library path, not every folder or media type. No code change was needed.

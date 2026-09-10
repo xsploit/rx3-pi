@@ -3,6 +3,14 @@
 int main(void){
  for(int i=0;i<18;i++)if(i!=7){int x=mixer_column_center(i);assert(mixer_slider_at(x,399)==i);assert(mixer_slider_value(i,x,399)==.5f);}
  for(int x=0;x<1280;x++){int i=mixer_slider_at(x,399);assert(i>=0&&i<18&&i!=7);}
+ for(int base=0;base<=800;base+=800){
+  int ch=0;assert(mixer_header_key_at(base+220,70,&ch)==0x4107&&ch==(base?2:1));
+  assert(mixer_header_key_at(base+390,70,&ch)==0x4108&&ch==(base?2:1));
+  assert(mixer_header_key_at(base+100,70,&ch)==0);
+  assert(mixer_header_key_at(base+310,70,&ch)==0);
+  assert(mixer_header_key_at(base+220,44,&ch)==0);
+  assert(mixer_header_key_at(base+220,94,&ch)==0);
+ }
  for(int i=16;i<18;i++){
   int dir=0,x=mixer_column_center(i);
   assert(mixer_tempo_step_at(x-18,610,&dir)==i&&dir==-1);

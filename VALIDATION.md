@@ -345,3 +345,13 @@ The Mixer now has minus/plus buttons below each TEMPO fader. They dispatch the e
 Live touch replay passed48checks: on each deck, in each native range, +step,+2step,+step,zero,-step,zero, with exact native readback and the other deck unchanged. Range selection in this test used the native control queue; touch range selection remains separate work. Both ranges were restored to10%. Screenshot inspection confirmed the button pairs fit beneath their faders; the deck2 footer label moved left to leave room.
 
 After reloading both tracks, a fine increase during deck1 playback reported+0.05% and40different FLX6 DMA buffers (RMS79.70,71.34,317.81,284.34). A minus tap returned native rate to zero while the player remained running. Final playerPID27443: both decks cued, both tempos0%, ranges10%, Mixer closed, backlight0. Previous shim backup: runtime `/lib/fbshim-pre-fine-tempo.so`. Physical touch comfort and behavior during sync/tempo-pickup states remain unverified.
+
+## Touch range and key lock
+
+Each Mixer deck header now contains RANGE and KEY LOCK buttons. RANGE cycles the native TempoRange key4107; KEY LOCK sends the native MasterTempo key4108 with matched press/release. The displayed range and active key-lock color are read from native getters, including changes originating outside the touch adapter. This preserves the existing native tempo semantics rather than maintaining a separate UI toggle state.
+
+Layout tests passed local ASan/UBSan for both deck headers, gutters, boundaries and the existing fine buttons. Live touch replay passed12actions: four range changes and key-lock on/off per deck, with independent native state readback. An additional eight touch range changes at fixed signed slider positions±0.5 produced exactly±8%,±50%,±3%,±5% for16%,Wide,6%,10% respectively. Both original ranges and neutral tempos were restored. Screenshot inspection verified RANGE10% labels and a blue key-lock button matching the native active flag.
+
+Loaded-track playback with both key locks enabled at+5/-5% produced40distinct FLX6 DMA buffers and nonzero master/headphone channels (RMS81.06,71.19,261.83,218.83). Disabling key lock by touch while still playing preserved changing audio (40buffers; RMS76.15,74.30,223.03,224.09). This verifies native control state and audio flow, not an independent measurement of pitch-preservation quality.
+
+Final live PID28039: both tracks cued, tempo0%, range10%, key lock off, Mixer closed and panel brightness0. Prior shim backup: runtime `/lib/fbshim-pre-tempo-options.so`. Physical control comfort, sync/pickup behavior, physical jog feel, visual flicker and reboot validation remain open.

@@ -43,6 +43,8 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
   }
   if(!main_visible){original_touch(handler,t,mode);return;}
   if(rx3_mixer_visible){
+   int header_channel=0,header_key=mixer_header_key_at(t->x,t->y,&header_channel);
+   if(header_key){held_key=header_key;held_channel=header_channel;pad_key(handler,held_key,0,held_channel);return;}
    int direction=0,fine=mixer_tempo_step_at(t->x,t->y,&direction);
    if(fine>=0){
     int deck=fine-16;float position;held_key=-1;

@@ -10,6 +10,13 @@ static inline int mixer_column_center(int index){
  if(index<6)return (index*480+240)/7;
  return 800+((index-10)*480+240)/7;
 }
+static inline int mixer_header_key_at(int x,int y,int *channel){
+ if(y<48||y>=94)return 0;
+ int base=x>=800?800:0;
+ if(x>=148+base&&x<308+base){*channel=base?2:1;return 0x4107;}
+ if(x>=312+base&&x<476+base){*channel=base?2:1;return 0x4108;}
+ return 0;
+}
 static inline int mixer_tempo_step_at(int x,int y,int *direction){
  if(y<598||y>=632)return -1;
  for(int i=16;i<18;i++){

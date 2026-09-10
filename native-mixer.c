@@ -8,7 +8,7 @@ volatile int rx3_mixer_visible;
 static void *window;
 static int shown,disabled,painted;
 static uint32_t revision;
-static int last_tempo[2];
+static int last_tempo[2],last_range[2],last_lock[2];
 static uint16_t canvas[1280*756];
 static void box(int x,int y,int w,int h,uint16_t color){
  for(int yy=y;yy<y+h;yy++)for(int xx=x;xx<x+w;xx++)canvas[yy*1280+xx]=color;
@@ -50,9 +50,20 @@ void rx3_mixer_draw(int main_visible){
  if(!show)return;
  struct rx3_mixer_snapshot state;rx3_mixer_snapshot(&state);
  int tempo[2]={((int(*)(int))0xfd2dc)(0),((int(*)(int))0xfd2dc)(1)};
- if(painted&&revision==state.revision&&tempo[0]==last_tempo[0]&&tempo[1]==last_tempo[1])return;
+ int range[2]={((int(*)(int))0xfd2b4)(0),((int(*)(int))0xfd2b4)(1)};
+ int keylock[2]={((int(*)(int))0xfd30c)(0),((int(*)(int))0xfd30c)(1)};
+ if(painted&&revision==state.revision&&tempo[0]==last_tempo[0]&&tempo[1]==last_tempo[1]&&range[0]==last_range[0]&&range[1]==last_range[1]&&keylock[0]==last_lock[0]&&keylock[1]==last_lock[1])return;
  for(unsigned i=0;i<1280*756;i++)canvas[i]=0x1082;
  box(0,0,480,54,0x018e);box(480,0,320,54,0x2945);box(800,0,480,54,0x018e);
+ for(int deck=0;deck<2;deck++){
+  int base=deck*800;
+  box(base+148,8,160,38,0x2945);box(base+312,8,164,38,keylock[deck]?0x04bf:0x2945);
+  int found=0;
+  for(unsigned i=0;i<sizeof(tempo_range_text)/sizeof(tempo_range_text[0]);i++)if(tempo_range_text[i][0]==range[deck]){
+   box(base+224+tempo_range_text[i][1],6+tempo_range_text[i][2],tempo_range_text[i][3],1,0xffff);found=1;
+  }
+  if(!found){box(base+250,26,10,2,0xffff);box(base+266,26,10,2,0xffff);}
+ }
  for(int i=0;i<RX3_MIXER_COUNT;i++){
   if(i==7)continue;
   int x=mixer_column_center(i)-40;float v=state.levels[i];if(v<0)v=0;if(v>1)v=1;
@@ -88,5 +99,7 @@ void rx3_mixer_draw(int main_visible){
  }
  ((int(*)(void*))0x1a1cb0)(window);
  ((int(*)(void*,int,int,int,int,int))0x1a0948)(window,0,0,1280,756,0x4000);
- revision=state.revision;last_tempo[0]=tempo[0];last_tempo[1]=tempo[1];painted=1;
+ revision=state.revision;last_tempo[0]=tempo[0];last_tempo[1]=tempo[1];
+ for(int i=0;i<2;i++){last_range[i]=range[i];last_lock[i]=keylock[i];}
+ painted=1;
 }

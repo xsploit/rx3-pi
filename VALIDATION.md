@@ -75,3 +75,13 @@ Different rows sample different portions of the song; nonzero RMS ratios are not
 Replayed FLX6 B0 13 20 / B0 33 00 through the real MIDI bridge. Mixer screenshot displayed deck1 level25%, proving MIDI-to-panel feedback through shared state. This does not prove physical knob/fader handling.
 
 Repeated deck1 level0 test still left master audio. Read-only process inspection confirmed mixer input0 fader value0.0, curve1, target gain0, settled residual~7.7e-32. Native curve tables end in0, so blindly translating the fader to a different input range would be unjustified. Native path is onEv_VolumeFader0x2d35a0 -> DjEngineIF0x4c68c -> MixerEngine0x56ed4 -> ChannelFader::setFader0x9bb54. Cueing deck1 then made all four hardware channels exactly zero. Investigate downstream mixing/output routing or a parallel deck signal path. Deck1 fader restored100%; player paused at cue; backlight0.
+
+## Fixed duplicate deck-to-mixer routing
+
+Root cause of the prior fader failure: MixerRouteMngr assigned both mixer inputs0and1 to player0. Read-only route table inspection at0x1149f08+72 showed both pointers0x1149f08; both mixer input buffers carried deck1. This left deck1 audible through fader2 when fader1 was lowered.
+
+Control initialization now invokes the native DjEngineIF::setRoute API0x50598 for player0->input0 and player1->input1 before playback. The temporary experiment clearing virtual capture buffers did not resolve the issue and was removed; fbshim.c is unchanged. No arbitrary fader scaling or output muting workaround was added.
+
+After a fresh build/restart, touch-loaded deck1 and played it. Master RMS91.94/91.30, headphone cue258.44/256.62. Fader1 at0 produced exactly zero master RMS/peaks while headphone cue remained179.34/186.48. Restoring fader1 produced master94.53/85.72. Loaded a different track (Able to Maximize) on deck2 and cued deck1. Deck2 master312.45/309.16; fader1 at0 left deck2 master372.42/375.62; fader2 at0 gave exactly zero on all outputs with cue2 off; restoring fader2 restored319.69/320.72. These are separate song positions, not gain-ratio measurements.
+
+The deck2 load required a later Play tap after loading finished; rapid scripted input immediately following Load was not accepted. Touch readiness around load transitions remains to improve. Native source/mixer reassignment modes beyond this startup mapping are not yet verified. Navigation and mixer-state regression tests passed. Both deck levels restored100%, both players cued, cue1 enabled/cue2 disabled, backlight0.

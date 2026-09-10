@@ -16,6 +16,12 @@ static void *control_thread(void *unused){
  while(!manager){void *root=*(void *volatile *)0x026867c0;if(root)manager=*(void **)((char*)root+0x64);if(!manager)sleep(1);}
  /* The two physical panel CPUs normally release this startup input gate. */
  ((void (*)(void*,int))0x37c8d8)(manager,3);
+ /* Missing panel initialization leaves both mixer inputs on player0.
+  * Establish native deck1->mixer1 and deck2->mixer2 routes before playback. */
+ void *engine=0;
+ while(!engine){engine=*(void *volatile *)0x0268617c;if(!engine)sleep(1);}
+ ((void (*)(void*,int,int))0x50598)(engine,0,0);
+ ((void (*)(void*,int,int))0x50598)(engine,1,1);
  void (*sendkey)(void*,int,int,int,long,float,long)=rx3_dispatch_key;
  for(int ch=1;ch<=2;ch++){
   const int keys[]={0x5019,0x501a,0x501b,0x501c,0x509d,0x501e};

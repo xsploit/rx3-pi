@@ -126,3 +126,13 @@ Moved crossfader to a full-width horizontal track, labeled Deck1 left and Deck2 
 Pi build/deployment succeeded. Completed-frame images verified centered layout, a continuous physical-input replay drag fromx90through1840 at y978 reaching the right endpoint, left tap, center tap, and independent headphone-volume0 at its new location. Restored headphone volume50%. Layout checks passed locally and onPi for every vertical slider center, horizontal endpoints/center/clamping, and blank gaps. Native navigation and mixer-state regressions passed. These checks establish touch dispatch/rendering, not a new audio endpoint test; native crossfader DSP endpoint tests are recorded above.
 
 Updated physical replay coordinates: crossfader y978, left margin90, center960, right margin1840. Master columncenter~800; headphone volume960; headphone mix1120. Vertical endpoints remain y285/920, midpoint599. Deck-control and headphone-cue button positions remain unchanged. Screen staysdark; player has no tracks loaded after this restart.
+
+## Compact browser navigation and native Info
+
+Split the native strip into mutually visible surfaces: full player transport atx0,width1280, and navigation atx880,width400. Browser navigation has Player/Back/Source/Info at100nativepixels each. The left880pixels now retain the native source/title area. The navigation block still occupies the original right-hand timer area; this is not a complete preservation of every header indicator.
+
+Distinct native window keys are required as well as determining stacking. Player uses1, mixer2, navigation3. An initial build reused1, causing CreateWindow to return4 and disable the strips; that build was corrected before this checkpoint. Failure stage/result diagnostics remain available in rx3_ui_failure. Format9 surfaces are rendered as RGB565 with their returned row pitch, including padding.
+
+After rebuilding/restarting, touch Browse from an empty player displayed 'Please select a source' beside the compact buttons. Player returned to the main screen. Source->USB2->Track preserved 'USB2 TRACK'; Info key0x20b opened the native metadata pane (duration04:44,BPM93.0,keyE,artwork/rating/date). The observed Info-pane Load1 button at physical1365,938 loaded Aaliyah/Try Again; a later completed frame showed its waveform and cue time04:43.942 with full player transport restored.
+
+Physical top-row button centers in Browse/Source: Player1395, Back1545, Source1695, Info1845 (all y30). Main player coordinates are unchanged. Transition frames can still temporarily omit overlay labels; later stable frames show all buttons. Navigation/mixer-state/layout regressions passed. Backlight0; deck1 loaded/cued and deck2 unloaded.

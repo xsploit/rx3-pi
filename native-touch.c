@@ -32,11 +32,11 @@ static void native_touch(void *handler,const struct touch *t,void *mode){
  }
  int main_visible=main_panel_visible();
  if(t->down&&!*((uint8_t*)handler+4)&&player_screen_active()){
-  if(rx3_native_ui_ready&&t->y>=0&&t->y<44&&t->x>=0&&t->x<1280){
+  if(rx3_native_ui_ready&&t->y>=0&&t->y<44&&t->x>=0&&t->x<1280&&(main_visible||t->x>=880)){
    static const int keys[9]={0x202,0x4101,0x4102,0x4112,0x4101,0x4102,0x4112,-1,0x201};
    static const int channels[9]={0,1,1,1,2,2,2,0,0};
    int i=t->x/142;if(i>8)i=8;held_key=keys[i];held_channel=channels[i];rx3_native_ui_pressed=i;
-   if(!main_visible){held_key=i==0?0x202:(i==1?0x420d:(i==8?0x201:-1));held_channel=0;if(held_key>0)pad_key(handler,held_key,0,0);return;}
+   if(!main_visible){static const int navkeys[4]={0x202,0x420d,0x201,0x20b};i=(t->x-880)/100;held_key=navkeys[i];held_channel=0;rx3_native_ui_pressed=10+i;pad_key(handler,held_key,0,0);return;}
    if(i==7)rx3_mixer_visible=!rx3_mixer_visible;else pad_key(handler,held_key,0,held_channel);return;
   }
   if(!main_visible){original_touch(handler,t,mode);return;}

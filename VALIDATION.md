@@ -295,3 +295,13 @@ Live mode6 pad4 touch tests passed on both decks with normal release and SIGTERM
 |2|Reader SIGTERM|62.21/59.11|0/0|52.88/52.80|
 
 Deck1 cue also muted and recovered; deck2 cue was disabled. Track positions differ between before/after samples, so these numbers demonstrate signal presence, not unchanged gain. Each trial played only its target deck; two-deck isolation was not tested. Research scripts `touch-release-mute-trial.py` and `touch-release-mute-terminated-trial.py`, plus their result JSON files, retain the probes. No runtime code changed. Final state: native PID21886, both banks0, simulator -1, slip flags0, positions stationary300ms at577/427ms, backlight0. Other Release FX actions and physical input remain unverified.
+
+## Rejected MIDI NoteOff no longer releases held touch pads
+
+Reproduced a cross-input fault on both decks with native mode2 pad5 (Slip Loop) and mode6 pad4 (Mute). While touch stayed down, a MIDI Beat Jump press on the same pad key attempted bank3. Native bank selection timed out and correctly suppressed the press. Its subsequent NoteOff nevertheless reached the native player and cleared the touch-held effect in all four cases.
+
+Added `pad-intent.h` to the control adapter: track forwarded tagged presses per deck/pad/bank, suppress orphan and stale-bank releases, and ignore duplicate presses. `test-pad-intent.c` passes locally and on Pi, covering rejected selection, unowned release, duplicate press, deck isolation, late other-bank release and native bank changes. Existing Python pad mapping and held-pad tests also pass. Full Pi build/deployment passed with backup `fbshim-pre-pad-intent.so`.
+
+After restart and native-touch loading of both tracks, all four live overlap trials passed: MIDI NoteOff left Slip Loop held or simulator status3 (Mute) active, and actual touch release cleared the effect. Each trial subsequently produced40 distinct audio DMA buffers with nonzero master output. Research `touch-midi-orphan-before.json` and `touch-midi-orphan-after.json` retain the paired evidence; `touch-midi-orphan-trial.py` now asserts the corrected behavior. Native mode remains the held touch bank because the bank change was rejected; the MIDI action is not queued for later execution. Same-bank source overlap is a separate unverified case.
+
+Post-deployment MIDI Beat Loop regression passed all eight sizes and on/off transitions on both decks, beginning from bank5. Final readback: player PID23095, both banks0, simulator -1 and slip flags0, positions stationary over300ms at4447/4447ms, backlight0.

@@ -65,3 +65,11 @@ Native mode6 (tap the selected Slip Loop selector again) is **Release FX**, not 
 ### Release FX Mute
 
 Touch replay on mode6 pad4 (Mute) silences the playing deck while held and restores audio on release. Both decks passed normal release and reader SIGTERM cleanup. Native simulator status changed from -1 to3 and back to -1; sampled output buffers were all zero during the hold and contained changing audio again afterward. Deck1 headphone cue followed the mute; deck2 cue was off, so its headphone behavior was not tested. These trials used one playing deck at a time and do not establish isolation with both decks playing. The remaining seven Release FX actions, physical touch and simultaneous MIDI/touch holds remain open.
+
+## Rejected MIDI presses during a touchscreen hold
+
+The native player refuses a bank change while a touchscreen Slip Loop or Release FX Mute pad is held. Previously, the adapter suppressed the rejected MIDI press but forwarded its later NoteOff. If both inputs used the same pad key, that release ended the touchscreen action early.
+
+`pad-intent.h` now records which tagged MIDI presses the adapter forwarded, by deck, pad and bank. A release requires matching ownership; rejected presses produce no native release. Duplicate presses are suppressed, and a later native bank change prevents an old release from reaching another bank. All ownership changes happen on the FIFO reader thread.
+
+Live before/after tests covered held one-beat Slip Loop and Mute on both decks, with a conflicting Beat Jump MIDI press/release on the same native key. Before the fix, all four MIDI releases ended the touch action early. After the fix, the touch action stayed held until actual touch release, then playback/audio recovered. This does not implement general source ownership when touch and MIDI press the same pad in the same bank; that overlap and physical input testing remain pending.

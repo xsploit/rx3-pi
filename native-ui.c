@@ -10,7 +10,7 @@ extern char *program_invocation_short_name;
 volatile int rx3_native_ui_ready=0,rx3_native_ui_pressed=-1;
 /* Native window keys also determine stacking and must be unique:
  * player strip1, mixer2, compact navigation3. */
-struct surface {void *window;int shown;};
+struct surface {void *window;int shown,painted,last_pressed;};
 static struct surface surfaces[2]={{0,-1},{0,-1}};
 static int disabled;
 volatile int rx3_ui_failure[4];
@@ -25,15 +25,16 @@ static int paint(int navigation,int show){
  if(!s->window)return 1;
  if(s->shown!=show){
   ((int(*)(void*,int,unsigned))0x1a061c)(s->window,show?1:2,8);
-  ((int(*)(void*,unsigned))0x1a0a28)(s->window,show?255:0);s->shown=show;
+  ((int(*)(void*,unsigned))0x1a0a28)(s->window,show?255:0);s->shown=show;s->painted=0;
  }
  if(!show)return 1;
+ int pressed=rx3_native_ui_pressed-(navigation?10:0);
+ if(s->painted&&s->last_pressed==pressed)return 1;
  void *pixels=0;int pitch=0;
  int rc=((int(*)(void*,void**,int*))0x1a1c48)(s->window,&pixels,&pitch);
  if(rc){rx3_ui_failure[0]=2;rx3_ui_failure[1]=rc;rx3_ui_failure[2]=navigation;return 0;}
  if(!pixels||pitch<width*2){rx3_ui_failure[0]=3;rx3_ui_failure[1]=pitch;rx3_ui_failure[2]=navigation;rx3_ui_failure[3]=(int)(uintptr_t)pixels;((int(*)(void*))0x1a1cb0)(s->window);return 0;}
  /* These format9 surfaces use RGB565. Row pitch may include padding. */
- int pressed=rx3_native_ui_pressed-(navigation?10:0);
  for(int y=0;y<44;y++)for(int x=0;x<width;x++){
   unsigned c=x%cell>=cell-2?0x080808:(x/cell==pressed?0x707070:0x242424);
   ((uint16_t*)((char*)pixels+y*pitch))[x]=((c>>8)&0xf800)|((c>>5)&0x7e0)|((c>>3)&31);
@@ -44,6 +45,7 @@ static int paint(int navigation,int show){
   ((uint16_t*)((char*)pixels+spans[i][1]*pitch))[x]=0xffff;
  ((int(*)(void*))0x1a1cb0)(s->window);
  ((int(*)(void*,int,int,int,int,int))0x1a0948)(s->window,0,0,width,44,0x4000);
+ s->painted=1;s->last_pressed=pressed;
  return 1;
 }
 static int draw(void *arg){

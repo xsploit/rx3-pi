@@ -136,3 +136,13 @@ Distinct native window keys are required as well as determining stacking. Player
 After rebuilding/restarting, touch Browse from an empty player displayed 'Please select a source' beside the compact buttons. Player returned to the main screen. Source->USB2->Track preserved 'USB2 TRACK'; Info key0x20b opened the native metadata pane (duration04:44,BPM93.0,keyE,artwork/rating/date). The observed Info-pane Load1 button at physical1365,938 loaded Aaliyah/Try Again; a later completed frame showed its waveform and cue time04:43.942 with full player transport restored.
 
 Physical top-row button centers in Browse/Source: Player1395, Back1545, Source1695, Info1845 (all y30). Main player coordinates are unchanged. Transition frames can still temporarily omit overlay labels; later stable frames show all buttons. Navigation/mixer-state/layout regressions passed. Backlight0; deck1 loaded/cued and deck2 unloaded.
+
+## Retained transport/navigation strip rendering
+
+The native strip now repaints only on visibility or pressed-button changes, reusing its retained RGB565 surface on other GUI passes. This removes repeated pixel fills and glyph painting without changing native compositor or frame-publication hooks. Visibility changes invalidate the cache so switching between player/navigation repaints correctly.
+
+Before the change:188stationary player frames all had2748bright label pixels. A timed Browse transition changed the right-hand region from1020player-label pixels to1251navigation-label pixels without an empty interval; Info toggle kept1251through172sampled frames. The previously observed transition omissions were not reproduced in these samples, so this is an efficiency improvement, not a demonstrated flicker fix.
+
+After a fresh build/restart:125empty-player frames retained2748pixels. Browse transition again moved directly between expected counts. Touch-selected USB2/Track and loaded the observed first-row Load1. During playback198distinct completed frames all retained2748label pixels; after Cue196frames also retained2748. Hardware audio contained40distinct buffers with nonzero master/headphone data during playback. Navigation, mixer-state and layout regression tests passed.
+
+The probe reads only the top44rows from sequence-verified frame snapshots and counts pixels whose RGB components are all>=220. It establishes sampled label retention, not waveform frame rate, visual smoothness, or absence of all possible transition artifacts. Backlight remains0; deck1 cued, deck2 unloaded.

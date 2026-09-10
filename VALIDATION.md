@@ -355,3 +355,11 @@ Layout tests passed local ASan/UBSan for both deck headers, gutters, boundaries 
 Loaded-track playback with both key locks enabled at+5/-5% produced40distinct FLX6 DMA buffers and nonzero master/headphone channels (RMS81.06,71.19,261.83,218.83). Disabling key lock by touch while still playing preserved changing audio (40buffers; RMS76.15,74.30,223.03,224.09). This verifies native control state and audio flow, not an independent measurement of pitch-preservation quality.
 
 Final live PID28039: both tracks cued, tempo0%, range10%, key lock off, Mixer closed and panel brightness0. Prior shim backup: runtime `/lib/fbshim-pre-tempo-options.so`. Physical control comfort, sync/pickup behavior, physical jog feel, visual flicker and reboot validation remain open.
+
+## Sync and tempo pickup investigation
+
+Touch replay toggled the native engine Sync flag while cued and playing in PID28039. Fine tempo and center touches update the native fader rate, but this does not always update effective playback tempo: after Sync was disabled, deck2 retained 97.72 BPM from a 93.07 BPM track while its fader rate reported 0%. A screenshot also showed the retained 97.7 BPM and dimmed 93.0 target. Moving the fader beyond the held rate and back to center restored both actual BPM and the raw fader rate.
+
+The Mixer currently displays `UiGetPlayTempoRate`, which represents the fader setting during pickup. Its fine buttons also use that value. This is an identified UI/control gap, not verified Sync/pickup completion. Read-only disassembly confirms snapshot offsets: effective BPM +20, original BPM +24, tempo target +28, fader rate +34. The earlier research probe labeled +28 as `bpm_raw`; it must not be interpreted as effective BPM.
+
+Playback produced 40 distinct DMA buffers with positive master and headphone RMS. Final state was verified beyond the fader alone: both actual and original BPM 9307, rate 0, Sync off, cued, brightness 0. No runtime changes were deployed in this investigation.

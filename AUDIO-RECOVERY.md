@@ -51,9 +51,23 @@ Next integrate a driver that saves/restores real ALSA parameters, resolves stabl
 
 `test-audio-alsa.c` passed with local ASan/UBSan against ALSA1.2.16.1 and on the Pi host against ALSA1.2.14. It uses two real ALSA null PCMs with stereo S16_LE,44100Hz,128-frame periods and512-frame buffers, plus distinct start thresholds and explicit stop/silence settings. Four successful pair reopens preserved every inspected setting and accepted128-frame writes. An injected failure on the second output's software-parameter application, after real open/hardware setup, left both published handles null; the subsequent retry restored both. Failed snapshot capture also preserved the earlier good snapshot.
 
-These tests used the host ALSA libraries, not the ARM32 firmware runtime or the FLX6/dmix hardware chain. Null PCM accepting writes is not evidence of audible output or USB reconnect. Neither recovery source is linked into the live shim yet. Outstanding integration: stable caller-handle lookup, complete call interception and serialization, write-error classification, bounded underrun/suspend handling, offline pacing/status, target ARM32 shared-library validation, then real routed-output recovery tests.
+These tests used the host ALSA libraries, not the ARM32 firmware runtime or the FLX6/dmix hardware chain. Null PCM accepting writes is not evidence of audible output or USB reconnect. Neither recovery source is linked into the live shim yet. Outstanding integration: stable caller-handle lookup, complete call interception and serialization, write-error classification, bounded underrun/suspend handling, offline pacing/status, live wrapper validation, then real routed-output recovery tests. The isolated ARM32 shared-library check below now passes.
 
 ```sh
 gcc -std=gnu11 -O2 -Wall -Wextra -Werror -o /tmp/test-audio-alsa audio-recovery.c audio-alsa.c test-audio-alsa.c $(pkg-config --cflags --libs alsa) -ldl
 /tmp/test-audio-alsa
 ```
+
+## Embedded ARM32 runtime check
+
+`test-audio-alsa-runtime.sh` now builds a test-only preload library against the actual runtime libraries and runs it in a separate `busybox true` process inside the chroot. It uses only null PCMs and removes its temporary DSO on exit. On the Pi it reported ALSA1.0.24.1 and passed all four pair reopens, exact parameter checks, write acceptance, snapshot failure preservation and partial-software-setup failure recovery. Player PID23095 and backlight0 were unchanged.
+
+The first unversioned test DSO failed the rate getter assertion. Inspection found two runtime definitions: legacy `snd_pcm_hw_params_get_rate@ALSA_0.9` and the modern output-pointer ABI `@@ALSA_0.9.0rc4`. Linking the DSO explicitly against the runtime's libasound records the correct symbol versions and resolved the failure. This is a test/build ABI correction; do not infer an audio-engine failure. Future integrated builds must preserve appropriate ALSA symbol versions or resolve the required ABI explicitly.
+
+Run on the Pi from the source checkpoint:
+
+```sh
+sh test-audio-alsa-runtime.sh /home/pompu_5/rx3-rootfs
+```
+
+The constructor harness is enabled only by RX3_TEST_PRELOAD and exits after the tests; it must never be loaded into the running player. Real FLX6/dmix reopening, stable handle forwarding, synchronization, write-error recovery, offline pacing/status and live integration remain unverified.

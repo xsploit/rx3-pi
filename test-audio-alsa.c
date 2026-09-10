@@ -56,6 +56,7 @@ static int fail_second_sw(snd_pcm_t *pcm,snd_pcm_sw_params_t *sw){
  return real_sw(pcm,sw);
 }
 int main(void){
+ printf("ALSA runtime: %s\n",snd_asoundlib_version());
  struct rx3_alsa_driver d;assert(rx3_alsa_driver_init(&d)==0);
  snd_pcm_t *pcm[2]={configured(0),configured(1)};
  struct settings expected[2]={inspect(pcm[0]),inspect(pcm[1])};
@@ -93,3 +94,8 @@ int main(void){
  rx3_audio_pair_stop(&pair);rx3_alsa_driver_destroy(&d);
  puts("PASS real ALSA null: 4 pair reopens preserve settings/audio writes; partial software failure rolls back and recovers");
 }
+#ifdef RX3_TEST_PRELOAD
+/* Isolated ARM32 runtime test: preload this test-only DSO into busybox true.
+ * Exiting here prevents the host command from running after the assertions. */
+__attribute__((constructor))static void run_preloaded_test(void){exit(main());}
+#endif

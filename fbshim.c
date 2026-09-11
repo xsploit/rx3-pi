@@ -38,7 +38,11 @@ int snd_pcm_hw_params_set_access(void*a,void*b,int c){static int(*real)(void*,vo
 WRAP3(snd_pcm_hw_params_set_format)
 WRAP3(snd_pcm_hw_params_set_channels)
 #endif
-int snd_ctl_open(void **ctl,const char *name,int mode){static int(*real)(void**,const char*,int);if(!real)real=dlsym((void*)-1,"snd_ctl_open");return logresult("CTL open",real(ctl,"hw:CARD=DDJFLX6",mode));}
+/* build.sh sets the card from rx3.conf [audio] card; DDJFLX6 is the tested one. */
+#ifndef RX3_CTL_DEVICE
+#define RX3_CTL_DEVICE "hw:CARD=DDJFLX6"
+#endif
+int snd_ctl_open(void **ctl,const char *name,int mode){static int(*real)(void**,const char*,int);if(!real)real=dlsym((void*)-1,"snd_ctl_open");return logresult("CTL open",real(ctl,RX3_CTL_DEVICE,mode));}
 int snd_pcm_hw_params_get_channels_max(const void *p,unsigned *v){static int(*real)(const void*,unsigned*);if(!real)real=dlvsym((void*)-1,"snd_pcm_hw_params_get_channels_max","ALSA_0.9.0rc4");int r=real(p,v);if(r>=0&&*v>2)*v=2;logresult("channels max",*v);return logresult("channels max result",r);}
 int snd_ctl_pcm_info(void *ctl,void *info){
  static int(*real)(void*,void*);static int(*stream)(const void*);

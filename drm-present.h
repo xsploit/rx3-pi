@@ -22,7 +22,8 @@ static void drm_cleanup(void){
 }
 static void drm_stop(int sig){exit(128+sig);}
 static int drm_start(void){
- drmfd=open("/dev/dri/card0",O_RDWR|O_CLOEXEC);if(drmfd<0)return 0;
+ const char *card=getenv("RX3_DRM_DEVICE");if(!card||!*card)card="/dev/dri/card0";
+ drmfd=open(card,O_RDWR|O_CLOEXEC);if(drmfd<0){perror(card);return 0;}
  drmModeRes *r=drmModeGetResources(drmfd);if(!r)goto fail;
  for(int i=0;i<r->count_connectors;i++){
   drmModeConnector *c=drmModeGetConnector(drmfd,r->connectors[i]);

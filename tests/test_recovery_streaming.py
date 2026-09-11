@@ -8,9 +8,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from firmware_image import crypt, crypt_stream
-spec = importlib.util.spec_from_file_location('recovery', ROOT / 'recover-firmware.py')
-recovery = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(recovery)
+from rx3tool import recover as recovery
 
 
 class RecoveryStreaming(unittest.TestCase):
@@ -39,8 +37,10 @@ class RecoveryStreaming(unittest.TestCase):
                 z.writestr('part1', b'b' * 200000)
             output = root / 'joined'
             with output.open('wb') as out:
-                recovery.copy_zip_member(zipped, 'part0', out)
-                recovery.copy_zip_member(zipped, 'part1', out)
+                import shutil
+                for name in ('part0', 'part1'):
+                    with recovery.open_zip_member(zipped, name) as source:
+                        shutil.copyfileobj(source, out)
             self.assertEqual(output.read_bytes(), b'a' * 200000 + b'b' * 200000)
             import hashlib
             self.assertEqual(recovery.sha256_file(output), hashlib.sha256(output.read_bytes()).hexdigest())

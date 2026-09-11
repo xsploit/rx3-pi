@@ -37,9 +37,9 @@ int main(int argc,char**argv){
  if(argc<3)return 2;
  int fullscreen=0,exclusive=0;
  for(int i=3;i<argc;i++){if(!strcmp(argv[i],"--fullscreen"))fullscreen=1;else if(!strcmp(argv[i],"--exclusive"))exclusive=1;else return 2;}
- int replay=!strcmp(argv[1],"--replay");int in=-1,out=open(argv[2],O_RDWR|O_NONBLOCK);control=open(UI_CONTROL,O_RDWR|O_NONBLOCK);
+ int replay=!strcmp(argv[1],"--replay");int in=-1,out=open(argv[2],O_RDWR|O_NONBLOCK);control=open(ui_control_path(),O_RDWR|O_NONBLOCK);
  if(out<0||control<0){perror("open");return 1;}
- int sf=open(UI_STATE,O_RDWR|O_CREAT,0600);if(sf<0||ftruncate(sf,sizeof(struct ui_state)))return 1;
+ int sf=open(ui_state_path(),O_RDWR|O_CREAT,0600);if(sf<0||ftruncate(sf,sizeof(struct ui_state)))return 1;
  state=mmap(0,sizeof(*state),PROT_READ|PROT_WRITE,MAP_SHARED,sf,0);if(state==MAP_FAILED)return 1;
  if(state->magic!=0x52583332)*state=(struct ui_state){0x52583332,{1,.6,0,1,.5,.5},0,1};
  struct sigaction action={0};action.sa_handler=stop;sigemptyset(&action.sa_mask);sigaction(SIGTERM,&action,0);sigaction(SIGINT,&action,0);

@@ -1,11 +1,31 @@
 #ifndef PI_CONTROLS_H
 #define PI_CONTROLS_H
-#ifndef UI_STATE
-#define UI_STATE "/home/pompu_5/rx3-rootfs/dev/rx3-ui-state"
+#include <stdio.h>
+#include <stdlib.h>
+/* Host paths of files inside the runtime. ./rx3 start sets RX3_RUNTIME;
+ * RX3_UI_STATE/RX3_UI_CONTROL or compile-time UI_STATE/UI_CONTROL override. */
+static const char *runtime_path(const char *env,const char *fixed,const char *guest){
+ static char paths[2][4096];static int next;
+ const char *value=getenv(env);if(value&&*value)return value;
+ if(fixed)return fixed;
+ const char *root=getenv("RX3_RUNTIME");
+ if(!root||!*root){fprintf(stderr,"RX3_RUNTIME is not set; start RX3 with ./rx3 start\n");exit(2);}
+ char *path=paths[next++&1];
+ if(snprintf(path,sizeof(paths[0]),"%s%s",root,guest)>=(int)sizeof(paths[0])){fprintf(stderr,"RX3_RUNTIME is too long\n");exit(2);}
+ return path;
+}
+#ifdef UI_STATE
+#define UI_STATE_FIXED UI_STATE
+#else
+#define UI_STATE_FIXED 0
 #endif
-#ifndef UI_CONTROL
-#define UI_CONTROL "/home/pompu_5/rx3-rootfs/dev/rx3-control"
+#ifdef UI_CONTROL
+#define UI_CONTROL_FIXED UI_CONTROL
+#else
+#define UI_CONTROL_FIXED 0
 #endif
+#define ui_state_path() runtime_path("RX3_UI_STATE",UI_STATE_FIXED,"/dev/rx3-ui-state")
+#define ui_control_path() runtime_path("RX3_UI_CONTROL",UI_CONTROL_FIXED,"/dev/rx3-control")
 #define CONTENT_X 160
 #define CONTENT_W 1600
 #define CONTENT_H 1000

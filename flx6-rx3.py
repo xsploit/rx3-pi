@@ -196,8 +196,19 @@ def listen_reconnecting(b,lib,running,discover,sleep=time.sleep):
    if not running():break
    sleep(.05)
 def main():
- p=argparse.ArgumentParser();p.add_argument('--mapping',default='/home/pompu_5/.mixxx/controllers/Pioneer-DDJ-FLX6.midi.xml');p.add_argument('--fifo',default='/home/pompu_5/rx3-rootfs/dev/rx3-control');p.add_argument('--replay');p.add_argument('--dry-run',action='store_true');a=p.parse_args()
- fd=None if a.dry_run else os.open(a.fifo,os.O_WRONLY|os.O_NONBLOCK)
+ # ./rx3 start passes every path; the defaults only suit a manual run.
+ runtime=os.environ.get('RX3_RUNTIME')
+ p=argparse.ArgumentParser();p.add_argument('--mapping',default=os.path.expanduser('~/.mixxx/controllers/Pioneer-DDJ-FLX6.midi.xml'))
+ p.add_argument('--fifo',default=runtime and os.path.join(runtime,'dev/rx3-control'),help='runtime dev/rx3-control (default from RX3_RUNTIME)')
+ p.add_argument('--player-id',help='launcher identity for this player session')
+ p.add_argument('--state',help='jog counter file kept across bridge restarts')
+ p.add_argument('--port-name',default='DDJ-FLX6',help='MIDI port name shown by amidi -l')
+ p.add_argument('--replay');p.add_argument('--dry-run',action='store_true')
+ p.add_argument('--check-mapping',action='store_true',help='only load the mapping and report the binding count');a=p.parse_args()
+ if a.check_mapping:
+  print(f'Loaded {len(Bridge(a.mapping,lambda *c:None).mapping)} MIDI bindings from {a.mapping}');return
+ if not a.dry_run and not a.fifo:p.error('--fifo is required (or set RX3_RUNTIME)')
+ fd=None if a.dry_run else os.open(a.fifo,os.O_RDWR|os.O_NONBLOCK)
  def emit(*cmd):
   if fd is not None:os.write(fd,struct.pack('<iiiifi',*cmd))
   if a.replay or a.dry_run:print(cmd,flush=True)
@@ -205,8 +216,8 @@ def main():
  if a.replay:
   b.feed(open(a.replay,'rb').read());b.release();return
  # Preserve absolute jog counters across MIDI-reader restarts in this player session.
- player=subprocess.check_output(['pgrep','-x','rbp-pi'],text=True).strip()
- statefile='/home/pompu_5/rx3-midi-jog-state.json'
+ player=a.player_id or subprocess.check_output(['pgrep','-x','rbp-pi'],text=True).strip()
+ statefile=a.state or os.path.join(os.path.dirname(a.fifo or '.'),'rx3-midi-jog-state.json')
  try:
   previous=json.load(open(statefile))
   if previous.get('player')==player:
@@ -218,7 +229,7 @@ def main():
  lib.snd_rawmidi_close.argtypes=[ctypes.c_void_p]
  def discover():
   listing=subprocess.check_output(['amidi','-l'],text=True)
-  return re.findall(r'^I[O ]\s+(hw:\S+)\s+.*DDJ-FLX6',listing,re.M)
+  return re.findall(r'^I[O ]\s+(hw:\S+)\s+.*'+re.escape(a.port_name),listing,re.M)
  running=True
  def stop(*_):
   nonlocal running

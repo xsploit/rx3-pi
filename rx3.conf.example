@@ -1,0 +1,63 @@
+# RX3 on Raspberry Pi - settings
+#
+# Copy to rx3.conf (./rx3 config init does this) and change only what you need.
+# "auto" values are detected each time; ./rx3 config shows what was found.
+# Relative paths are relative to this file's folder. Spaces in paths are fine.
+# One-off overrides: ./rx3 --set usb.uuid=1234-ABCD start
+# or environment variables such as RX3_USB_UUID=1234-ABCD.
+
+[paths]
+# Official downloads and recovered firmware images (about 400 MB).
+work = work
+# The assembled RX3 runtime (chroot), about 110 MB. Must be on the Pi's own
+# disk (ext4): not a FAT/exFAT/NTFS USB stick.
+runtime = work/runtime
+# Logs, lock file and MIDI jog state.
+state = work/state
+# Compiled helpers.
+build = build
+
+[firmware]
+# Only 1.19 is supported: the patches use fixed 1.19 code addresses.
+# This is a tested version pin, not a claim that 1.19 is the latest release.
+version = 1.19
+# yes = BiteDJ-style 6/10/16/25 % tempo ranges (the tested checkpoint)
+# no  = the RX3's original 6/10/16/WIDE ranges
+tempo_range_25 = yes
+
+[user]
+# Account the player runs as inside the runtime. auto = you.
+# Example of explicit values: uid = 1000, gid = 44, groups = audio,video
+uid = auto
+gid = auto
+groups = auto
+
+[display]
+# Only a 1200x1920 portrait panel (10-inch Raspberry Pi Touch Display 2)
+# is supported. auto picks the connected DRM card reporting that mode.
+drm_device = auto
+fb_device = /dev/fb0
+
+[touch]
+# auto works when exactly one multi-touch device exists. Otherwise pick one:
+#   ls -l /dev/input/by-path/
+# device = /dev/input/by-path/platform-1f00080000.i2c-event
+device = auto
+
+[audio]
+# ALSA card ID (see: cat /proc/asound/cards). DDJFLX6 is the tested one.
+card = DDJFLX6
+
+[controller]
+# MIDI port name as shown by: amidi -l
+midi_name = DDJ-FLX6
+# ./rx3 mapping fetches a pinned public BiteDJ XML if this file is missing.
+# Or point at your own existing BiteDJ mapping. Existing files are preserved.
+mapping = work/Pioneer-DDJ-FLX6.midi.xml
+
+[usb]
+# Filesystem UUID of your rekordbox USB (FAT32), shown by:
+#   lsblk -o NAME,FSTYPE,UUID,LABEL,MOUNTPOINTS
+# Empty = start without music. It is mounted read-only inside the runtime;
+# the database/analysis are copied to a local, writable view.
+uuid =

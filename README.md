@@ -2,6 +2,80 @@
 
 Experimental compatibility work running the ARM32 RX3 v1.19 player on Raspberry Pi 5 (4GB), Debian, Raspberry Pi Touch Display 2, and DDJ-FLX6. This is the embedded RX3 application, not desktop rekordbox.
 
+**Read this before following the build commands:** this repository preserves one
+working development setup. It is not a portable installer. Several scripts and
+compiled helpers still contain the original owner's username, paths, display
+geometry, USB identity, Linux group IDs and FLX6 routing. A successful firmware
+recovery or build does not create a runnable installation on another Pi.
+
+## Using this on a different machine
+
+There are three separate stages:
+
+1. **Recover the firmware files.** `recover-firmware.py` uses paths relative to
+   its own repository directory. It can recover the source-package key and
+   verified original player without the owner's account, controller or USB.
+   See [Firmware inputs](#firmware-inputs). The key is `aes256.key` beside the
+   script; the player is `extracted/player/pdj/rbp`.
+2. **Build the compatibility tools.** Install the development packages listed
+   below. Standalone tests such as `test-frame-exchange` can run without a
+   prepared firmware runtime. The full ARM32 shim links against libraries in
+   a prepared RX3 rootfs; give `build.sh` that directory explicitly.
+3. **Assemble and adapt the runtime.** This is still manual and incomplete as
+   a documented fresh-machine procedure. Extracted files are not equivalent
+   to the prepared chroot. The runtime also needs the patched player, matching
+   shim, libraries and symlinks, emulated device/proc files, FIFOs, permissions,
+   mounts and library views. `prepare-runtime.py` restores mounts for an
+   **existing** runtime; it does not construct one. `extract_cramfs.py` extracts
+   regular files and records symlink information; it is not a chroot installer.
+
+### Settings still tied to the original Pi
+
+There is currently no central configuration file. These are the principal
+runtime assumptions found in the checked-in source, not an exhaustive promise
+that every experiment or test is portable:
+
+| Area | Current assumption | Files to adapt |
+| --- | --- | --- |
+| Host account and rootfs | `/home/pompu_5`, `/home/pompu_5/rx3-rootfs`; helpers deployed directly into that home | `start-rx3.sh`, `stop-rx3.sh`, `prepare-runtime.py`, `prepare-library-view.sh`, `pi-control.py`, `pi-controls.h`, `fb-present.c` |
+| Build rootfs | Defaults to the owner's rootfs; ARM32 compiler defaults to `arm-linux-gnueabi-gcc` | Pass `sh build.sh /absolute/path/to/prepared-rootfs`; `build-audio-candidate.sh` also accepts that path and `CC_ARM` |
+| Linux permissions | Chroot user/group `1000:44`, supplementary groups `29,44,995,991`; USB mount owner `1000:1000`; mount/start commands use `sudo -n` | `start-rx3.sh`, `prepare-runtime.py`; use your actual IDs and device permissions |
+| USB source | Filesystem UUID `0FFF-3865`, fallback filesystem type `vfat` | `USB_UUID` and mount handling in `prepare-runtime.py`; another filesystem needs compatible handling |
+| Display | Host `/dev/fb0`, DRM `/dev/dri/card0`, physical 1200×1920 portrait mode, rotated 1920×1200 presentation | `drm-present.h`, `fb-present.c`; different geometry requires code changes/rebuild, not just a different device path |
+| Physical touch | `/dev/input/by-path/platform-1f00080000.i2c-event`, fixed rotation/coordinate scaling | `start-rx3.sh`, `touch-bridge.c`; select your touchscreen and adapt its geometry |
+| Audio output | ALSA card `DDJFLX6`, 44.1kHz, four channels with separate master/headphones | `asound.conf`, `fbshim.c`; another interface needs routing changes and playback/cue verification |
+| MIDI and preferred mapping | Exactly one `DDJ-FLX6` MIDI input; the owner's BiteDJ XML and mapping semantics | `flx6-rx3.py`; `--mapping` and `--fifo` override two paths, but device discovery, jog-state path and FLX6 translation remain specific |
+| Control/state paths | Host paths beneath the owner's rootfs, plus `/home/pompu_5/rx3-midi-jog-state.json` | `pi-controls.h`, `flx6-rx3.py`, `start-rx3.sh`, `stop-rx3.sh`, replay helpers |
+| Executable patches | RX3 1.19 binary layout/hash and matched shim; optional tempo patch expects its stated input | `patch-player.py`, `patch-tempo25.py`, [tempo-range instructions](#preferred-bitedj-fourth-tempo-range) |
+
+Host paths and paths **inside the chroot** are different. Guest names such as
+`/dev/rx3-control`, `/dev/tsc2007_2-0048`, `/proc/udev_usb1` and
+`/media/usb1/sda1` are part of the emulated RX3 environment. Do not globally
+replace every `/dev`, `/proc` or `/media` string with a host path. Adapt the host
+side and preserve the guest contract, or change both sides deliberately.
+
+Useful read-only inventory commands on the target Pi:
+
+```sh
+id
+lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS
+ls -l /dev/dri /dev/input/by-path
+cat /proc/asound/cards
+aplay -l
+amidi -l
+```
+
+`aplay` and `amidi` are supplied by Debian's `alsa-utils`. After adapting paths
+and assembling the rootfs, `python3 prepare-runtime.py --check` inspects its
+expected files/mounts without creating them. It checks only the subset encoded
+in that script, not full runtime correctness. Do not treat `start-rx3.sh` as
+the next step on an untouched clone.
+
+A prebuilt shim or presenter would only skip compilation. It would retain its
+compiled assumptions and would not supply firmware, a prepared rootfs, a
+controller mapping or device configuration. A distributable installer/config
+layer and verification on a second independently prepared Pi remain unfinished.
+
 ## Working evidence
 
 - Analysed USB library browsing, native loading and two stacked waveforms.

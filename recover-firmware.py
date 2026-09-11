@@ -141,6 +141,7 @@ def main():
     key_path = BASE / 'aes256.key'
     recover_key(archive_path, key_path)
     print('Recovered source-package firmware key; no device-specific key needed.', flush=True)
+    print('Key saved locally:', key_path, flush=True)
     firmware = download(FIRMWARE_URL, BASE / 'XDJ-RX3_v119.zip', {FIRMWARE_HASH})
     with zipfile.ZipFile(firmware) as archive:
         names = [n for n in archive.namelist() if Path(n).name == 'XDJRX3.UPD']

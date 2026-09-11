@@ -5,7 +5,15 @@ set -eu
 cd "$(dirname "$0")"
 rootfs=${1:-/home/pompu_5/rx3-rootfs}
 compiler=${CC_ARM:-arm-linux-gnueabi-gcc}
-test -f "$rootfs/usr/lib/libasound.so.2"
+command -v "$compiler" >/dev/null 2>&1 || {
+ echo "Missing ARM32 compiler: $compiler. On Debian: sudo apt install gcc-arm-linux-gnueabi" >&2
+ exit 1
+}
+test -f "$rootfs/usr/lib/libasound.so.2" || {
+ echo "Missing prepared RX3 runtime: $rootfs/usr/lib/libasound.so.2" >&2
+ echo "Pass your prepared runtime directory to this script (or build.sh). Firmware recovery alone does not assemble it; see README.md." >&2
+ exit 1
+}
 mkdir -p build
 "$compiler" -march=armv7-a -shared -fPIC -O2 -fomit-frame-pointer \
  -fno-builtin -nostdlib -idirafter /usr/include \

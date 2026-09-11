@@ -42,7 +42,30 @@ The `[Tab]` View/Back entries were previously ignored; they are now translated w
 
 ## Build
 
-On the Pi, with ARM32 cross compiler and native gcc, FreeType/libdrm development packages:
+On a Debian/Raspberry Pi OS Pi, install the native development headers and ARM32
+cross compiler first:
+
+```sh
+sudo apt update
+sudo apt install build-essential pkg-config libdrm-dev libfreetype-dev gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+```
+
+`xf86drm.h: No such file or directory` (from `drm-present.h`, including when
+building `test-frame-exchange`) means the native libdrm development headers
+are missing or the compiler is not using their include flags. Check:
+
+```sh
+pkg-config --cflags --libs freetype2 libdrm
+mkdir -p build
+gcc -O2 -o build/test-frame-exchange test-frame-exchange.c $(pkg-config --cflags --libs freetype2 libdrm)
+./build/test-frame-exchange
+```
+
+This test does not require firmware recovery. The full shim build below **does**
+require a prepared RX3 rootfs. Pass its path as `sh build.sh /path/to/rx3-rootfs`;
+the no-argument default is the original developer's `/home/pompu_5/rx3-rootfs`.
+Do not use that default on a fresh machine. Recovery and rootfs assembly are
+separate steps; the repository is not yet a complete fresh-system installer.
 
 ```sh
 sh build.sh
@@ -62,6 +85,25 @@ Output stays in `build/`. Build does not install or start anything. `start-rx3.s
 Native patch addresses are specific to RX3 v1.19. Original player SHA256: `60bcbd8876116bf09f0d8f747f95d7c7d3081ebd39d6fe14d56005a22f7f3b09`.
 
 ## Firmware inputs
+
+Run recovery separately from the C build, from inside this repository:
+
+```sh
+sudo apt install python3 python3-cryptography unzip libarchive-tools
+git pull --ff-only
+python3 recover-firmware.py
+test -s aes256.key && echo "Key recovered beside recover-firmware.py"
+test -s extracted/player/pdj/rbp && echo "Player file present"
+```
+
+The key is saved at `aes256.key` in the **repository root**, not under
+`extracted/`. Do not print or send its contents. The script's final
+`Verified original player:` message confirms the player's expected hash; the
+file-presence checks alone do not verify integrity. A run that only left
+`extracted/rx3.tar.bz2` did not finish player recovery. No device-specific key
+or physical CDJ is needed for this source-package recovery. Inputs are pinned
+to RX3 **1.19** because the current patches target that version; this is not
+a claim that 1.19 is the newest firmware.
 
 If an older recovery run ends with a bare `Killed` after key recovery or the firmware download, memory exhaustion is a likely cause (confirm with the system's OOM logs). Update the toolkit and rerun from the same directory:
 

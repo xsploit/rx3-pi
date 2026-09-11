@@ -63,6 +63,21 @@ Native patch addresses are specific to RX3 v1.19. Original player SHA256: `60bcb
 
 ## Firmware inputs
 
+If an older recovery run ends with a bare `Killed` after key recovery or the firmware download, memory exhaustion is a likely cause (confirm with the system's OOM logs). Update the toolkit and rerun from the same directory:
+
+```sh
+git pull --ff-only
+python3 recover-firmware.py
+```
+
+Keep the cached downloads. The recovery helper now hashes, joins source parts, reads the nested initramfs, decrypts sectors, and extracts files as streams instead of holding whole archives in RAM. Verified completed downloads are reused; interrupted `.partial` files are recreated. Recovery of the pinned RX3 1.19 inputs passed under a 192 MiB address-space limit with about 79 MiB peak Python RSS, producing the same known-good ISO/player. This does not change the supported firmware version.
+
+Streaming regression tests (requires the existing `cryptography` dependency):
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
 No proprietary firmware, music, library database, SSH credentials or machine image is committed. `recover-firmware.py` downloads hash-verified official source/update packages and extracts the firmware key from the published source package. It creates local outputs only and does not flash hardware. `patch-player.py` expects `pi-runtime/rbp` and generated `pi-clock.bin`; rootfs assembly remains a documented outstanding task.
 
 Screenshots are evidence of the development checkpoint. The Pi backlight can remain at0 while memory screenshots are taken. Do not re-enable it while the owner sleeps.

@@ -58,6 +58,22 @@ def crypt(body, key, decrypt):
     return bytes(output)
 
 
+
+def crypt_stream(source, destination, byte_count, key, decrypt):
+    """Transform an exact sector-aligned payload with bounded working memory."""
+    if byte_count < 0 or byte_count % SECTOR:
+        raise ValueError(f"payload is not aligned to {SECTOR} bytes")
+    algorithm = algorithms.AES(key)
+    for sector in range(byte_count // SECTOR):
+        block = source.read(SECTOR)
+        if len(block) != SECTOR:
+            raise ValueError("truncated sector payload")
+        iv = struct.pack("<I", sector & 0xFFFFFFFF) + bytes(12)
+        cipher = Cipher(algorithm, modes.CBC(iv))
+        operation = cipher.decryptor() if decrypt else cipher.encryptor()
+        destination.write(operation.update(block) + operation.finalize())
+
+
 def read_autoexec(path, key_path):
     """Decrypt a raw autoexec image without an update trailer."""
     body = pathlib.Path(path).read_bytes()

@@ -33,8 +33,9 @@ gid = auto
 groups = auto
 
 [display]
-# Only a 1200x1920 portrait panel (10-inch Raspberry Pi Touch Display 2)
-# is supported. auto picks the connected DRM card reporting that mode.
+# Supported: 1200x1920 portrait, 1024x600 or 1024x768 landscape.
+# auto picks the connected DRM card reporting a supported mode.
+# Landscape panels use fullscreen scaling; a 16-bit console needs DRM.
 drm_device = auto
 fb_device = /dev/fb0
 
@@ -46,10 +47,12 @@ device = auto
 
 [audio]
 # ALSA card ID (see: cat /proc/asound/cards). DDJFLX6 is the tested one.
+# Experimental FLX4 profile: card = DDJFLX4
 card = DDJFLX6
 
 [controller]
 # MIDI port name as shown by: amidi -l
+# FLX4: midi_name = DDJ-FLX4, mapping = mappings/Pioneer-DDJ-FLX4.rx3.xml
 midi_name = DDJ-FLX6
 # ./rx3 mapping fetches a pinned public BiteDJ XML if this file is missing.
 # Or point at your own existing BiteDJ mapping. Existing files are preserved.

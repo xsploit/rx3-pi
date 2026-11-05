@@ -362,6 +362,11 @@ class Launcher:
                 ok(f"Player already running (process {running['player'][0]})")
             env = {'RX3_RUNTIME': str(self.runtime), 'RX3_DRM_DEVICE': drm,
                    'RX3_FB_DEVICE': self.config.get('display', 'fb_device')}
+            fb_name = Path(self.config.get('display', 'fb_device')).name
+            size = Path(f'/sys/class/graphics/{fb_name}/virtual_size')
+            if size.exists():
+                width, height = map(int, size.read_text().strip().split(','))
+                env['RX3_DISPLAY_LANDSCAPE'] = '1' if width > height else '0'
             if not running['display']:
                 info(f'Display: {drm} ({drm_how})')
                 self.spawn('display', [self.build / 'rx3-fb-present', self.rt('dev/fb0'),

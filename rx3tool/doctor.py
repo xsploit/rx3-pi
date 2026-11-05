@@ -16,7 +16,7 @@ from pathlib import Path
 
 from . import REPO
 from .assemble import BIND_DIRS, BIND_FILES, FIFOS, filesystem_check, read_marker
-from .config import PANEL, SUPPORTED_FIRMWARE, alsa_cards, detect_drm_cards, detect_touchscreens
+from .config import DISPLAY_MODES, SUPPORTED_FIRMWARE, alsa_cards, detect_drm_cards, detect_touchscreens
 from .recover import RELEASE, memory_available
 from .system import running
 from .ui import Failure, fail, info, ok, say, stage, warn
@@ -336,12 +336,14 @@ class Doctor:
         try:
             size = Path(f'/sys/class/graphics/{name}/virtual_size').read_text().strip()
             bpp = Path(f'/sys/class/graphics/{name}/bits_per_pixel').read_text().strip()
-            if size.split(',')[:2] == [str(PANEL[0]), str(PANEL[1])] and bpp == '32':
-                self.ok(f'Framebuffer {fb} is {PANEL[0]}x{PANEL[1]} 32-bit')
+            if size in {f'{w},{h}' for w, h in DISPLAY_MODES} and bpp in ('16', '32'):
+                self.ok(f'Framebuffer {fb} is {size.replace(",", "x")} {bpp}-bit')
+                if bpp != '32':
+                    self.warn('16-bit console framebuffer: display requires the DRM backend')
             else:
                 self.fail(f'Framebuffer {fb} is {size.replace(",", "x")} at {bpp} bits; '
-                          f'{PANEL[0]}x{PANEL[1]} 32-bit is required',
-                          'Only the 10-inch Raspberry Pi Touch Display 2 (portrait 1200x1920) is supported.')
+                          'a supported display mode is required',
+                          'Supported: 1200x1920 portrait, 1024x600 or 1024x768 landscape.')
         except OSError:
             self.fail(f'Framebuffer {fb} not found', 'The display must be connected at boot.')
         if os.path.exists(fb) and not os.access(fb, os.R_OK | os.W_OK):

@@ -67,6 +67,10 @@ int main(int argc,char**argv){
  long now=millis();
  for(int i=0;i<10;i++){
   struct finger*f=&fingers[i];int lx=(f->y-ay.minimum)*1920/(ay.maximum-ay.minimum+1),ly=1199-(f->x-ax.minimum)*1200/(ax.maximum-ax.minimum+1);
+  if(getenv("RX3_DISPLAY_LANDSCAPE")&&!strcmp(getenv("RX3_DISPLAY_LANDSCAPE"),"1")){
+   lx=(f->x-ax.minimum)*1920/(ax.maximum-ax.minimum+1);
+   ly=(f->y-ay.minimum)*1200/(ay.maximum-ay.minimum+1);
+  }
   if(lx<0)lx=0;if(lx>1919)lx=1919;if(ly<0)ly=0;if(ly>1199)ly=1199;
   if(f->down&&!f->active){f->active=1;f->region=-1;
    if(fullscreen){if(source<0){source=i;f->region=0;}}

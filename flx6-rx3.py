@@ -18,13 +18,23 @@ class Bridge:
   self.emit=emit;self.mapping={};self.msb={};self.held=set();self.pad_held={};self.status=None;self.data=[]
   self.shift={1:False,2:False}
   self.grid_ticks={1:0,2:0}
-  for c in ET.parse(xml).findall('.//controls/control'):
+  root=ET.parse(xml).getroot()
+  self.flx4=any(c.get('id')=='DDJ-FLX4' for c in root.findall('.//controller'))
+  # Mixxx's FLX4 script declares 720 ticks/revolution; keep FLX6 behavior.
+  self.jog_resolution=720 if self.flx4 else 7200
+  for c in root.findall('.//controls/control'):
    g=c.findtext('group','');key=c.findtext('key','');match=re.search(r'\[Channel(\d)\]',g)
    if match:
     channel=int(match[1])
     if channel>2:continue
    elif g in ('[Master]','[Library]','[Tab]'):channel=0
    else:continue
+   if self.flx4:
+    key=key.replace('PioneerDDJFLX4.','PioneerDDJFLX6.')
+    key={'PioneerDDJFLX6.syncPressed':'sync_enabled',
+         'PioneerDDJFLX6.syncLongPressed':'sync_leader',
+         'PioneerDDJFLX6.toggleQuantize':'quantize',
+         'MoveVertical':'PioneerDDJFLX6.browseRotate'}.get(key,key)
    mode='button';native=BUTTONS.get(key)
    if key=='PioneerDDJFLX6.shiftPressed':mode='shift'
    if g=='[Tab]' and key in ('library','PioneerDDJFLX6.viewPressed'):native=0x202;mode='view'
@@ -134,8 +144,8 @@ class Bridge:
   # BiteDJ: 5 ms per step. RX3 offset units are quarter milliseconds.
   if steps:self.emit(0,4,ch,steps*20,0.,0x4744)
  def pulse(self,ch):
-  # RX3 hardware uses 1620 pulses/revolution; BiteDJ FLX6 uses 7200.
-  return round(self.jogs[ch]['total']*1620/7200)&65535
+  # RX3 uses 1620 pulses/revolution; the input profile sets controller resolution.
+  return round(self.jogs[ch]['total']*1620/self.jog_resolution)&65535
  def stop_jog(self,ch):
   j=self.jogs[ch];self.emit(0x4305,4,ch,0,0.,self.pulse(ch));j['delta']=0;j['speed']=0;j['last']=self.clock()
  def tick(self):
@@ -145,7 +155,7 @@ class Bridge:
    if elapsed<.01:continue
    if j['delta']:
     # 1x = 33 1/3 RPM = one revolution/1.8 seconds.
-    speed=j['delta']*1.8/(7200*elapsed)
+    speed=j['delta']*1.8/(self.jog_resolution*elapsed)
     self.emit(0x4305,4,ch,0,speed,self.pulse(ch))
     j['delta']=0;j['speed']=speed;j['last']=now
    elif j['speed'] and now-j['moved']>=.04:self.stop_jog(ch)

@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "drm-present.h"
 #include "frame-scale.h"
+#include "drm-present.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "pi-controls.h"
@@ -53,7 +53,7 @@ int main(int argc,char**argv){
  if(src<0){perror(argv[1]);return 1;}
  if(dst<0){perror(fbdev);return 1;}
  struct fb_fix_screeninfo f;struct fb_var_screeninfo v;ioctl(dst,FBIOGET_FSCREENINFO,&f);ioctl(dst,FBIOGET_VSCREENINFO,&v);
- if(v.xres!=1200||v.yres!=1920||v.bits_per_pixel!=32){fprintf(stderr,"Unsupported display %ux%u %ubpp on %s; need 1200x1920 32bpp portrait\n",v.xres,v.yres,v.bits_per_pixel,fbdev);return 1;}
+ if(!rx3_display_supported(v.xres,v.yres)){fprintf(stderr,"Unsupported display %ux%u on %s\n",v.xres,v.yres,fbdev);return 1;}
  uint32_t *s=mmap(0,1280*800*4,PROT_READ,MAP_SHARED,src,0);unsigned char *d=mmap(0,f.smem_len,PROT_READ|PROT_WRITE,MAP_SHARED,dst,0);if(s==MAP_FAILED||d==MAP_FAILED)return 1;
  if(argc>3&&!strcmp(argv[3],"--coherent")){
   int pf=open(runtime_path("RX3_PRESENT_FRAME",0,"/dev/rx3-present-frame"),O_RDONLY);
@@ -71,6 +71,9 @@ int main(int argc,char**argv){
  for(int i=0;i<6;i++){int x=i<3?0:1760,y=(i%3)*333;label(x+80,y+27,slider_names[i],23,0xffffff);}
  memcpy(chrome,frame,sizeof(frame));
  int kms=drm_start();
+ if(!kms&&v.bits_per_pixel!=32){fprintf(stderr,"fbdev fallback requires 32bpp; DRM must be available for a 16bpp console\n");return 1;}
+ unsigned width=kms?mode.hdisplay:v.xres,height=kms?mode.vdisplay:v.yres;
+ if(width>height&&!fullscreen){fprintf(stderr,"Landscape panels require --fullscreen\n");return 1;}
  fprintf(stderr,"display backend: %s\n",kms?"DRM double-buffered vsync":"fbdev fallback");
  long long deadline=ns(),report=deadline,draw_total=0,last_present=deadline;unsigned frames=0,late=0;
  for(;;){
@@ -86,7 +89,8 @@ int main(int argc,char**argv){
  char val[24];snprintf(val,sizeof(val),"%d%%",(int)(n*100+.5));label(x+80,y+305,val,25,0xd1dae2);}
  }
  if(kms){d=scanout[back].map;f.line_length=scanout[back].pitch;}
- if(fullscreen)rx3_fullscreen_present(d,f.line_length,s,frame);
+ if(fullscreen&&width>height)rx3_landscape_present(d,f.line_length,s,width,height);
+ else if(fullscreen)rx3_fullscreen_present(d,f.line_length,s,frame);
  else {
  /* Tile the transpose so reads stay in cache instead of striding a whole image. */
  for(int by=0;by<1920;by+=16)for(int bx=0;bx<1200;bx+=16)

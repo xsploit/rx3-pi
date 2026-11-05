@@ -9,7 +9,7 @@ This branch's installer has passed PC recovery, assembly and cross-build checks.
 ## Hardware and limits
 
 - Raspberry Pi 5, 4 GB RAM; 64-bit Raspberry Pi OS / Debian with Python 3.9+ and a kernel that runs ARM32 programs. `doctor` checks the kernel.
-- The display code currently supports **1200×1920 portrait, 32-bit framebuffer**, presented rotated as 1920×1200 landscape (the project's 10-inch Raspberry Pi Touch Display 2). Other display sizes need code changes, not just a config setting.
+- The display supports **1200×1920 portrait** (rotated into landscape), plus **1024×600 and 1024×768 landscape** in fullscreen mode. Landscape output fills the panel, with matching unrotated touch coordinates; the 1024×600 image has a slightly different aspect ratio. DRM creates 32-bit scanout buffers even when the console framebuffer is 16-bit; the fbdev fallback requires 32-bit. Landscape support still needs physical touch/audio acceptance.
 - DDJ-FLX6 audio/MIDI. Master uses channels 1/2 and headphones 3/4 at 44.1 kHz. Another audio interface needs the same routing and separate validation; another controller needs a mapping adapter.
 - A local Linux filesystem such as ext4 for the runtime. Allow at least **1 GB free**; FAT/exFAT/NTFS cannot hold the runtime's Unix files. Music can be a FAT32 rekordbox-export USB. exFAT is implemented but untested.
 - RX3 **1.19 is the supported pin, not the newest-version claim**. The reported newer 1.20 firmware is not supported by these fixed-address patches. Do not substitute another binary.
@@ -108,6 +108,13 @@ Everything in the supported startup path uses [rx3.conf.example](rx3.conf.exampl
 
 Relative paths are relative to the configuration file's folder, including paths containing spaces. Precedence: defaults → config file → `RX3_SECTION_KEY` environment → `--set section.key=value`. Changing `[paths] work` changes recovery/download storage only; runtime, state, build and controller mapping are separate paths. Keep them in dedicated directories outside another installation.
 
+An experimental FLX4 input profile is included at `mappings/Pioneer-DDJ-FLX4.rx3.xml`.
+Set `[audio] card = DDJFLX4`, `[controller] midi_name = DDJ-FLX4` and
+`[controller] mapping = mappings/Pioneer-DDJ-FLX4.rx3.xml` to use it. It maps both
+decks and uses 720 jog ticks per revolution. See [profile notes](mappings/README.md)
+for supported controls and limits. Restart RX3 after switching profiles; no rebuild
+is needed for a MIDI-only change.
+
 For an existing preferred BiteDJ mapping, set `[controller] mapping` to its XML path and run `./rx3 mapping --offline`. This bridge translates supported XML bindings; it does not execute the XML's referenced Mixxx JavaScript.
 
 If you prefer to inspect each stage:
@@ -137,7 +144,7 @@ Recovery reuses verified files and resumes partial downloads. Assembly recognize
 | 16 KiB kernel pages / ARM32 execution fails | Follow `doctor`'s Pi kernel guidance: select `kernel=kernel8.img` in `/boot/firmware/config.txt`, reboot, and check again. The player requires ARM32 support and 4 KiB pages. |
 | `vm.mmap_min_addr` blocks the player | `doctor` explains the required value (32768 or lower) and the sysctl change. The tool does not change system settings automatically. |
 | Device permission denied | Follow `doctor`'s group guidance (`audio`, `video`, `render`, `input` as applicable), then log out/in. Never run the whole setup as root to work around this. |
-| No display / unsupported geometry | `./rx3 doctor`; this presenter requires 1200×1920 portrait 32-bit. Configure the detected DRM card/touch event path only if auto-detection is ambiguous. |
+| No display / unsupported geometry | `./rx3 doctor`; supported modes are 1200×1920 portrait and 1024×600/1024×768 landscape. A 16-bit console requires DRM. Configure the detected DRM card/touch event path only if auto-detection is ambiguous. |
 | Player or helper exits | Read `work/state/logs/player.log`, `display.log`, `touch.log`, `midi.log`. Run `./rx3 stop` to release any partial startup before retrying. |
 | Music USB already mounted without UTF-8 | Unmount it in the desktop without unplugging, then retry; the launcher mounts it with the expected options. |
 | Another runtime or unexplained process owns devices | Stop that installation using its own launcher. This tool scopes stop actions to the configured runtime and refuses to kill a player it cannot identify. |

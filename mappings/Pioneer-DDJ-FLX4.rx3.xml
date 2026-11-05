@@ -1,0 +1,893 @@
+<?xml version='1.0' encoding='utf-8'?>
+<MixxxControllerPreset mixxxVersion="2.5" schemaVersion="1">
+  <!-- RX3 input-only profile. MIDI addresses checked against Mixxx 2.5 Pioneer-DDJ-FLX4.midi.xml; jog resolution against Pioneer-DDJ-FLX4-script.js. No JavaScript runtime or LED output. -->
+  <info>
+    <name>Pioneer DDJ-FLX4 RX3 input</name>
+  </info>
+  <controller id="DDJ-FLX4">
+    <controls>
+      <control>
+        <group>[Library]</group>
+        <key>MoveVertical</key>
+        <status>0xB6</status>
+        <midino>0x40</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.waveformZoom</key>
+        <status>0xB6</status>
+        <midino>0x64</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Library]</group>
+        <key>MoveFocusForward</key>
+        <status>0x96</status>
+        <midino>0x41</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Library]</group>
+        <key>MoveFocusBackward</key>
+        <status>0x96</status>
+        <midino>0x42</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>LoadSelectedTrack</key>
+        <status>0x96</status>
+        <midino>0x46</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>LoadSelectedTrack</key>
+        <status>0x96</status>
+        <midino>0x47</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.shiftPressed</key>
+        <status>0x90</status>
+        <midino>0x3F</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.shiftPressed</key>
+        <status>0x91</status>
+        <midino>0x3F</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>play</key>
+        <status>0x90</status>
+        <midino>0x0B</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>play</key>
+        <status>0x91</status>
+        <midino>0x0B</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>cue_default</key>
+        <status>0x90</status>
+        <midino>0x0C</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>cue_default</key>
+        <status>0x91</status>
+        <midino>0x0C</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.jogTurn</key>
+        <status>0xB0</status>
+        <midino>0x22</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.jogTurn</key>
+        <status>0xB0</status>
+        <midino>0x23</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.jogSearch</key>
+        <status>0xB0</status>
+        <midino>0x29</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.jogTouch</key>
+        <status>0x90</status>
+        <midino>0x36</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.jogTurn</key>
+        <status>0xB0</status>
+        <midino>0x21</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.jogTurn</key>
+        <status>0xB1</status>
+        <midino>0x22</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.jogTurn</key>
+        <status>0xB1</status>
+        <midino>0x23</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.jogSearch</key>
+        <status>0xB1</status>
+        <midino>0x29</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.jogTouch</key>
+        <status>0x91</status>
+        <midino>0x36</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.jogTurn</key>
+        <status>0xB1</status>
+        <midino>0x21</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.tempoSliderLSB</key>
+        <status>0xB0</status>
+        <midino>0x20</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.tempoSliderMSB</key>
+        <status>0xB0</status>
+        <midino>0x00</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.tempoSliderLSB</key>
+        <status>0xB1</status>
+        <midino>0x20</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.tempoSliderMSB</key>
+        <status>0xB1</status>
+        <midino>0x00</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.syncPressed</key>
+        <status>0x90</status>
+        <midino>0x58</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.syncLongPressed</key>
+        <status>0x90</status>
+        <midino>0x5C</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.cycleTempoRange</key>
+        <status>0x90</status>
+        <midino>0x60</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.syncPressed</key>
+        <status>0x91</status>
+        <midino>0x58</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.syncLongPressed</key>
+        <status>0x91</status>
+        <midino>0x5C</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.cycleTempoRange</key>
+        <status>0x91</status>
+        <midino>0x60</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>loop_in</key>
+        <status>0x90</status>
+        <midino>0x10</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>loop_in</key>
+        <status>0x91</status>
+        <midino>0x10</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>loop_out</key>
+        <status>0x90</status>
+        <midino>0x11</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>loop_out</key>
+        <status>0x91</status>
+        <midino>0x11</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>reloop_toggle</key>
+        <status>0x90</status>
+        <midino>0x4D</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>reloop_toggle</key>
+        <status>0x91</status>
+        <midino>0x4D</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Master]</group>
+        <key>crossfader</key>
+        <status>0xB6</status>
+        <midino>0x1F</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[Master]</group>
+        <key>crossfader</key>
+        <status>0xB6</status>
+        <midino>0x3F</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>volume</key>
+        <status>0xB0</status>
+        <midino>0x33</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>volume</key>
+        <status>0xB0</status>
+        <midino>0x13</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>volume</key>
+        <status>0xB1</status>
+        <midino>0x33</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>volume</key>
+        <status>0xB1</status>
+        <midino>0x13</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.toggleQuantize</key>
+        <status>0x90</status>
+        <midino>0x68</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.toggleQuantize</key>
+        <status>0x91</status>
+        <midino>0x68</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>pregain</key>
+        <status>0xB0</status>
+        <midino>0x24</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>pregain</key>
+        <status>0xB0</status>
+        <midino>0x04</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>pregain</key>
+        <status>0xB1</status>
+        <midino>0x24</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>pregain</key>
+        <status>0xB1</status>
+        <midino>0x04</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+        <key>parameter3</key>
+        <status>0xB0</status>
+        <midino>0x27</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+        <key>parameter2</key>
+        <status>0xB0</status>
+        <midino>0x2B</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+        <key>parameter1</key>
+        <status>0xB0</status>
+        <midino>0x2F</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+        <key>parameter3</key>
+        <status>0xB0</status>
+        <midino>0x07</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+        <key>parameter2</key>
+        <status>0xB0</status>
+        <midino>0x0B</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel1]_Effect1]</group>
+        <key>parameter1</key>
+        <status>0xB0</status>
+        <midino>0x0F</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+        <key>parameter3</key>
+        <status>0xB1</status>
+        <midino>0x27</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+        <key>parameter2</key>
+        <status>0xB1</status>
+        <midino>0x2B</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+        <key>parameter1</key>
+        <status>0xB1</status>
+        <midino>0x2F</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+        <key>parameter3</key>
+        <status>0xB1</status>
+        <midino>0x07</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+        <key>parameter2</key>
+        <status>0xB1</status>
+        <midino>0x0B</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[EqualizerRack1_[Channel2]_Effect1]</group>
+        <key>parameter1</key>
+        <status>0xB1</status>
+        <midino>0x0F</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>pfl</key>
+        <status>0x90</status>
+        <midino>0x54</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>pfl</key>
+        <status>0x91</status>
+        <midino>0x54</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Master]</group>
+        <key>headMix</key>
+        <status>0xB6</status>
+        <midino>0x2C</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Master]</group>
+        <key>headMix</key>
+        <status>0xB6</status>
+        <midino>0x0C</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[QuickEffectRack1_[Channel1]]</group>
+        <key>super1</key>
+        <status>0xB6</status>
+        <midino>0x17</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[QuickEffectRack1_[Channel1]]</group>
+        <key>super1</key>
+        <status>0xB6</status>
+        <midino>0x37</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[QuickEffectRack1_[Channel2]]</group>
+        <key>super1</key>
+        <status>0xB6</status>
+        <midino>0x18</midino>
+        <options>
+          <fourteen-bit-msb />
+        </options>
+      </control>
+      <control>
+        <group>[QuickEffectRack1_[Channel2]]</group>
+        <key>super1</key>
+        <status>0xB6</status>
+        <midino>0x38</midino>
+        <options>
+          <fourteen-bit-lsb />
+        </options>
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_1_activate</key>
+        <status>0x97</status>
+        <midino>0x00</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_1_activate</key>
+        <status>0x99</status>
+        <midino>0x00</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_2_activate</key>
+        <status>0x97</status>
+        <midino>0x01</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_2_activate</key>
+        <status>0x99</status>
+        <midino>0x01</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_3_activate</key>
+        <status>0x97</status>
+        <midino>0x02</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_3_activate</key>
+        <status>0x99</status>
+        <midino>0x02</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_4_activate</key>
+        <status>0x97</status>
+        <midino>0x03</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_4_activate</key>
+        <status>0x99</status>
+        <midino>0x03</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_5_activate</key>
+        <status>0x97</status>
+        <midino>0x04</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_5_activate</key>
+        <status>0x99</status>
+        <midino>0x04</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_6_activate</key>
+        <status>0x97</status>
+        <midino>0x05</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_6_activate</key>
+        <status>0x99</status>
+        <midino>0x05</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_7_activate</key>
+        <status>0x97</status>
+        <midino>0x06</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_7_activate</key>
+        <status>0x99</status>
+        <midino>0x06</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>hotcue_8_activate</key>
+        <status>0x97</status>
+        <midino>0x07</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>hotcue_8_activate</key>
+        <status>0x99</status>
+        <midino>0x07</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_0.25_toggle</key>
+        <status>0x97</status>
+        <midino>0x60</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_0.25_toggle</key>
+        <status>0x99</status>
+        <midino>0x60</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_0.5_toggle</key>
+        <status>0x97</status>
+        <midino>0x61</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_0.5_toggle</key>
+        <status>0x99</status>
+        <midino>0x61</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_1_toggle</key>
+        <status>0x97</status>
+        <midino>0x62</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_1_toggle</key>
+        <status>0x99</status>
+        <midino>0x62</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_2_toggle</key>
+        <status>0x97</status>
+        <midino>0x63</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_2_toggle</key>
+        <status>0x99</status>
+        <midino>0x63</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_4_toggle</key>
+        <status>0x97</status>
+        <midino>0x64</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_4_toggle</key>
+        <status>0x99</status>
+        <midino>0x64</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_8_toggle</key>
+        <status>0x97</status>
+        <midino>0x65</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_8_toggle</key>
+        <status>0x99</status>
+        <midino>0x65</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_16_toggle</key>
+        <status>0x97</status>
+        <midino>0x66</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_16_toggle</key>
+        <status>0x99</status>
+        <midino>0x66</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>beatloop_32_toggle</key>
+        <status>0x97</status>
+        <midino>0x67</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>beatloop_32_toggle</key>
+        <status>0x99</status>
+        <midino>0x67</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x20</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x20</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x21</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x21</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x22</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x22</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x23</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x23</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x24</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x24</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x25</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x25</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x26</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x26</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel1]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x97</status>
+        <midino>0x27</midino>
+        <options />
+      </control>
+      <control>
+        <group>[Channel2]</group>
+        <key>PioneerDDJFLX4.beatjumpPadPressed</key>
+        <status>0x99</status>
+        <midino>0x27</midino>
+        <options />
+      </control>
+    </controls>
+  </controller>
+</MixxxControllerPreset>

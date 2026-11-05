@@ -42,5 +42,17 @@ int main(void){
   free(dst);
 #endif
  }
+ for(unsigned h=600;h<=768;h+=168){
+  unsigned pitch=1024*4+64;unsigned char *dst=malloc(pitch*h);assert(dst);
+  memset(dst,0xa5,pitch*h);rx3_landscape_present(dst,pitch,src,1024,h);
+  for(unsigned y=0;y<h;y++){
+   uint32_t *row=(void *)(dst+y*pitch);
+   for(unsigned x=0;x<1024;x++)assert(row[x]==src[(y*800/h)*1280+x*1280/1024]);
+   for(unsigned x=4096;x<pitch;x++)assert(dst[y*pitch+x]==0xa5);
+  }
+  free(dst);printf("PASS landscape scale 1024x%u with padded rows\n",h);
+ }
+ assert(rx3_display_supported(1024,600));assert(rx3_display_supported(1024,768));
+ assert(!rx3_display_supported(1920,1080));
  free(src);free(rotated);return 0;
 }

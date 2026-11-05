@@ -22,6 +22,7 @@ NEWER_FIRMWARE_NOTE = (
     'addresses verified only for 1.19. Nothing is installed on any DJ hardware: the 1.19 player '
     'only runs inside the Pi runtime, so no XDJ-RX3 or firmware update is involved.')
 PANEL = (1200, 1920)
+DISPLAY_MODES = {(1200, 1920), (1024, 600), (1024, 768)}
 
 DEFAULTS = {
     'paths': {
@@ -233,15 +234,15 @@ class Config:
         cards = detect_drm_cards()
         panel = [c for c in cards if c['panel']]
         if len(panel) == 1:
-            return panel[0]['device'], f"auto: {panel[0]['connector']} reports {PANEL[0]}x{PANEL[1]}"
+            return panel[0]['device'], f"auto: {panel[0]['connector']} reports a supported mode"
         if len(panel) > 1:
-            raise Failure('More than one connected 1200x1920 display found; set [display] drm_device',
+            raise Failure('More than one supported display found; set [display] drm_device',
                           '\n'.join(c['device'] + ' ' + c['connector'] for c in panel))
         connected = [c for c in cards if c['connected']]
         if connected:
             modes = ', '.join(f"{c['connector']}: {c['modes'][:3]}" for c in connected)
-            raise Failure(f'No connected display reports the supported {PANEL[0]}x{PANEL[1]} portrait mode',
-                          f'Found {modes}. Only the 10-inch Raspberry Pi Touch Display 2 geometry is supported.')
+            raise Failure('No connected display reports a supported mode',
+                          f'Found {modes}. Supported: 1200x1920 portrait, 1024x600 or 1024x768 landscape.')
         raise Failure('No connected DRM display found under /sys/class/drm',
                       'Connect the display and boot with it attached, then run ./rx3 doctor again.')
 
@@ -334,7 +335,7 @@ def detect_drm_cards(sys_root='/sys/class/drm'):
         connected = status == 'connected'
         cards.append({'device': f'/dev/dri/{card}', 'connector': connector.name,
                       'connected': connected, 'modes': modes,
-                      'panel': connected and f'{PANEL[0]}x{PANEL[1]}' in modes})
+                      'panel': connected and any(f'{w}x{h}' in modes for w, h in DISPLAY_MODES)})
     return cards
 
 

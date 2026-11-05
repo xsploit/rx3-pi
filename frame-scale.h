@@ -2,6 +2,17 @@
 #define RX3_FRAME_SCALE_H
 #include <stdint.h>
 #include <string.h>
+static int rx3_display_supported(unsigned w,unsigned h){
+ return (w==1200&&h==1920)||(w==1024&&(h==600||h==768));
+}
+/* Landscape panels fill the screen; touch uses the same normalized axes. */
+static void rx3_landscape_present(unsigned char *dst,unsigned pitch,
+ const uint32_t *src,unsigned width,unsigned height){
+ for(unsigned y=0;y<height;y++){
+  uint32_t *row=(uint32_t *)(dst+y*pitch);
+  for(unsigned x=0;x<width;x++)row[x]=src[(y*800/height)*1280+x*1280/width];
+ }
+}
 /* Pixel-exact equivalent of 1280x800 -> nearest 1920x1200 -> rotate.
  * Rotate at native size, then write complete scanout rows. The reversed X
  * axis uses ceil(2*x/3), preserving the old scaler's orientation and phase. */
